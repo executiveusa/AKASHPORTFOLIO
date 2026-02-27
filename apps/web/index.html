@@ -16,6 +16,7 @@
 
   <link rel="stylesheet" href="/css/contact.css" />
   <link rel="stylesheet" href="/css/footer.css" />
+  <script src="/js/i18n.js" defer></script>
 
 </head>
 
@@ -40,9 +41,14 @@
       </div>
       <div class="menu-toggle-btn">
         <div class="menu-toggle-btn-wrapper">
-          <p class="mn open-label">Menu</p>
-          <p class="mn close-label">Close</p>
+          <p class="mn open-label" data-i18n="menu.open">Menu</p>
+          <p class="mn close-label" data-i18n="menu.close">Close</p>
         </div>
+      </div>
+
+      <div class="lang-toggle">
+        <button id="lang-es" class="lang-btn active">ES</button>
+        <button id="lang-en" class="lang-btn">EN</button>
       </div>
     </nav>
 
@@ -108,10 +114,11 @@
         <div class="hero-footer-scroll-down">
           <p class="mn"><a
               href="https://www.linkedin.com/in/ivette-milo-546440168/?trk=public_profile_browsemap_profile-result-card_result-card_full-click"
-              target="_blank" class="resume-link"> Ivette's Resume</a></p>
+              target="_blank" class="resume-link" data-i18n="hero.resume"> Ivette's Resume</a></p>
         </div>
         <div class="hero-footer-tags">
-          <p class="mn">Nos encantará conocer tus historias y visiones.<br />We look forward to hearing your stories and
+          <p class="mn" data-i18n="hero.tagline">Nos encantará conocer tus historias y visiones.<br />We look forward to
+            hearing your stories and
             visions.</p>
         </div>
       </div>
@@ -129,11 +136,10 @@
     <!-- about - about hero -->
     <section class="about-hero">
       <div class="about-hero-header">
-        <h1>We are</h1>
-        <h1>KUPURI MEDIA™</h1>
+        <h1 data-i18n="about.title">Somos KUPURI MEDIA™</h1>
       </div>
       <div class="about-hero-bio">
-        <p class="ss">
+        <p class="ss" data-i18n="about.bio">
           Somos el primer estudio internacional de diseño 100% operado y liderado por mujeres en la Ciudad de
           México.<br />
           Nacimos de una red privada de diseñadoras apasionadas, emprendedoras, product managers y visionarias.<br />
@@ -141,17 +147,9 @@
           creativa.<br />
           El 2% de nuestras utilidades se destina automáticamente a un fondo de donación para apoyar proyectos locales
           con propósito social<br />
-          y crear impacto real. Para conocer nuestra red y cómo trabajamos, visita nuestro FAQ aquí.<br /><br />
-          We are proud to be the first 100% female owned and operated international design studio from Mexico
-          City.<br />
-          Created by a private network of passionate women designers, entrepreneurs, product managers and
-          visionaries,<br />
-          we focus on projects that bring well being, wellness, empowerment and creative freedom.<br />
-          2% of all of our profits are automatically put into a giving fund to support local social purpose projects and
-          creating impact in the world.<br />
-          To learn more about our network and how we work please see our FAQ here.
+          y crear impacto real. Para conocer nuestra red y cómo trabajamos, visita nuestro FAQ aquí.
         </p>
-        <p class="mn">Corazón / Alma / Espíritu / Libertad<br />Heart / Soul / Spirit / Freedom</p>
+        <p class="mn" data-i18n="about.footer">Corazón / Alma / Espíritu / Libertad</p>
       </div>
       <div class="about-hero-portrait">
         <img src="/images/services-header/portrait.jpeg" alt="Kupuri Media Portrait" />
@@ -176,13 +174,13 @@
       <div class="featured-images"></div>
       <div class="featured-titles">
         <div class="featured-title-wrapper">
-          <h1 class="featured-title">Featured Projects</h1>
+          <h1 class="featured-title" data-i18n="projects.title">Featured Projects</h1>
         </div>
         <div class="featured-title-wrapper">
           <div class="featured-title-img">
             <img src="/images/work-items/work-item-1.jpg" alt="" />
           </div>
-          <h1 class="featured-title">Kupuri Portfolio</h1>
+          <h1 class="featured-title" data-i18n="projects.project1">Kupuri Portfolio</h1>
         </div>
         <div class="featured-title-wrapper">
           <div class="featured-title-img">
@@ -205,9 +203,9 @@
       </div>
       <div class="featured-work-indicator"></div>
       <div class="featured-work-footer">
-        <p class="mn">Project Portfoliio [ 10 ]</p>
+        <p class="mn" data-i18n="projects.indicator">Project Portfoliio [ 10 ]</p>
         <p class="mn">///////////////////</p>
-        <p class="mn"><a href="#">View All Projects</a></p>
+        <p class="mn"><a href="#" data-i18n="projects.viewAll">View All Projects</a></p>
       </div>
     </section>
 
@@ -221,10 +219,9 @@
         <div class="services-profile-icon">
           <img src="/images/services-header/portrait.jpeg" alt="Kupuri Media Portrait" />
         </div>
-        <p>Your vision- our expertise</p>
+        <p data-i18n="services.header">Your vision- our expertise</p>
         <div class="services-header-title">
-          <h1>Full-stack development</h1>
-          <h1>& Design Solutions</h1>
+          <h1 data-i18n="services.title">Full-stack development & Design Solutions</h1>
         </div>
         <div class="services-header-arrow-icon">
           <h1>&#8595;</h1>
@@ -247,7 +244,7 @@
       <div class="service-card" id="service-card-1">
         <div class="service-card-inner">
           <div class="service-card-content">
-            <h1>Frontend Development </h1>
+            <h1 data-i18n="services.frontend">Frontend Development </h1>
           </div>
           <div class="service-card-img">
             <img src="/images/services/service-1.jpg" alt="Front-End Development" />
@@ -257,7 +254,7 @@
       <div class="service-card" id="service-card-2">
         <div class="service-card-inner">
           <div class="service-card-content">
-            <h1>Backend Development</h1>
+            <h1 data-i18n="services.backend">Backend Development</h1>
           </div>
           <div class="service-card-img">
             <img src="/images/services/service-2.jpg" alt="Backend Development" />
@@ -267,20 +264,22 @@
       <div class="service-card" id="service-card-3">
         <div class="service-card-inner">
           <div class="service-card-content">
-            <h1>UI/UX Design</h1>
+            <h1 data-i18n="services.uiux">UI/UX Design</h1>
           </div>
           <div class="service-card-img">
-            <img src="/images/services/service-3.jpg" alt="UI/UX Design" />
+            <img src="/images/services/service-3-espanol.png" alt="UI/UX Design"
+              data-i18n-img="/images/services/service-3" />
           </div>
         </div>
       </div>
       <div class="service-card" id="service-card-4">
         <div class="service-card-inner">
           <div class="service-card-content">
-            <h1>Web Applications</h1>
+            <h1 data-i18n="services.webapp">Web Applications</h1>
           </div>
           <div class="service-card-img">
-            <img src="/images/services/service-4.jpg" alt="Web Applications" />
+            <img src="/images/services/service-4-espanol.png" alt="Web Applications"
+              data-i18n-img="/images/services/service-4" />
           </div>
         </div>
       </div>
@@ -308,10 +307,10 @@
       <div class="contact-button">
         <a href="/contact"></a>
         <div class="contact-text-small">
-          <p>Let's build something amazing together</p>
+          <p data-i18n="footer.ctaSub">Let's build something amazing together</p>
         </div>
         <div class="contact-text-large">
-          <h1>Get in touch</h1>
+          <h1 data-i18n="footer.ctaTitle">Get in touch</h1>
         </div>
       </div>
     </section>
@@ -332,22 +331,21 @@
         </div>
         <div class="footer-row">
           <div class="footer-col">
-            <p>Explore</p>
-            <p><a href="/home">Home</a></p>
-            <p><a href="/contact">Contact</a></p>
+            <p data-i18n="footer.explore">Explore</p>
+            <p><a href="/" data-i18n="menu.home">Home</a></p>
+            <p><a href="/contact" data-i18n="menu.contact">Contact</a></p>
           </div>
           <div class="footer-col">
-            <p>Creative Hub
-            </p>
+            <p data-i18n="footer.creativeHub">Creative Hub</p>
             <p><a href="https://kupurimedia.com" target="_blank">KUPURI MEDIA™ <img
-                  src="https://kupurimedia.com/wp-content/uploads/2025/03/icon.png"
-                  style="height: 1em; width: auto; transform: rotate(15deg); vertical-align: middle;" alt="icon" /></a>
+                  src="https://kupurimedia.com/wp-content/uploads/2025/03/icon.png" class="spinning-logo"
+                  style="height: 0.5em; width: auto; vertical-align: middle;" alt="icon" /></a>
             </p>
-            <p><a href="https://kupurimedia.com/blog" target="_blank"
+            <p><a href="https://kupurimedia.com/blog" target="_blank" data-i18n="footer.blog"
                 onclick="alert('Coming Soon'); return false;">Coming Soon - View Blog</a></p>
           </div>
           <div class="footer-col">
-            <p>Connect</p>
+            <p data-i18n="footer.connect">Connect</p>
             <p>
               <a href="https://www.linkedin.com/company/kupuri-media/" target="_blank">LinkedIn</a>
             </p>
@@ -359,21 +357,23 @@
             </p>
           </div>
           <div class="footer-col">
-            <p>Extras</p>
+            <p data-i18n="footer.extras">Extras</p>
             <p>
               <a href="https://www.awwwards.com/winner-list/" target="_blank">Design Archive</a>
             </p>
 
-            <p><a href="#" onclick="alert('Coming Soon'); return false;">Coming Soon - Basic References</a></p>
+            <p><a href="#" data-i18n="footer.refs" onclick="alert('Coming Soon'); return false;">Coming Soon - Basic
+                References</a></p>
 
-            <p><a href="#" onclick="alert('Coming Soon'); return false;">Coming Soon - Animation References</a></p>
+            <p><a href="#" data-i18n="footer.anims" onclick="alert('Coming Soon'); return false;">Coming Soon -
+                Animation References</a></p>
 
 
           </div>
 
         </div>
         <div class="copyright-info">
-          <p class="mn">© 2025 KUPURI MEDIA™. Todos los derechos reservados.</p>
+          <p class="mn" data-i18n="footer.copyright">© 2026 KUPURI MEDIA™. Todos los derechos reservados.</p>
           <p class="mn"></p>
         </div>
         <div class="explosion-container"></div>

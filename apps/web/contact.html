@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="/css/globals.css" />
   <link rel="stylesheet" href="/css/menu.css" />
   <link rel="stylesheet" href="/css/contact.css" />
+  <script src="/js/i18n.js" defer></script>
 </head>
 
 <body>
@@ -29,13 +30,18 @@
                 style="height: 1.5em; width: auto;" /></a></p>
         </div>
       </div>
+
+      <div class="lang-toggle" style="margin-right: 2em; margin-top: 2em; align-self: flex-start;">
+        <button id="lang-es" class="lang-btn active">ES</button>
+        <button id="lang-en" class="lang-btn">EN</button>
+      </div>
     </nav>
     <section class="contact trail-container">
       <div class="floating-elements"></div>
       <div class="contact-left">
         <div class="contact-card-header-main">
-          <h1>Let's Connect</h1>
-          <p>
+          <h1 data-i18n="contact.title">Let's Connect</h1>
+          <p data-i18n="contact.subtitle">
             Got a project idea? Need AI solutions, lead generation or a personal custom app for your company? We have a
             global team of creative women just like you that love to help and network. Reach out. You're in good
             company.
@@ -43,63 +49,69 @@
         </div>
         <div class="contact-info">
           <div class="contact-info-item">
-            <p class="label">Project Inquiries</p>
+            <p class="label" data-i18n="contact.inquiries">Project Inquiries</p>
             <p><a href="mailto:referencias@kupurimedia.com" target="_blank">referencias@kupurimedia.com</a></p>
           </div>
           <div class="contact-info-item">
-            <p class="label">Quick Chat</p>
-            <p><a href="https://t.me/kupurimedia" target="_blank">@kupurimedia en Telegram</a></p>
+            <p class="label" data-i18n="contact.chat">Quick Chat</p>
+            <p><a href="https://t.me/kupurimedia" target="_blank" data-i18n="contact.telegram">@kupurimedia on
+                Telegram</a></p>
           </div>
         </div>
       </div>
       <div class="contact-form-container">
         <div class="form-header">
-          <h2>Start a Project</h2>
-          <p>Tell us about your goals</p>
+          <h2 data-i18n="contact.formHeader">Start a Project</h2>
+          <p data-i18n="contact.formSub">Tell us about your goals</p>
         </div>
         <form class="contact-form" id="contactForm">
           <div class="form-row">
             <div class="form-group">
-              <input type="text" id="firstName" name="firstName" placeholder="Your first name" required>
-              <label for="firstName">First Name</label>
+              <input type="text" id="firstName" name="firstName" placeholder="Your first name" required
+                data-i18n="contact.firstName">
+              <label for="firstName" data-i18n="contact.firstName">First Name</label>
             </div>
             <div class="form-group">
-              <input type="text" id="lastName" name="lastName" placeholder="Your last name" required>
-              <label for="lastName">Last Name</label>
+              <input type="text" id="lastName" name="lastName" placeholder="Your last name" required
+                data-i18n="contact.lastName">
+              <label for="lastName" data-i18n="contact.lastName">Last Name</label>
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <input type="email" id="email" name="email" placeholder="your@email.com" required>
-              <label for="email">Email Address</label>
+              <input type="email" id="email" name="email" placeholder="your@email.com" required
+                data-i18n="contact.email">
+              <label for="email" data-i18n="contact.email">Email Address</label>
             </div>
             <div class="form-group">
-              <input type="tel" id="phone" name="phone" placeholder="+1 (555) 123-4567">
-              <label for="phone">Phone Number</label>
+              <input type="tel" id="phone" name="phone" placeholder="+1 (555) 123-4567" data-i18n="contact.phone">
+              <label for="phone" data-i18n="contact.phone">Phone Number</label>
             </div>
           </div>
           <div class="form-group full-width">
             <select id="projectType" name="projectType" required>
-              <option value="">Select project type</option>
-              <option value="website">Website Development</option>
-              <option value="webapp">Web Application</option>
-              <option value="mobileapp">Mobile Application</option>
-              <option value="ecommerce">E-commerce Platform</option>
-              <option value="redesign">Website Redesign</option>
-              <option value="consultation">Consultation</option>
-              <option value="other">Other</option>
+              <option value="" data-i18n="contact.selectProject">Select project type</option>
+              <option value="website" data-i18n-type="website">Website Development</option>
+              <option value="webapp" data-i18n-type="webapp">Web Application</option>
+              <option value="mobileapp" data-i18n-type="mobileapp">Mobile Application</option>
+              <option value="ecommerce" data-i18n-type="ecommerce">E-commerce Platform</option>
+              <option value="redesign" data-i18n-type="redesign">Website Redesign</option>
+              <option value="consultation" data-i18n-type="consultation">Consultation</option>
+              <option value="other" data-i18n-type="other">Other</option>
             </select>
-            <label for="projectType">Project Type</label>
+            <label for="projectType" data-i18n="contact.projectType">Project Type</label>
           </div>
           <div class="form-group full-width">
-            <textarea id="message" name="message" placeholder="Tell us about your goals" required></textarea>
-            <label for="message">Project Details</label>
+            <textarea id="message" name="message" placeholder="Tell us about your goals" required
+              data-i18n="contact.details"></textarea>
+            <label for="message" data-i18n="contact.details">Project Details</label>
           </div>
-          <button type="submit" class="submit-btn">
+          <button type="submit" class="submit-btn" data-i18n="contact.send">
             Send Message
           </button>
           <div class="success-message" id="successMessage">
-            <p>Thanks! Your message has been sent. We'll get back to you within 24 hours.</p>
+            <p data-i18n="contact.success">Thanks! Your message has been sent. We'll get back to you within 24 hours.
+            </p>
           </div>
         </form>
       </div>
