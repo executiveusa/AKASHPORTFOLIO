@@ -1,9 +1,9 @@
-import Image from "next/image";
 import WorldClock from "../components/WorldClock";
+import ControlRoomDashboard from "../components/ControlRoomDashboard";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col items-center bg-white dark:bg-black font-sans text-zinc-900 dark:text-zinc-100 overflow-x-hidden">
+    <div className="flex min-h-screen flex-col items-center bg-white font-sans text-zinc-900 overflow-x-hidden dark:bg-black dark:text-zinc-100">
 
       {/* Header / Branding */}
       <header className="w-full max-w-7xl flex flex-col md:flex-row items-center justify-between p-8 md:p-16 gap-8">
@@ -22,7 +22,7 @@ export default function Home() {
       </header>
 
       {/* Main Dashboard Section */}
-      <main className="flex flex-col w-full max-w-7xl px-8 md:px-16 gap-12 pb-32">
+      <main className="flex w-full max-w-7xl flex-col gap-12 px-8 pb-32 md:px-16">
 
         {/* World Clock Section */}
         <section className="flex flex-col gap-4">
@@ -33,8 +33,10 @@ export default function Home() {
           <WorldClock />
         </section>
 
+        <ControlRoomDashboard />
+
         {/* Action Grid */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <section className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <DashboardCard
             title="Synthia Superagent"
             description="Manage your dedicated AI CEO. Execute tasks, coordinate agents, and review strategic reports."

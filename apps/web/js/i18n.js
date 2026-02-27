@@ -1,7 +1,7 @@
 const translations = {
     es: {
         hero: {
-            resume: "Currículum de Ivette",
+            resume: "Conoce a la Fundadora",
             tagline: "Nos encantará conocer tus historias y visiones."
         },
         about: {
@@ -12,6 +12,8 @@ const translations = {
         projects: {
             title: "Proyectos Destacados",
             project1: "Portafolio Kupuri",
+            projectNexus: "NEXUS CDMX",
+            projectStudios: "Kupuri Studios",
             indicator: "Portafolio de Proyectos [ 10 ]",
             viewAll: "Ver todos los proyectos"
         },
@@ -27,6 +29,8 @@ const translations = {
             ctaTitle: "Ponte en contacto",
             ctaSub: "Construyamos algo increíble juntos",
             explore: "Explorar",
+            home: "Inicio",
+            contact: "Contacto",
             creativeHub: "Centro Creativo",
             connect: "Conectar",
             extras: "Extras",
@@ -73,7 +77,7 @@ const translations = {
     },
     en: {
         hero: {
-            resume: "Ivette's Resume",
+            resume: "Meet The Founder",
             tagline: "We look forward to hearing your stories and visions."
         },
         about: {
@@ -84,6 +88,8 @@ const translations = {
         projects: {
             title: "Featured Projects",
             project1: "Kupuri Portfolio",
+            projectNexus: "NEXUS CDMX",
+            projectStudios: "Kupuri Studios",
             indicator: "Project Portfoliio [ 10 ]",
             viewAll: "View All Projects"
         },
@@ -99,6 +105,8 @@ const translations = {
             ctaTitle: "Get in touch",
             ctaSub: "Let's build something amazing together",
             explore: "Explore",
+            home: "Home",
+            contact: "Contact",
             creativeHub: "Creative Hub",
             connect: "Connect",
             extras: "Extras",
@@ -160,9 +168,6 @@ function setLanguage(lang) {
         if (translation) {
             if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
                 el.placeholder = translation;
-            } else if (el.tagName === 'SELECT') {
-                // for select we might just want to update the label or options?
-                // let's handle options separately if needed.
             } else {
                 el.innerHTML = translation;
             }
@@ -174,19 +179,6 @@ function setLanguage(lang) {
         const type = opt.getAttribute('data-i18n-type');
         if (translations[lang].contact.types[type]) {
             opt.textContent = translations[lang].contact.types[type];
-        }
-    });
-
-    // Handle image localization
-    const images = document.querySelectorAll('[data-i18n-img]');
-    images.forEach(img => {
-        const imgKey = img.getAttribute('data-i18n-img');
-        const baseSrc = imgKey;
-        const ext = img.getAttribute('data-i18n-ext') || '.png';
-        if (lang === 'es') {
-            img.src = `${baseSrc}-espanol${ext}`;
-        } else {
-            img.src = `${baseSrc}${img.getAttribute('data-en-ext') || '.jpg'}`;
         }
     });
 

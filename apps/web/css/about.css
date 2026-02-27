@@ -27,16 +27,20 @@
 }
 
 .about-hero .about-hero-portrait {
-  position: absolute;
-  top: 55%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(10deg);
-  width: 15%;
+  position: relative;
+  margin-top: 2em;
+  width: 250px;
   aspect-ratio: 5/7;
   border-radius: 1em;
   overflow: hidden;
-  border: 0.25em solid var(--accent3);
-  outline: 0.25em solid var(--accent1);
+  border: 0.25em solid var(--fg);
+  box-shadow: 10px 10px 0px var(--accent3);
+  z-index: 5;
+  transition: transform 0.3s ease;
+}
+
+.about-hero .about-hero-portrait:hover {
+  transform: rotate(-2deg) scale(1.05);
 }
 
 .about-hero .about-hero-bio {
