@@ -1,84 +1,119 @@
+"use client";
+
+import { useEffect, useState } from 'react';
 import WorldClock from "../components/WorldClock";
-import ControlRoomDashboard from "../components/ControlRoomDashboard";
+import AgentGrid from "../components/AgentGrid";
+import RepoPulse from "../components/RepoPulse";
+import SynthiaTerminal from "../components/SynthiaTerminal";
+import TelemetryLog from "../components/TelemetryLog";
+import ViewingRoom from "../components/ViewingRoom";
+import SkillMarket from "../components/SkillMarket";
+import InviteGate from "../components/InviteGate";
+import type { Agent } from "@/lib/swarm";
 
 export default function Home() {
+  const [agents, setAgents] = useState<Agent[]>([]);
+
+  useEffect(() => {
+    async function fetchAgents() {
+      try {
+        const res = await fetch('/api/swarm');
+        const data = await res.json();
+        setAgents(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchAgents();
+    const interval = setInterval(fetchAgents, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div className="flex min-h-screen flex-col items-center bg-white font-sans text-zinc-900 overflow-x-hidden dark:bg-black dark:text-zinc-100">
+    <InviteGate>
+      <div className="flex min-h-screen flex-col items-center bg-black text-zinc-100 font-sans overflow-x-hidden">
 
-      {/* Header / Branding */}
-      <header className="w-full max-w-7xl flex flex-col md:flex-row items-center justify-between p-8 md:p-16 gap-8">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tighter uppercase italic italic-font">
-            SYNTHIA <span className="text-zinc-400">3.0</span>
-          </h1>
-          <p className="text-sm uppercase tracking-[0.3em] font-mono text-zinc-500">
-            Digital CEO & AI Agency Control Room
-          </p>
-        </div>
-        <div className="flex flex-col items-end gap-1">
-          <span className="text-xs uppercase tracking-widest text-zinc-400">Client Platform</span>
-          <span className="text-xl font-bold border-b-2 border-zinc-900 dark:border-white pb-1">IVETTE MILO</span>
-        </div>
-      </header>
-
-      {/* Main Dashboard Section */}
-      <main className="flex w-full max-w-7xl flex-col gap-12 px-8 pb-32 md:px-16">
-
-        {/* World Clock Section */}
-        <section className="flex flex-col gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <h2 className="text-xs uppercase tracking-widest font-bold text-zinc-400">Global Operations Time</h2>
+        {/* Header / Branding */}
+        <header className="w-full max-w-[1600px] flex flex-col md:flex-row items-center justify-between p-8 md:p-12 gap-8 border-b border-zinc-900">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-black font-bold italic text-xl">S</div>
+              <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase italic">
+                SYNTHIA <span className="text-zinc-600">3.0</span>
+              </h1>
+            </div>
+            <p className="text-[10px] uppercase tracking-[0.5em] font-mono text-zinc-600 mt-2">
+              Sistema Operativo Agéntico // KUPURI MEDIA™
+            </p>
           </div>
-          <WorldClock />
-        </section>
 
-        <ControlRoomDashboard />
+          <div className="flex gap-12 text-right">
+            <div className="flex flex-col">
+              <span className="text-[10px] uppercase tracking-widest text-zinc-500">Fundadora</span>
+              <span className="text-lg font-bold tracking-tight">IVETTE MILO</span>
+            </div>
+            <div className="hidden md:flex flex-col">
+              <span className="text-[10px] uppercase tracking-widest text-zinc-500">Status del Núcleo</span>
+              <span className="text-lg font-bold tracking-tight text-emerald-500 animate-pulse">OPTIMAL</span>
+            </div>
+          </div>
+        </header>
 
-        {/* Action Grid */}
-        <section className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <DashboardCard
-            title="Synthia Superagent"
-            description="Manage your dedicated AI CEO. Execute tasks, coordinate agents, and review strategic reports."
-            status="ACTIVE"
-          />
-          <DashboardCard
-            title="Repository Fleet"
-            description="Monitor all Kupuri Media codebases. Assign agent janitors for UI/UX upgrades and PRD generation."
-            status="PENDING"
-          />
-          <DashboardCard
-            title="Agency Analytics"
-            description="High-level dashboard for arbitrage and market efficiency across LATAM and US high-value sectors."
-            status="LOCKED"
-          />
-        </section>
+        {/* Main OS Layout */}
+        <main className="w-full max-w-[1600px] p-8 md:p-12 grid grid-cols-1 xl:grid-cols-12 gap-8">
 
-      </main>
+          {/* Left Column: Communications & OS Controls */}
+          <div className="xl:col-span-4 flex flex-col gap-8">
+            <SynthiaTerminal />
+            <TelemetryLog />
+          </div>
 
-      {/* Footer */}
-      <footer className="w-full p-8 text-center text-[10px] uppercase tracking-widest text-zinc-500 border-t border-zinc-100 dark:border-zinc-900">
-        © 2026 KUPURI MEDIA™ // AI LEADERSHIP SYSTEMS // ALL RIGHTS RESERVED
-      </footer>
-    </div>
+          {/* Center/Right Column: Swarm, 3D, and Repos */}
+          <div className="xl:col-span-8 flex flex-col gap-8">
+
+            {/* Real-time World Operations */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                  <h2 className="text-[10px] uppercase tracking-widest font-bold text-zinc-500">Reloj Global de Operaciones</h2>
+                </div>
+                <WorldClock />
+              </div>
+              <ViewingRoom agents={agents} />
+            </div>
+
+            <AgentGrid />
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-8 border-t border-zinc-900">
+              <RepoPulse />
+              <SkillMarket />
+            </div>
+
+            {/* Power User Grid (The 20 Leverage Points) */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+              <PowerButton label="Generación UGC" status="Listo" />
+              <PowerButton label="Filtro ACIP" status="Activo" />
+              <PowerButton label="Lead Radar" status="Escaneando" />
+              <PowerButton label="Auto-Deploy" status="Standby" />
+            </div>
+          </div>
+
+        </main>
+
+        <footer className="w-full p-8 text-center text-[10px] uppercase tracking-[0.5em] text-zinc-700 border-t border-zinc-900 mt-auto">
+          Synthia 3.0 // Empowering Women in Tech // KUPURI MEDIA Digital CEO Protocol
+        </footer>
+      </div>
+    </InviteGate>
   );
 }
 
-function DashboardCard({ title, description, status }: { title: string, description: string, status: string }) {
+function PowerButton({ label, status }: { label: string, status: string }) {
   return (
-    <div className="group relative flex flex-col p-8 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl transition-all hover:border-zinc-900 dark:hover:border-white cursor-pointer overflow-hidden">
-      <div className="flex justify-between items-start mb-12">
-        <h3 className="text-2xl font-bold tracking-tight italic uppercase">{title}</h3>
-        <span className={`text-[10px] px-2 py-1 rounded-full font-bold ${status === 'ACTIVE' ? 'bg-zinc-900 text-white dark:bg-white dark:text-black' : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400'}`}>
-          {status}
-        </span>
-      </div>
-      <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed max-w-[200px]">
-        {description}
-      </p>
-      <div className="absolute bottom-4 right-8 transform translate-x-4 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100">
-        <span className="text-2xl">→</span>
-      </div>
+    <div className="p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl hover:bg-zinc-800 transition-colors cursor-pointer group">
+      <p className="text-[10px] uppercase tracking-widest text-zinc-500 group-hover:text-zinc-300 transition-colors">{label}</p>
+      <p className="text-xs font-bold mt-1 text-zinc-400 group-hover:text-white transition-colors">{status}</p>
     </div>
   );
 }

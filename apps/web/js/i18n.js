@@ -14,8 +14,13 @@ const translations = {
             project1: "Portafolio Kupuri",
             projectNexus: "NEXUS CDMX",
             projectStudios: "Kupuri Studios",
+            projectMetamofosis: "Metamofosis",
             indicator: "Portafolio de Proyectos [ 10 ]",
             viewAll: "Ver todos los proyectos"
+        },
+        aboutCopy: {
+            title: "Kupuri Media es <span>más que una agencia</span>. Es un movimiento para rediseñar cómo las mujeres lideran en la tecnología y el diseño.",
+            subtitle: "Buscamos proyectos con <span>propósito</span> y clientes que valoran la autenticidad."
         },
         services: {
             header: "Tu visión - nuestra experiencia",
@@ -90,8 +95,13 @@ const translations = {
             project1: "Kupuri Portfolio",
             projectNexus: "NEXUS CDMX",
             projectStudios: "Kupuri Studios",
+            projectMetamofosis: "Metamofosis",
             indicator: "Project Portfoliio [ 10 ]",
             viewAll: "View All Projects"
+        },
+        aboutCopy: {
+            title: "Kupuri Media is <span>more than an agency</span>. It is a movement to redesign how women lead in technology and design.",
+            subtitle: "We look for projects with <span>purpose</span> and clients who value authenticity."
         },
         services: {
             header: "Your vision- our expertise",
