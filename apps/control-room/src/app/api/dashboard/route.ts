@@ -1,4 +1,4 @@
-the text . do not block the text import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 import { getDashboardSnapshot } from "@/lib/dashboard-data";
 
