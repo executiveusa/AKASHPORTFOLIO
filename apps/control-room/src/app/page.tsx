@@ -9,6 +9,7 @@ import TelemetryLog from "../components/TelemetryLog";
 import ViewingRoom from "../components/ViewingRoom";
 import SkillMarket from "../components/SkillMarket";
 import InviteGate from "../components/InviteGate";
+import OrgoConsole from "../components/OrgoConsole";
 import type { Agent } from "@/lib/swarm";
 
 export default function Home() {
@@ -66,6 +67,7 @@ export default function Home() {
           <div className="xl:col-span-4 flex flex-col gap-8">
             <SynthiaTerminal />
             <TelemetryLog />
+            <OrgoConsole />
           </div>
 
           {/* Center/Right Column: Swarm, 3D, and Repos */}

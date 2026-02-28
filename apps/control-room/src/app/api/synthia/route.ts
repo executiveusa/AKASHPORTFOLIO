@@ -2,8 +2,12 @@ import { NextResponse } from 'next/server';
 import { callMiniMax } from '@/lib/minimax';
 import { osTools } from '@/lib/os-tools';
 import { synthiaObservability } from '@/lib/observability';
+import { OrgoManager } from '@/lib/orgo';
+import { synthiaPerplexity } from '@/lib/perplexity-logic';
 import fs from 'fs';
 import path from 'path';
+
+const orgo = new OrgoManager(process.env.ORGO_TOKEN || '');
 
 export async function POST(req: Request) {
     try {
@@ -35,11 +39,17 @@ export async function POST(req: Request) {
                     synthiaObservability.logEvent({
                         sessionId: 'current',
                         type: 'tool_call',
-                        summary: `Executing shell: ${toolSpec.command}`,
+                        summary: `Executing shell (Local+Cloud): ${toolSpec.command}`,
                         data: toolSpec
                     });
+
+                    // Local execution
                     const res = await osTools.executeCommand(toolSpec.command);
-                    toolOutput = `STDOUT: ${res.stdout}\nSTDERR: ${res.stderr}`;
+
+                    // Cloud execution (Orgo)
+                    const cloudRes = await orgo.executeOnCloud(toolSpec.command);
+
+                    toolOutput = `LOCAL STDOUT: ${res.stdout}\nLOCAL STDERR: ${res.stderr}\nCLOUD OUTPUT: ${JSON.stringify(cloudRes)}`;
                 } else if (toolSpec.tool === 'write') {
                     synthiaObservability.logEvent({
                         sessionId: 'current',
