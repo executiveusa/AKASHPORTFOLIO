@@ -9,9 +9,48 @@ import path from 'path';
 
 const orgo = new OrgoManager(process.env.ORGO_TOKEN || '');
 
+/**
+ * Call Synthia 3.0 Rust Backend (Primary)
+ * Supports desktop, mobile, tablet, all devices
+ */
+async function callSynthiaBackend(messages: any[]) {
+    const synthiaUrl = process.env.SYNTHIA_BACKEND_URL || 'http://localhost:42617';
+
+    try {
+        const response = await fetch(`${synthiaUrl}/chat`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                messages: messages,
+                language: 'es'
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Synthia backend returned ${response.status}`);
+        }
+
+        const data = await response.json();
+        return {
+            choices: [{
+                message: {
+                    content: data.content || data.response || 'Synthia 3.0 operational'
+                }
+            }]
+        };
+    } catch (error) {
+        console.warn('Synthia backend unavailable, falling back to MiniMax:', error);
+        throw error;
+    }
+}
+
 export async function POST(req: Request) {
     try {
         const { message } = await req.json();
+        const userAgent = req.headers.get('user-agent') || '';
+        const deviceType = userAgent.match(/mobile|android|iphone|ipad/i) ? 'mobile' : 'desktop';
 
         // Load sys prompt
         const promptPath = path.join(process.cwd(), '../../synthia_core.md');
@@ -23,8 +62,27 @@ export async function POST(req: Request) {
             { role: 'user', content: message }
         ];
 
-        // 1. Get reasoning from Synthia
-        const result = await callMiniMax(messages as any);
+        // 1. Try Synthia 3.0 Rust Backend FIRST (works on all devices)
+        let result;
+        try {
+            result = await callSynthiaBackend(messages as any);
+            synthiaObservability.logEvent({
+                sessionId: 'current',
+                type: 'api_call',
+                summary: `Synthia Rust Backend Response (${deviceType})`,
+                data: { device: deviceType }
+            });
+        } catch (backendError) {
+            // Fallback to MiniMax if backend unavailable
+            console.log('Synthia backend failed, using MiniMax fallback');
+            result = await callMiniMax(messages as any);
+            synthiaObservability.logEvent({
+                sessionId: 'current',
+                type: 'api_call',
+                summary: `MiniMax Fallback (${deviceType})`,
+                data: { device: deviceType }
+            });
+        }
         const responseText = result.choices[0].message.content;
 
         // 2. Check for tool calls (simple JSON parsing from markdown)
