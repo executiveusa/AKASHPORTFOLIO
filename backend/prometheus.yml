@@ -1,0 +1,31 @@
+# Prometheus configuration for Synthia 3.0 metrics collection
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'synthia-monitor'
+
+scrape_configs:
+  - job_name: 'synthia'
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    static_configs:
+      - targets: ['localhost:42617']
+        labels:
+          instance: 'synthia-backend'
+          service: 'synthia-3.0'
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+# Alert rules (if using Alertmanager)
+rule_files:
+  - 'alert_rules.yml'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
