@@ -169,12 +169,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const form = e.target;
     const submitBtn = form.querySelector(".submit-btn"); // Submit button
     const successMessage = document.getElementById("successMessage"); // Success message element
+
+    // Get current language from localStorage or default
+    const currentLang = localStorage.getItem('ku_lang') || 'en';
+    const t = window.translations ? window.translations[currentLang].contact : { send: "Send Message" };
+
     submitBtn.style.transform = "translateY(-1px)"; // Slight button press effect
-    submitBtn.textContent = "Sending..."; // Update button text
+    submitBtn.textContent = currentLang === 'es' ? "Enviando..." : "Sending...";
     submitBtn.disabled = true; // Disable button
+
     setTimeout(() => {
       form.reset(); // Reset form
-      submitBtn.textContent = "Send Message"; // Restore button text
+      submitBtn.textContent = t.send;
       submitBtn.disabled = false; // Enable button
       submitBtn.style.transform = ""; // Reset button style
       successMessage.classList.add("show"); // Show success message

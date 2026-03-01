@@ -207,3 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('lang-es')?.addEventListener('click', () => setLanguage('es'));
     document.getElementById('lang-en')?.addEventListener('click', () => setLanguage('en'));
 });
+
+// Expose to window for other scripts
+window.setLanguage = setLanguage;
+window.translations = translations;
