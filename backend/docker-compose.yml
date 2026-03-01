@@ -1,0 +1,35 @@
+version: '3.9'
+
+services:
+  synthia:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "42617:42617"
+    environment:
+      - PORT=42617
+      - HOST=0.0.0.0
+      - WORKSPACE_ROOT=/app/workspace
+      - DEFAULT_PROVIDER=liquid
+      - RUST_LOG=synthia=debug,axum=info
+      - MEM0_API_KEY=${MEM0_API_KEY:-m0-PZpOSwzW4youXr1ji4BtqdSjFJYjioUbWmaarkBg}
+      - LIQUID_API_KEY=${LIQUID_API_KEY:-}
+      - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY:-}
+      - COMPOSIO_API_KEY=${COMPOSIO_API_KEY:-}
+    volumes:
+      - ./workspace:/app/workspace
+      - ./target/release/synthia:/app/synthia:ro
+    networks:
+      - synthia_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:42617/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+networks:
+  synthia_network:
+    driver: bridge
