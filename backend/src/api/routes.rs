@@ -2,22 +2,26 @@ use axum::{
     extract::{State, Json},
     routing::{get, post},
     Router, http::StatusCode,
+    response::IntoResponse,
 };
 use serde_json::{json, Value};
 use std::sync::Arc;
 use crate::config::Config;
+use crate::middleware::MetricsRegistry;
 use crate::providers::{llm_trait::ChatMessage, mem0::Mem0Provider};
 
 #[derive(Clone)]
 pub struct AppState {
     pub config: Config,
     pub mem0: Arc<Mem0Provider>,
+    pub metrics: Arc<MetricsRegistry>,
 }
 
 pub fn create_router(state: AppState) -> Router {
     Router::new()
         .route("/health", get(health_check))
         .route("/status", get(status))
+        .route("/metrics", get(metrics_endpoint))
         .route("/switch_llm", post(switch_llm))
         .route("/chat", post(chat_endpoint))
         .route("/memory/add", post(add_memory))
@@ -30,6 +34,9 @@ pub fn create_router(state: AppState) -> Router {
         .route("/firecrawl/scrape", post(firecrawl_scrape))
         .route("/kupuri/research", post(kupuri_research))
         .route("/audit/logs", get(audit_logs))
+        .route("/api/tasks/recent", get(recent_tasks))
+        .route("/api/memory/events", get(memory_events))
+        .route("/api/dashboard/summary", get(dashboard_summary))
         .with_state(state)
 }
 
@@ -343,5 +350,56 @@ async fn audit_logs(State(_state): State<AppState>) -> Json<Value> {
             }
         ],
         "total_entries": 2
+    }))
+}
+
+// PROMETHEUS METRICS ENDPOINT
+async fn metrics_endpoint(State(state): State<AppState>) -> impl IntoResponse {
+    match state.metrics.gather() {
+        Ok(metrics) => (StatusCode::OK, metrics),
+        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Error gathering metrics".to_string()),
+    }
+}
+
+// DASHBOARD API ENDPOINTS (For Control Room integration)
+async fn recent_tasks(State(_state): State<AppState>) -> Json<Value> {
+    // Returns recent Agent Zero tasks
+    Json(json!({
+        "tasks": [
+            {
+                "id": "task-001",
+                "status": "completed",
+                "title": "Sample Task",
+                "duration_ms": 1234
+            }
+        ],
+        "total_count": 1
+    }))
+}
+
+async fn memory_events(State(_state): State<AppState>) -> Json<Value> {
+    // Returns recent memory operations
+    Json(json!({
+        "events": [
+            {
+                "id": "mem-001",
+                "type": "add",
+                "timestamp": chrono::Utc::now().to_rfc3339()
+            }
+        ],
+        "total_count": 1
+    }))
+}
+
+async fn dashboard_summary(State(_state): State<AppState>) -> Json<Value> {
+    // Real-time KPI snapshot
+    Json(json!({
+        "kpis": {
+            "active_tasks": 0,
+            "memory_entries": 1,
+            "api_health": "healthy",
+            "uptime_seconds": 3600
+        },
+        "timestamp": chrono::Utc::now().to_rfc3339()
     }))
 }
