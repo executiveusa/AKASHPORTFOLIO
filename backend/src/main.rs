@@ -20,10 +20,15 @@ async fn main() {
         config.mem0_org_id.clone(),
     ));
 
+    // Initialize Prometheus metrics
+    let metrics = Arc::new(middleware::MetricsRegistry::new()
+        .expect("Failed to initialize Prometheus metrics"));
+
     // Create application state
     let state = api::routes::AppState {
         config: config.clone(),
         mem0,
+        metrics,
     };
 
     // Create the Axum router
