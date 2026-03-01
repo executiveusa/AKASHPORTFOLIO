@@ -11,11 +11,12 @@ const translations = {
         },
         projects: {
             title: "Proyectos Destacados",
-            project1: "Portafolio Kupuri",
-            projectNexus: "NEXUS CDMX",
-            projectStudios: "Kupuri Studios",
-            projectMetamofosis: "Metamofosis",
-            indicator: "Portafolio de Proyectos [ 10 ]",
+            project1: "Kupuri Studios",
+            project2: "NEXUS CDMX",
+            project3: "Synthia 3.0",
+            project4: "Monarcas y Morphos",
+            project5: "Suelta App",
+            indicator: "Portafolio de Proyectos [ 05 ]",
             viewAll: "Ver todos los proyectos"
         },
         aboutCopy: {
@@ -92,11 +93,12 @@ const translations = {
         },
         projects: {
             title: "Featured Projects",
-            project1: "Kupuri Portfolio",
-            projectNexus: "NEXUS CDMX",
-            projectStudios: "Kupuri Studios",
-            projectMetamofosis: "Metamofosis",
-            indicator: "Project Portfoliio [ 10 ]",
+            project1: "Kupuri Studios",
+            project2: "NEXUS CDMX",
+            project3: "Synthia 3.0",
+            project4: "Monarcas y Morphos",
+            project5: "Suelta App",
+            indicator: "Project Portfolio [ 05 ]",
             viewAll: "View All Projects"
         },
         aboutCopy: {
