@@ -135,7 +135,7 @@ p.mn {
 .contact-cta .contact-text-small {
   position: relative;
   z-index: 1;
-  margin-left: 0.15em;
+  margin-left: 0.4em;
 }
 
 .contact-cta .contact-text-large {
@@ -146,7 +146,7 @@ p.mn {
 .contact-cta .contact-text-large h1 {
   font-size: 7rem;
   font-style: normal;
-  margin-left: 0.15em;
+  margin-left: 0.4em;
   line-height: 1.1;
 }
 
