@@ -1,0 +1,447 @@
+# KUPURI MEDIA - UNIFIED DASHBOARD IMPLEMENTATION PRD
+# Structured for Ralphy + E2E Test SKILL methodology
+# 6 Phases | 27 Micro-tasks | Estimated 5-6 weeks
+
+version: "1.0"
+project: "Kupuri Media Unified Dashboard"
+phases:
+  - name: "Phase 1: Instrumentation Foundation"
+    order: 1
+    parallel_group: 0  # Sequential before Phase 2
+    description: "Add Prometheus metrics and OpenTelemetry to Synthia backend"
+
+    tasks:
+      - id: "1.1"
+        title: "Add Prometheus crates to backend Cargo.toml"
+        description: |
+          - Add prometheus = "0.13"
+          - Add opentelemetry = "0.20"
+          - Add tracing = "0.1"
+          - Add tokio-stream = "0.1"
+          - Verify cargo check passes
+        completed: false
+        priority: "critical"
+
+      - id: "1.2"
+        title: "Create Prometheus middleware in Rust backend"
+        description: |
+          - Create /backend/src/middleware/prometheus.rs
+          - Initialize MetricRegistry
+          - Implement request/response timing metrics
+          - Add handler for /metrics endpoint
+          - Test metrics output format (Prometheus text format)
+        completed: false
+        priority: "critical"
+
+      - id: "1.3"
+        title: "Instrument all HTTP endpoints with metrics"
+        description: |
+          - Modify /backend/src/api/routes.rs
+          - Add counter for each endpoint (requests_total)
+          - Add histogram for response times (request_duration_seconds)
+          - Add gauge for concurrent connections
+          - Test /metrics returns all endpoint metrics
+        completed: false
+        priority: "critical"
+
+      - id: "1.4"
+        title: "Instrument Agent Zero task delegation"
+        description: |
+          - Modify /backend/src/providers/agent_zero.rs
+          - Track task_count{status=pending|running|completed|failed}
+          - Track task_duration_seconds (execution time)
+          - Track delegation_events_total
+          - Emit metrics on task lifecycle changes
+        completed: false
+        priority: "critical"
+
+      - id: "1.5"
+        title: "Instrument memory operations"
+        description: |
+          - Modify /backend/src/providers/mem0.rs
+          - Track memory_operations_total{type=add|search|retrieve}
+          - Track memory_response_time_seconds
+          - Track semantic_search_quality metrics
+          - Test memory metrics appear in /metrics
+        completed: false
+        priority: "high"
+
+      - id: "1.6"
+        title: "Add NPM packages to frontend"
+        description: |
+          - cd /home/user/AKASHPORTFOLIO
+          - npm i ai @vercel/analytics
+          - npm i recharts swr date-fns
+          - npm i react-flow-renderer cytoscape
+          - npm i framer-motion
+          - Verify npm install succeeds, no errors
+        completed: false
+        priority: "high"
+
+---
+
+  - name: "Phase 2: Storage Layer (Database)"
+    order: 2
+    parallel_group: 1  # Can run parallel with Phase 3 research
+    description: "Create PostgreSQL schema and connection layer"
+
+    tasks:
+      - id: "2.1"
+        title: "Create PostgreSQL database models"
+        description: |
+          - Create /backend/src/db/postgres.rs
+          - Define audit_logs table struct
+          - Define agent_tasks table struct
+          - Define memory_events table struct
+          - Add SQLx connection pool setup
+        completed: false
+        priority: "critical"
+
+      - id: "2.2"
+        title: "Write database migrations"
+        description: |
+          - Create /backend/migrations/001_init_audit_logs.sql
+          - Create /backend/migrations/002_init_agent_tasks.sql
+          - Create /backend/migrations/003_init_memory_events.sql
+          - Include indexes on timestamps and agent_system columns
+          - Test migrations with sqlx::migrate!
+        completed: false
+        priority: "critical"
+
+      - id: "2.3"
+        title: "Update backend environment configuration"
+        description: |
+          - Update /backend/.env.example with DATABASE_URL
+          - Add database connection pooling to config.rs
+          - Add connection retry logic
+          - Test DATABASE_URL parsing
+        completed: false
+        priority: "high"
+
+      - id: "2.4"
+        title: "Create database helper functions"
+        description: |
+          - Create /backend/src/db/queries.rs
+          - Implement log_audit_event() function
+          - Implement log_task_event() function
+          - Implement log_memory_event() function
+          - Add database error handling and retries
+        completed: false
+        priority: "high"
+
+---
+
+  - name: "Phase 3: Dashboard Infrastructure"
+    order: 3
+    parallel_group: 2  # Can run parallel with Phase 2
+    description: "Deploy monitoring stack (Prometheus, Grafana, Loki)"
+
+    tasks:
+      - id: "3.1"
+        title: "Create prometheus.yml configuration"
+        description: |
+          - Create /backend/prometheus.yml
+          - Configure scrape interval (15s)
+          - Configure Synthia target: localhost:42617/metrics
+          - Add retention policy (15 days)
+          - Validate YAML syntax
+        completed: false
+        priority: "critical"
+
+      - id: "3.2"
+        title: "Update docker-compose.yml with monitoring services"
+        description: |
+          - Modify /backend/docker-compose.yml
+          - Add postgres:15 service
+          - Add prometheus:latest service
+          - Add grafana:latest service
+          - Add redis:7-alpine service
+          - Add health checks for all services
+          - Test docker-compose up succeeds
+        completed: false
+        priority: "critical"
+
+      - id: "3.3"
+        title: "Create Grafana dashboard JSON definitions"
+        description: |
+          - Create /backend/grafana-dashboards/ folder
+          - Create agent-zero-tasks.json dashboard
+          - Create synthia-system.json dashboard
+          - Create memory-operations.json dashboard
+          - Include Prometheus data source references
+          - Test dashboard JSON valid
+        completed: false
+        priority: "high"
+
+      - id: "3.4"
+        title: "Set up log aggregation (Loki)"
+        description: |
+          - Create /backend/loki-config.yml
+          - Configure Synthia log scraping
+          - Add retention policies
+          - Update docker-compose.yml with Loki service
+          - Test Loki receives logs from backend
+        completed: false
+        priority: "medium"
+
+---
+
+  - name: "Phase 4: Control Room Integration"
+    order: 4
+    parallel_group: 3  # Sequential after Phase 2
+    description: "Connect frontend to live Synthia API + metrics"
+
+    tasks:
+      - id: "4.1"
+        title: "Create Synthia API client library"
+        description: |
+          - Create /apps/control-room/src/lib/synthia-api.ts
+          - Implement fetchMetrics() from /metrics endpoint
+          - Implement getTasksRecent() from /api/tasks/recent
+          - Implement getMemoryEvents() from /api/memory/events
+          - Add error handling and retry logic
+        completed: false
+        priority: "critical"
+
+      - id: "4.2"
+        title: "Add new API endpoints to Synthia backend"
+        description: |
+          - Modify /backend/src/api/routes.rs
+          - Add GET /metrics endpoint
+          - Add GET /api/tasks/recent endpoint (returns last 50 tasks)
+          - Add GET /api/memory/events endpoint
+          - Add GET /api/audit/by-agent endpoint
+          - Add GET /api/dashboard/summary endpoint (KPI snapshot)
+          - Test all endpoints return valid JSON
+        completed: false
+        priority: "critical"
+
+      - id: "4.3"
+        title: "Create RealtimeDashboard React component"
+        description: |
+          - Create /apps/control-room/src/components/RealtimeDashboard.tsx
+          - Use SSE EventSource for real-time updates
+          - Display live metric cards (task count, memory ops, API latency)
+          - Update metrics every 5 seconds
+          - Add fallback polling if SSE fails
+          - Test component renders without errors
+        completed: false
+        priority: "critical"
+
+      - id: "4.4"
+        title: "Replace Control Room dummy dashboard with live data"
+        description: |
+          - Modify /apps/control-room/src/app/dashboard/page.tsx
+          - Import RealtimeDashboard component
+          - Connect to Synthia API endpoints
+          - Remove hardcoded dummy data
+          - Add loading states and error messages
+          - Test dashboard updates in real-time
+        completed: false
+        priority: "high"
+
+      - id: "4.5"
+        title: "Add Prometheus/Grafana client integration"
+        description: |
+          - Create /apps/control-room/src/lib/observability-client.ts
+          - Implement queryPrometheus() function
+          - Implement queryGrafana() function
+          - Add metrics caching (SWR)
+          - Test API calls to Prometheus return data
+        completed: false
+        priority: "high"
+
+---
+
+  - name: "Phase 5: Vercel CLI & Deployment Integration"
+    order: 5
+    parallel_group: 4  # Sequential after Phase 4
+    description: "Set up build monitoring and CI/CD integration"
+
+    tasks:
+      - id: "5.1"
+        title: "Create vercel.json configuration"
+        description: |
+          - Create /vercel.json in root
+          - Configure build command for both apps
+          - Add environment variables for SYNTHIA_BACKEND_URL
+          - Add preview/production environment configs
+          - Validate vercel.json schema
+        completed: false
+        priority: "high"
+
+      - id: "5.2"
+        title: "Set up environment variables in Vercel"
+        description: |
+          - Login: vercel login (should already be done)
+          - Set SYNTHIA_BACKEND_URL to production VPS IP
+          - Set NEXT_PUBLIC_SYNTHIA_BACKEND_URL
+          - Set GRAFANA_API_KEY for dashboard access
+          - Test variables are accessible in build
+        completed: false
+        priority: "high"
+
+      - id: "5.3"
+        title: "Create deployment health check script"
+        description: |
+          - Create /scripts/check-vercel-builds.sh
+          - Implement vercel deployments list parsing
+          - Check last 5 deployments for errors
+          - Add to cron job or GitHub Actions
+          - Test script runs without errors
+        completed: false
+        priority: "medium"
+
+      - id: "5.4"
+        title: "Create GitHub Actions workflow for monitoring"
+        description: |
+          - Create /.github/workflows/monitoring.yml
+          - Schedule health checks every 30 minutes
+          - Check Synthia backend /health endpoint
+          - Check Vercel frontend accessibility
+          - Send alerts on failures
+          - Test workflow runs successfully
+        completed: false
+        priority: "medium"
+
+---
+
+  - name: "Phase 6: Sub-Agent Orchestration Dashboard"
+    order: 6
+    parallel_group: 0  # Sequential final phase
+    description: "Build task graphs, memory flows, decision trees"
+
+    tasks:
+      - id: "6.1"
+        title: "Create TaskGraph visualization component"
+        description: |
+          - Create /apps/control-room/src/components/TaskGraph.tsx
+          - Use react-flow-renderer for graph layout
+          - Fetch tasks from /api/tasks/recent
+          - Display task nodes with status colors
+          - Show task dependencies as edges
+          - Implement zoom and pan controls
+          - Test component renders task graph
+        completed: false
+        priority: "critical"
+
+      - id: "6.2"
+        title: "Create MemoryFlow visualization component"
+        description: |
+          - Create /apps/control-room/src/components/MemoryFlow.tsx
+          - Use Cytoscape.js for network visualization
+          - Fetch memory events from /api/memory/events
+          - Display memory nodes clustered by context
+          - Show semantic search relationships
+          - Add interaction handlers for node selection
+          - Test component renders memory graph
+        completed: false
+        priority: "critical"
+
+      - id: "6.3"
+        title: "Create DecisionTree visualization component"
+        description: |
+          - Create /apps/control-room/src/components/DecisionTree.tsx
+          - Use Mermaid.js for flowchart rendering
+          - Fetch audit logs from /api/audit/by-agent
+          - Build decision tree from task relationships
+          - Add collapsible nodes for hierarchy
+          - Show decision reasoning in tooltips
+          - Test component renders decision tree
+        completed: false
+        priority: "critical"
+
+      - id: "6.4"
+        title: "Create AgentCoordinationDashboard page"
+        description: |
+          - Create /apps/control-room/src/app/coordination/page.tsx
+          - Combine TaskGraph, MemoryFlow, DecisionTree
+          - Add tabbed interface (Tasks | Memory | Decisions)
+          - Implement filtering by agent or time range
+          - Add export functionality (PNG, JSON)
+          - Test page loads and displays all tabs
+        completed: false
+        priority: "critical"
+
+      - id: "6.5"
+        title: "Add cost tracking metrics"
+        description: |
+          - Create /apps/control-room/src/components/CostTracker.tsx
+          - Track LLM API costs per task
+          - Display cost breakdown by agent
+          - Show cost trends over time
+          - Integrate with Grafana for historical data
+          - Test cost calculations are accurate
+        completed: false
+        priority: "medium"
+
+      - id: "6.6"
+        title: "Final integration and polish"
+        description: |
+          - Connect all components to live data
+          - Add responsive design for mobile
+          - Implement error boundaries
+          - Add loading skeletons
+          - Test all visualizations update in real-time
+          - Create final user guide documentation
+        completed: false
+        priority: "high"
+
+---
+
+verification:
+  phase_1:
+    - Run: cargo build --release
+    - Test: cargo test
+    - Check: curl http://localhost:42617/metrics returns Prometheus format
+    - Check: All task metrics present
+
+  phase_2:
+    - Setup: PostgreSQL running (docker-compose)
+    - Run: sqlx migrate run
+    - Test: psql queries return expected schema
+    - Verify: Audit logs table has correct columns
+
+  phase_3:
+    - Start: docker-compose up
+    - Check: Prometheus scrapes Synthia at http://localhost:9090
+    - Verify: Grafana accessible at http://localhost:3000
+    - Check: Dashboards loaded with metrics
+
+  phase_4:
+    - Test: npm run dev in control-room
+    - Check: Dashboard /api/metrics endpoint working
+    - Verify: Real-time updates flowing to frontend
+    - Test: Responsive design on mobile/tablet
+
+  phase_5:
+    - Run: ./scripts/check-vercel-builds.sh
+    - Verify: Environment variables set in Vercel
+    - Test: GitHub Actions workflow executes
+    - Check: Alerts configured
+
+  phase_6:
+    - Run: npm run dev in control-room
+    - Test: All visualization components load
+    - Verify: Real-time data flowing through graphs
+    - Check: Responsive design across devices
+    - Test: Export functionality (PNG, JSON)
+
+final_checklist:
+  - [ ] All 27 tasks marked complete
+  - [ ] cargo build --release succeeds
+  - [ ] npm run build succeeds (all apps)
+  - [ ] docker-compose up starts all services
+  - [ ] Prometheus scrapes Synthia metrics
+  - [ ] Grafana dashboards display data
+  - [ ] Control Room shows live data
+  - [ ] Task graphs render correctly
+  - [ ] Memory flows display relationships
+  - [ ] Decision trees show reasoning
+  - [ ] All tests pass (unit + integration)
+  - [ ] Responsive design verified (mobile/tablet/desktop)
+  - [ ] Error handling tested
+  - [ ] Performance acceptable (Lighthouse score >85)
+  - [ ] Documentation complete
+  - [ ] Code committed with clear messages
+  - [ ] Final deployment to staging tested
