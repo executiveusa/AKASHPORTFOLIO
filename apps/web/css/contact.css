@@ -1,6 +1,6 @@
 .contact {
   position: relative;
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
   padding: 1.5em;
   display: grid;
@@ -428,5 +428,57 @@
 
   .form-header h2 {
     font-size: clamp(1.25rem, 6vw, 1.5rem);
+  }
+}
+
+/* Mobile - Small phones (480px and below) */
+@media (max-width: 480px) {
+  .contact {
+    padding: 0.75em;
+    min-height: auto;
+  }
+
+  .contact-left {
+    gap: 1em;
+  }
+
+  .contact-card-header-main h1 {
+    font-size: clamp(1.5rem, 7vw, 1.75rem);
+  }
+
+  .contact-card-header-main p {
+    font-size: 0.9rem;
+  }
+
+  .contact-form-container {
+    padding: 1em;
+    border-radius: 0.75em;
+    border: 1px solid var(--fg);
+    box-shadow: 3px 3px 0px var(--fg);
+    max-width: 100%;
+  }
+
+  .form-header h2 {
+    font-size: clamp(1rem, 5vw, 1.25rem);
+  }
+
+  .form-row {
+    gap: 0.5em;
+  }
+
+  .contact-info-item .label {
+    font-size: 0.65rem;
+    padding: 0.15em 0.3em;
+  }
+
+  .contact-info-item a {
+    font-size: 0.65rem;
+  }
+
+  .contact .trail-img {
+    width: 80px;
+    height: 80px;
+    border: 1px solid var(--fg);
+    box-shadow: 2px 2px 0px var(--fg);
   }
 }

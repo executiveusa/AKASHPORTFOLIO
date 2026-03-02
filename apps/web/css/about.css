@@ -1,8 +1,8 @@
 /* about - hero */
 .about-hero {
   position: relative;
-  width: 100vw;
-  height: 100svh;
+  width: 100%;
+  min-height: 100svh;
   padding: 8em 2em 6em 2em;
   display: flex;
   flex-direction: column;
@@ -23,13 +23,15 @@
 
 .about-hero .about-hero-bio {
   text-align: center;
-  width: 50%;
+  width: 100%;
+  max-width: 50%;
 }
 
 .about-hero .about-hero-portrait {
   position: relative;
   margin-top: 2em;
-  width: 250px;
+  width: 100%;
+  max-width: 250px;
   aspect-ratio: 5/7;
   border-radius: 1em;
   overflow: hidden;
@@ -52,14 +54,15 @@
 /* about - about copy */
 .about-copy {
   position: relative;
-  width: 100vw;
-  height: 100%;
+  width: 100%;
+  min-height: 100%;
   padding: 8em 2em 8em 2em;
 }
 
 .about-copy .about-copy-content {
   text-align: center;
-  width: 50%;
+  width: 100%;
+  max-width: 50%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -243,5 +246,128 @@
   .stats .stats-header {
     gap: 2em;
     margin-bottom: 2em;
+  }
+}
+
+/* Tablet - iPad portrait (768px) */
+@media (max-width: 768px) {
+  .about-hero {
+    padding: 4em 1.5em 3em 1.5em;
+  }
+
+  .about-hero .about-hero-header h1 {
+    font-size: 2.5rem;
+  }
+
+  .about-hero .about-hero-portrait {
+    width: 60%;
+    max-width: 180px;
+  }
+
+  .about-copy {
+    padding: 4em 1.5em;
+  }
+
+  .about-copy .about-copy-content {
+    max-width: 100%;
+    padding: 2em 1.5em;
+    gap: 1.5em;
+  }
+
+  .about-copy .about-copy-content h3 {
+    font-size: 1.25rem;
+  }
+
+  .skills .skills-copy {
+    padding: 1em;
+    border: 0.2em solid var(--fg);
+    border-radius: 0.75em;
+  }
+
+  .stats .stats-item-1,
+  .stats .stats-item-2,
+  .stats .stats-item-3 {
+    aspect-ratio: 16/5;
+    padding: 1.5em;
+    border-radius: 0.75em;
+  }
+}
+
+/* Mobile - Small phones (480px and below) */
+@media (max-width: 480px) {
+  .about-hero {
+    width: 100%;
+    padding: 3em 1em 2em 1em;
+    min-height: auto;
+  }
+
+  .about-hero .about-hero-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .about-hero .about-hero-bio {
+    max-width: 100%;
+    gap: 1em;
+  }
+
+  .about-hero .about-hero-portrait {
+    width: 80%;
+    max-width: 150px;
+    margin-top: 1em;
+    border-radius: 0.75em;
+    border: 0.15em solid var(--fg);
+    box-shadow: 5px 5px 0px var(--accent3);
+  }
+
+  .about-copy {
+    padding: 2em 1em;
+  }
+
+  .about-copy .about-copy-content {
+    max-width: 100%;
+    padding: 1.5em 1em;
+    border-radius: 0.75em;
+    border: 0.15em solid var(--fg);
+  }
+
+  .about-copy .about-copy-content h3 {
+    font-size: 1rem;
+  }
+
+  .skills {
+    padding: 2em 1em;
+  }
+
+  .skills .skills-copy {
+    padding: 0.75em;
+    border: 0.15em solid var(--fg);
+    border-radius: 0.5em;
+    font-size: 0.9rem;
+  }
+
+  .stats {
+    padding: 2em 1em;
+  }
+
+  .stats .stats-row {
+    gap: 0.75em;
+  }
+
+  .stats .stats-item-1,
+  .stats .stats-item-2,
+  .stats .stats-item-3 {
+    aspect-ratio: 16/4;
+    padding: 1em;
+    border-radius: 0.5em;
+    font-size: 0.85rem;
+  }
+
+  .stats .stats-header {
+    gap: 1em;
+    margin-bottom: 1em;
+  }
+
+  .stats .stats-col {
+    gap: 2em;
   }
 }
