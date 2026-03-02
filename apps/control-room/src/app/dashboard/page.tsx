@@ -10,6 +10,9 @@ import ViewingRoom from "../../components/ViewingRoom";
 import SkillMarket from "../../components/SkillMarket";
 import InviteGate from "../../components/InviteGate";
 import OrgoConsole from "../../components/OrgoConsole";
+import TaskDelegation from "../../components/TaskDelegation";
+import SocialMediaManager from "../../components/SocialMediaManager";
+import ReportsAndAnalytics from "../../components/ReportsAndAnalytics";
 import type { Agent } from "@/lib/swarm";
 
 export default function Home() {
@@ -86,6 +89,21 @@ export default function Home() {
             </div>
 
             <AgentGrid />
+
+            {/* Task Delegation Section */}
+            <div className="pt-8 border-t border-zinc-900">
+              <TaskDelegation />
+            </div>
+
+            {/* Social Media Management Section */}
+            <div className="pt-8 border-t border-zinc-900">
+              <SocialMediaManager />
+            </div>
+
+            {/* Reports & Analytics Section */}
+            <div className="pt-8 border-t border-zinc-900">
+              <ReportsAndAnalytics />
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-8 border-t border-zinc-900">
               <RepoPulse />
