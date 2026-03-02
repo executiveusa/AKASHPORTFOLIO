@@ -20,8 +20,8 @@ const translations = {
             viewAll: "Ver todos los proyectos"
         },
         aboutCopy: {
-            title: "Kupuri Media es <span>más que una agencia</span>. Es un movimiento para rediseñar cómo las mujeres lideran en la tecnología y el diseño.",
-            subtitle: "Buscamos proyectos con <span>propósito</span> y clientes que valoran la autenticidad."
+            title: "Kupuri Media es <span>más que una agencia</span>. Es un movimiento para rediseñar cómo las mujeres interactúan con la tecnología y el diseño.",
+            subtitle: "Buscamos proyectos con <span>propósito</span> y clientes que valoran la autenticidad y la conexión humana."
         },
         services: {
             header: "Tu visión - nuestra experiencia",
@@ -102,8 +102,8 @@ const translations = {
             viewAll: "View All Projects"
         },
         aboutCopy: {
-            title: "Kupuri Media is <span>more than an agency</span>. It is a movement to redesign how women lead in technology and design.",
-            subtitle: "We look for projects with <span>purpose</span> and clients who value authenticity."
+            title: "Kupuri Media is <span>more than an agency</span>. It is a movement to redesign how women interact with technology and design.",
+            subtitle: "We look for projects with <span>purpose</span> and clients who value authenticity and human connection."
         },
         services: {
             header: "Your vision- our expertise",
