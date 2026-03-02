@@ -3,7 +3,7 @@ nav {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
+    width: 100%;
     padding: 2em;
     display: flex;
     justify-content: space-between;
@@ -57,7 +57,7 @@ nav {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
+    width: 100%;
     height: 100svh;
     background-color: var(--bg2);
     overflow: hidden;
@@ -189,4 +189,73 @@ nav {
       justify-content: center;
     }
   }
-  
+
+  /* Tablet - iPad portrait (768px) */
+  @media (max-width: 768px) {
+    nav {
+      padding: 1.5em 1em;
+    }
+
+    .nav-overlay .nav-items .nav-item p {
+      font-size: 1.25rem;
+    }
+
+    .nav-overlay .nav-items {
+      top: 50%;
+      gap: 0.75em;
+    }
+
+    .nav-overlay .nav-footer {
+      padding: 1.5em;
+    }
+
+    .nav-overlay .nav-footer .nav-footer-item p {
+      font-size: 0.7rem;
+    }
+  }
+
+  /* Mobile - Small phones (480px and below) */
+  @media (max-width: 480px) {
+    nav {
+      padding: 1em;
+      width: 100%;
+    }
+
+    nav .logo {
+      padding: 0.4em 0.5em;
+      font-size: 0.85rem;
+    }
+
+    nav .menu-toggle-btn {
+      padding: 0.5em;
+      font-size: 0.8rem;
+    }
+
+    .nav-overlay .nav-items .nav-item p {
+      font-size: 1rem;
+    }
+
+    .nav-overlay .nav-items {
+      top: 50%;
+      gap: 0.5em;
+    }
+
+    .nav-overlay .nav-items .nav-item p a {
+      padding: 0.3em 0.3em 0.2em 0.3em;
+      font-size: 0.9rem;
+    }
+
+    .nav-overlay .nav-footer {
+      padding: 1em;
+      gap: 1em;
+    }
+
+    .nav-overlay .nav-footer .nav-footer-item p {
+      font-size: 0.65rem;
+    }
+
+    .nav-overlay .nav-footer .nav-footer-item .nav-footer-item-header p {
+      padding: 0.3em 0.5em;
+      font-size: 0.65rem;
+    }
+  }

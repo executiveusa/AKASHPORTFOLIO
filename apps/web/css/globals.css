@@ -75,8 +75,8 @@ p.mn {
 /* contact cta */
 .contact-cta {
   position: relative;
-  width: 100vw;
-  height: 100svh;
+  width: 100%;
+  min-height: 100svh;
   padding: 2em;
   display: flex;
   justify-content: center;
@@ -244,4 +244,93 @@ p.mn {
 .lang-btn.active {
   opacity: 1;
   text-decoration: underline;
+}
+
+/* Responsive Breakpoints */
+
+/* Tablet - iPad portrait (768px) and smaller landscape */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+
+  p,
+  p.ss {
+    font-size: 1rem;
+  }
+
+  .contact-cta {
+    padding: 1.5em 1em;
+    min-height: auto;
+  }
+
+  .contact-cta .contact-button {
+    width: 100%;
+    height: 200px;
+    gap: 0.75em;
+  }
+
+  .contact-cta .contact-text-large h1 {
+    font-size: 2.5rem;
+  }
+}
+
+/* Mobile - Small phones (480px and below) */
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  h3 {
+    font-size: 1rem;
+  }
+
+  p,
+  p.ss {
+    font-size: 0.9rem;
+  }
+
+  .contact-cta {
+    padding: 1em;
+  }
+
+  .contact-cta .contact-button {
+    width: 100%;
+    height: 150px;
+    border-radius: 1em;
+    border: 0.5em solid #000;
+    box-shadow: 5px 5px 0px 3px #000000;
+  }
+
+  .contact-cta .contact-text-small {
+    width: 90%;
+    font-size: 0.8rem;
+  }
+
+  .contact-cta .contact-text-large h1 {
+    font-size: 1.5rem;
+    margin-left: 0.1em;
+  }
+
+  .lang-toggle {
+    gap: 0.25em;
+    padding: 0.25em 0.5em;
+    margin-left: 0.5em;
+  }
+
+  .lang-btn {
+    font-size: 0.65rem;
+  }
 }

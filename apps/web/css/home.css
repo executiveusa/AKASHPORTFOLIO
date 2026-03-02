@@ -1,8 +1,8 @@
 /* home - hero */
 .hero {
     position: relative;
-    width: 100vw;
-    height: 100svh;
+    width: 100%;
+    min-height: 100svh;
     padding: 2em;
     display: flex;
     flex-direction: column;
@@ -10,9 +10,9 @@
     align-items: center;
     overflow-x: hidden;
   }
-  
+
   .hero .hero-header h1 {
-    font-size: 18vw;
+    font-size: clamp(2rem, 12vw, 18vw);
     line-height: 0.9;
   }
   
@@ -58,8 +58,8 @@
   /* home - hero img holder */
   .hero-img-holder {
     position: relative;
-    width: 100vw;
-    height: 100svh;
+    width: 100%;
+    min-height: 100svh;
     padding: 2em;
   }
   
@@ -76,17 +76,32 @@
   /* home - featured work */
   .featured-work {
     position: relative;
-    width: 100vw;
-    height: 100svh;
+    width: 100%;
+    min-height: 100svh;
     overflow: hidden;
   }
-  
+
   .featured-work .featured-titles {
     position: relative;
     width: 500vw;
     height: 100vh;
     display: flex;
     will-change: transform;
+  }
+
+  /* Responsive: Hide horizontal scroll on tablets and mobile */
+  @media (max-width: 1024px) {
+    .featured-work .featured-titles {
+      width: 100%;
+      height: auto;
+      flex-direction: column;
+    }
+
+    .featured-work .featured-title-wrapper {
+      width: 100%;
+      height: auto;
+      padding: 2em 1em;
+    }
   }
   
   .featured-work .featured-title-wrapper {
@@ -172,8 +187,8 @@
   /* home - services header */
   .services-header {
     position: relative;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    min-height: 100vh;
     padding: 2em;
     display: flex;
     justify-content: center;
@@ -213,7 +228,8 @@
   .services .service-card-inner {
     position: relative;
     will-change: transform;
-    width: calc(100vw - 4em);
+    width: 100%;
+    max-width: calc(100% - 4em);
     height: 100%;
     margin: 0 auto;
     padding: 2em;
@@ -221,6 +237,34 @@
     gap: 4em;
     border-radius: 2em;
     min-height: 500px;
+  }
+
+  /* Tablet optimization for service cards */
+  @media (max-width: 1024px) {
+    .services .service-card-inner {
+      flex-direction: column;
+      gap: 1.5em;
+      min-height: auto;
+    }
+
+    .services .service-card-img {
+      flex: unset;
+      min-height: 200px;
+    }
+  }
+
+  /* Mobile optimization for service cards */
+  @media (max-width: 768px) {
+    .services .service-card-inner {
+      gap: 1em;
+      padding: 1em;
+      margin: 0;
+    }
+
+    .services .service-card-img {
+      aspect-ratio: 16/9;
+      min-height: 150px;
+    }
   }
   
   .services .service-card-content {
@@ -324,7 +368,7 @@
     }
   
     .featured-work .featured-titles {
-      width: 100vw;
+      width: 100%;
       flex-direction: column;
       gap: 2em;
     }
@@ -355,4 +399,90 @@
       border-radius: 1em;
     }
   }
-  
+
+  /* Tablet - iPad portrait and smaller (768px) */
+  @media (max-width: 768px) {
+    .hero .hero-header h1 {
+      font-size: clamp(1.5rem, 8vw, 2.5rem);
+    }
+
+    .services-header .services-header-title {
+      margin-bottom: 3em;
+    }
+
+    .services-header .services-profile-icon {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 1em;
+    }
+
+    .featured-work .featured-title-wrapper h1 {
+      width: 90%;
+    }
+  }
+
+  /* Mobile - Small phones (480px and below) */
+  @media (max-width: 480px) {
+    .hero {
+      padding: 1em;
+      min-height: auto;
+    }
+
+    .hero .hero-header h1 {
+      font-size: clamp(1.2rem, 6vw, 1.8rem);
+    }
+
+    .hero .hero-header.hero-header-1 {
+      transform: translateX(0);
+    }
+
+    .hero .hero-header.hero-header-2 {
+      transform: translateX(0);
+    }
+
+    .hero-img-holder {
+      display: none;
+    }
+
+    .featured-work {
+      padding: 2em 0;
+    }
+
+    .featured-work .featured-title-wrapper h1 {
+      width: 100%;
+      font-size: 1.5rem;
+    }
+
+    .featured-title-img {
+      max-height: 200px;
+    }
+
+    .services-header {
+      padding: 1em;
+    }
+
+    .services-header .services-profile-icon {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 0.75em;
+    }
+
+    .services-header .services-header-title {
+      margin-bottom: 2em;
+    }
+
+    .services-header .services-header-content {
+      gap: 0.5em;
+    }
+
+    .services .service-card-inner {
+      padding: 1em;
+      border-radius: 0.5em;
+    }
+
+    .services .service-card-img {
+      aspect-ratio: 3/2;
+      border-radius: 0.5em;
+      min-height: 100px;
+    }
+  }
