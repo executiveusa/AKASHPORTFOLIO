@@ -2,6 +2,25 @@ node_modules/
 .vercel/
 dist/
 .env
+.env.local
 .DS_Store
 *.local
 .vercel
+
+# Rust/Cargo
+backend/target/
+backend/Cargo.lock
+*.rlib
+*.so
+*.dylib
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
