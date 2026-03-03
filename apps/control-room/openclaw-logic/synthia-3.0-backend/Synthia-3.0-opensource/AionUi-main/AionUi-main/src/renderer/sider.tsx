@@ -59,10 +59,10 @@ const Sider: React.FC<SiderProps> = ({ onSessionClick, collapsed = false }) => {
           <SettingsSider collapsed={collapsed}></SettingsSider>
         ) : (
           <div className='size-full flex flex-col'>
-            <div className='mb-8px shrink-0 flex items-center gap-8px'>
+            <div className='mb-12px shrink-0 flex items-center gap-10px'>
               <Tooltip disabled={!collapsed} content={t('conversation.welcome.newConversation')} position='right'>
                 <div
-                  className='h-40px flex-1 flex items-center justify-start gap-10px px-12px hover:bg-hover rd-0.5rem cursor-pointer group'
+                  className='h-48px flex-1 flex items-center justify-start gap-12px px-16px hover:bg-white/40 hover:shadow-sm rd-24px cursor-pointer group transition-all border border-transparent hover:border-[#F0F0F0]'
                   onClick={() => {
                     closePreview();
                     setIsBatchMode(false);
@@ -75,14 +75,14 @@ const Sider: React.FC<SiderProps> = ({ onSessionClick, collapsed = false }) => {
                     }
                   }}
                 >
-                  <Plus theme='outline' size='24' fill={iconColors.primary} className='block leading-none shrink-0' style={{ lineHeight: 0 }} />
-                  <span className='collapsed-hidden font-bold text-t-primary leading-24px'>{t('conversation.welcome.newConversation')}</span>
+                  <Plus theme='outline' size='20' fill={iconColors.primary} className='block leading-none shrink-0' style={{ lineHeight: 0 }} />
+                  <span className='collapsed-hidden font-semibold text-t-primary leading-24px'>{t('conversation.welcome.newConversation')}</span>
                 </div>
               </Tooltip>
               <Tooltip disabled={!collapsed} content={isBatchMode ? t('conversation.history.batchModeExit') : t('conversation.history.batchManage')} position='right'>
                 <div
-                  className={classNames('h-40px w-40px rd-0.5rem flex items-center justify-center cursor-pointer shrink-0 transition-all border border-solid border-transparent', {
-                    'hover:bg-fill-2 hover:border-[var(--color-border-2)]': !isBatchMode,
+                  className={classNames('h-48px w-48px rd-24px flex items-center justify-center cursor-pointer shrink-0 transition-all border border-solid border-transparent', {
+                    'hover:bg-white/40 hover:border-[#F0F0F0]': !isBatchMode,
                     'bg-[rgba(var(--primary-6),0.12)] border-[rgba(var(--primary-6),0.24)] text-primary': isBatchMode,
                   })}
                   onClick={handleToggleBatchMode}
@@ -96,17 +96,17 @@ const Sider: React.FC<SiderProps> = ({ onSessionClick, collapsed = false }) => {
         )}
       </div>
       {/* Footer - settings button */}
-      <div className='shrink-0 sider-footer mt-auto pt-8px'>
+      <div className='shrink-0 sider-footer mt-auto pt-12px'>
         <Tooltip disabled={!collapsed} content={isSettings ? t('common.back') : t('common.settings')} position='right'>
           <div
             onClick={handleSettingsClick}
-            className={classNames('flex items-center justify-start gap-10px px-12px py-8px rd-0.5rem cursor-pointer transition-colors', {
-              'bg-[rgba(var(--primary-6),0.12)] text-primary': isSettings,
-              'hover:bg-hover hover:shadow-sm active:bg-fill-2': !isSettings,
+            className={classNames('flex items-center justify-start gap-12px px-16px py-10px rd-24px cursor-pointer transition-all border border-transparent', {
+              'bg-[rgba(var(--primary-6),0.1)] border-[rgba(var(--primary-1),0.5)] text-primary': isSettings,
+              'hover:bg-white/40 hover:border-[#F0F0F0] hover:shadow-sm active:bg-fill-2': !isSettings,
             })}
           >
-            {isSettings ? <ArrowCircleLeft className='flex' theme='outline' size='24' fill={iconColors.primary} /> : <SettingTwo className='flex' theme='outline' size='24' fill={iconColors.primary} />}
-            <span className='collapsed-hidden text-t-primary'>{isSettings ? t('common.back') : t('common.settings')}</span>
+            {isSettings ? <ArrowCircleLeft className='flex' theme='outline' size='20' fill={iconColors.primary} /> : <SettingTwo className='flex' theme='outline' size='20' fill={iconColors.primary} />}
+            <span className='collapsed-hidden text-t-primary font-medium'>{isSettings ? t('common.back') : t('common.settings')}</span>
           </div>
         </Tooltip>
       </div>

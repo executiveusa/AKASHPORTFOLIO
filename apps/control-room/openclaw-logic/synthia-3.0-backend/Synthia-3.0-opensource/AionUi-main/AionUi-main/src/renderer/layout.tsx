@@ -100,6 +100,16 @@ const Layout: React.FC<{
   // 注入自定义 CSS / Inject custom CSS into document head
   useEffect(() => {
     const styleId = 'user-defined-custom-css';
+    const fontStyleId = 'rube-fonts';
+
+    // Inject Google Fonts
+    if (!document.getElementById(fontStyleId)) {
+      const link = document.createElement('link');
+      link.id = fontStyleId;
+      link.rel = 'stylesheet';
+      link.href = 'https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&family=Inter:wght@300;400;500;600&display=swap';
+      document.head.appendChild(link);
+    }
 
     if (!customCss) {
       document.getElementById(styleId)?.remove();
@@ -171,29 +181,31 @@ const Layout: React.FC<{
   }, [collapsed]);
   return (
     <LayoutContext.Provider value={{ isMobile, siderCollapsed: collapsed, setSiderCollapsed: setCollapsed }}>
-      <div className='app-shell flex flex-col size-full min-h-0'>
+      <div className='app-shell flex flex-col size-full min-h-0 relative font-sans text-primary overflow-hidden' style={{
+        background: 'radial-gradient(circle at top right, #D1E0FF 0%, #FFFFFF 100%)'
+      }}>
         <Titlebar workspaceAvailable={workspaceAvailable} />
         {/* 移动端左侧边栏蒙板 / Mobile left sider backdrop */}
         {isMobile && !collapsed && <div className='fixed inset-0 bg-black/30 z-90' onClick={() => setCollapsed(true)} aria-hidden='true' />}
 
-        <ArcoLayout className={'size-full layout flex-1 min-h-0'}>
+        <ArcoLayout className={'size-full layout flex-1 min-h-0 !bg-transparent'}>
           <ArcoLayout.Sider
             collapsedWidth={isMobile ? 0 : 64}
             collapsed={collapsed}
             width={DEFAULT_SIDER_WIDTH}
-            className={classNames('!bg-2 layout-sider', {
+            className={classNames('!bg-transparent layout-sider', {
               collapsed: collapsed,
             })}
             style={
               isMobile
                 ? {
-                    position: 'fixed',
-                    left: 0,
-                    zIndex: 100,
-                    transform: collapsed ? 'translateX(-100%)' : 'translateX(0)',
-                    transition: 'none',
-                    pointerEvents: collapsed ? 'none' : 'auto',
-                  }
+                  position: 'fixed',
+                  left: 0,
+                  zIndex: 100,
+                  transform: collapsed ? 'translateX(-100%)' : 'translateX(0)',
+                  transition: 'none',
+                  pointerEvents: collapsed ? 'none' : 'auto',
+                }
                 : undefined
             }
           >
@@ -203,7 +215,7 @@ const Layout: React.FC<{
               })}
             >
               <div
-                className={classNames('bg-black shrink-0 size-40px relative rd-0.5rem', {
+                className={classNames('bg-black shrink-0 size-40px relative rd-12px', {
                   '!size-24px': collapsed,
                 })}
                 onClick={onClick}
@@ -220,7 +232,7 @@ const Layout: React.FC<{
                   <path key='logo-path-2' d='M18 50 Q40 70 62 50' stroke='white' strokeWidth='3.5' fill='none' strokeLinecap='round'></path>
                 </svg>
               </div>
-              <div className=' flex-1 text-20px collapsed-hidden font-bold'>AionUi</div>
+              <div className='flex-1 text-20px collapsed-hidden font-semibold tracking-tight font-serif'>Synthia 3.0</div>
               {isMobile && !collapsed && (
                 <button type='button' className='app-titlebar__button' onClick={() => setCollapsed(true)} aria-label='Collapse sidebar'>
                   {collapsed ? <MenuUnfold theme='outline' size='18' fill='currentColor' /> : <MenuFold theme='outline' size='18' fill='currentColor' />}
@@ -231,25 +243,25 @@ const Layout: React.FC<{
             <ArcoLayout.Content className={classNames('p-8px layout-sider-content', !isMobile && 'h-[calc(100%-72px-16px)]')}>
               {React.isValidElement(sider)
                 ? React.cloneElement(sider, {
-                    onSessionClick: () => {
-                      if (isMobile) setCollapsed(true);
-                    },
-                    collapsed,
-                  } as any)
+                  onSessionClick: () => {
+                    if (isMobile) setCollapsed(true);
+                  },
+                  collapsed,
+                } as any)
                 : sider}
             </ArcoLayout.Content>
           </ArcoLayout.Sider>
 
           <ArcoLayout.Content
-            className={'bg-1 layout-content flex flex-col min-h-0'}
+            className={'!bg-transparent layout-content flex flex-col min-h-0'}
             onClick={() => {
               if (isMobile && !collapsed) setCollapsed(true);
             }}
             style={
               isMobile
                 ? {
-                    width: '100vw',
-                  }
+                  width: '100vw',
+                }
                 : undefined
             }
           >
