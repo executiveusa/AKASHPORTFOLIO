@@ -3,7 +3,7 @@ import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 import AppLoader from './components/AppLoader';
 import { useAuth } from './context/AuthContext';
 import Conversation from './pages/conversation';
-import Guid from './pages/guid';
+import OutcomeHome from './pages/guid/OutcomeHome';
 import About from './pages/settings/About';
 import AgentSettings from './pages/settings/AgentSettings';
 import DisplaySettings from './pages/settings/DisplaySettings';
@@ -38,7 +38,7 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
         <Route path='/login' element={status === 'authenticated' ? <Navigate to='/guid' replace /> : <LoginPage />} />
         <Route element={<ProtectedLayout layout={layout} />}>
           <Route index element={<Navigate to='/guid' replace />} />
-          <Route path='/guid' element={<Guid />} />
+          <Route path='/guid' element={<OutcomeHome />} />
           <Route path='/conversation/:id' element={<Conversation />} />
           <Route path='/settings/gemini' element={<GeminiSettings />} />
           <Route path='/settings/model' element={<ModeSettings />} />
