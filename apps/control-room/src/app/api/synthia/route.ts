@@ -68,7 +68,7 @@ export async function POST(req: Request) {
             result = await callSynthiaBackend(messages as any);
             synthiaObservability.logEvent({
                 sessionId: 'current',
-                type: 'api_call',
+                type: 'state_change',
                 summary: `Synthia Rust Backend Response (${deviceType})`,
                 data: { device: deviceType }
             });
@@ -78,7 +78,7 @@ export async function POST(req: Request) {
             result = await callMiniMax(messages as any);
             synthiaObservability.logEvent({
                 sessionId: 'current',
-                type: 'api_call',
+                type: 'state_change',
                 summary: `MiniMax Fallback (${deviceType})`,
                 data: { device: deviceType }
             });
