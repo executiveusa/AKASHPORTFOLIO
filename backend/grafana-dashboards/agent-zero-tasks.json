@@ -1,0 +1,71 @@
+{
+  "dashboard": {
+    "title": "Agent Zero Task Monitoring",
+    "description": "Real-time monitoring of Agent Zero task execution and performance",
+    "tags": ["agent-zero", "synthia", "tasks"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Task Count by Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "synthia_task_count",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {},
+            "mappings": []
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Task Duration (seconds)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, synthia_task_duration_seconds)",
+            "refId": "A",
+            "legendFormat": "p95"
+          },
+          {
+            "expr": "histogram_quantile(0.99, synthia_task_duration_seconds)",
+            "refId": "B",
+            "legendFormat": "p99"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Total Task Delegations",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "synthia_task_delegation_total",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}
