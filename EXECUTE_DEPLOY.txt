@@ -1,0 +1,127 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                   🚀 SYNTHIA 3.0 DEPLOYMENT - COPY & PASTE                       ║
+║                         Execute on VPS (31.220.58.212)                           ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════════════════
+
+COMMAND 1: SSH into VPS
+────────────────────────────────────────────────────────────────────────────
+
+ssh root@31.220.58.212
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+COMMAND 2: ONE-LINER FULL DEPLOYMENT (Copy entire block)
+────────────────────────────────────────────────────────────────────────────
+
+bash << 'DEPLOY'
+set -e
+echo "🚀 SYNTHIA 3.0 DEPLOYMENT STARTED"
+
+# Schema
+export PGPASSWORD="072090156d28a9df6502d94083e47990"
+psql -h 31.220.58.212 -p 5434 -U postgres -d second_brain << 'SQL'
+CREATE TABLE IF NOT EXISTS agent_state (id BIGSERIAL PRIMARY KEY, agent_id TEXT UNIQUE NOT NULL, name TEXT NOT NULL, role TEXT NOT NULL, status TEXT DEFAULT 'idle' CHECK (status IN ('idle', 'working', 'offline', 'error')), current_task TEXT, metadata JSONB DEFAULT '{}'::jsonb, last_seen TIMESTAMP WITH TIME ZONE DEFAULT NOW(), created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(), updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS observations (id BIGSERIAL PRIMARY KEY, session_id TEXT NOT NULL, event_type TEXT NOT NULL, summary TEXT, data JSONB DEFAULT '{}'::jsonb, created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS memories (id BIGSERIAL PRIMARY KEY, title TEXT NOT NULL, summary TEXT, content TEXT, embedding vector(384), agent_id TEXT REFERENCES agent_state(agent_id), type TEXT DEFAULT 'observation', status TEXT DEFAULT 'active' CHECK (status IN ('active', 'archived', 'deleted')), importance INTEGER DEFAULT 0, metadata JSONB DEFAULT '{}'::jsonb, created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(), updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS memory_links (id BIGSERIAL PRIMARY KEY, source_id BIGINT NOT NULL REFERENCES memories(id) ON DELETE CASCADE, target_id BIGINT NOT NULL REFERENCES memories(id) ON DELETE CASCADE, type TEXT DEFAULT 'related', created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS conversations (id BIGSERIAL PRIMARY KEY, session_id TEXT UNIQUE NOT NULL, participants TEXT[] DEFAULT '{}', status TEXT DEFAULT 'active' CHECK (status IN ('active', 'archived', 'completed')), metadata JSONB DEFAULT '{}'::jsonb, created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(), updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS conversation_messages (id BIGSERIAL PRIMARY KEY, conversation_id BIGINT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE, role TEXT NOT NULL, content TEXT NOT NULL, embedding vector(384), agent_id TEXT REFERENCES agent_state(agent_id), created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW());
+CREATE INDEX IF NOT EXISTS idx_agent_state_status ON agent_state(status);
+CREATE INDEX IF NOT EXISTS idx_observations_session ON observations(session_id);
+CREATE INDEX IF NOT EXISTS idx_memories_agent ON memories(agent_id);
+CREATE INDEX IF NOT EXISTS idx_memory_links_source ON memory_links(source_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_session ON conversations(session_id);
+INSERT INTO agent_state (agent_id, name, role, status, metadata) VALUES ('synthia-0', 'Synthia Prime', 'Digital CEO', 'idle', '{"version": "3.0.0", "tier": "core"}') ON CONFLICT (agent_id) DO NOTHING;
+SELECT 'Schema ready' as status;
+SQL
+
+# Clone repo
+cd /opt/synthia
+rm -rf control-room
+git clone https://github.com/executiveusa/AKASHPORTFOLIO.git control-room
+cd control-room/apps/control-room
+
+# Build & Deploy
+docker build -t synthia-control-room:latest . && \
+docker stop synthia-control-room 2>/dev/null || true && \
+docker rm synthia-control-room 2>/dev/null || true && \
+docker run -d \
+  --name synthia-control-room \
+  --restart always \
+  -p 3001:3000 \
+  --env-file .env.local \
+  synthia-control-room:latest && \
+sleep 5 && \
+echo "✅ DEPLOYED - Checking health..." && \
+curl -s http://localhost:3001/api/health | head -50
+
+echo "🎉 DEPLOYMENT COMPLETE"
+DEPLOY
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+VERIFICATION COMMANDS (Run after deployment)
+────────────────────────────────────────────────────────────────────────────
+
+# 1. Check container status
+docker ps | grep synthia-control-room
+
+# 2. View logs
+docker logs -f synthia-control-room
+
+# 3. Health check
+curl http://localhost:3001/api/health
+
+# 4. Test Synthia API
+curl -X POST http://localhost:3001/api/synthia \
+  -H "Content-Type: application/json" \
+  -d '{"message":"Deployment test","agentId":"synthia-0"}'
+
+# 5. Check Supabase
+psql -h 31.220.58.212 -p 5434 -U postgres -d second_brain -c \
+  "SELECT * FROM agent_state;"
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+EXPECTED RESULTS
+────────────────────────────────────────────────────────────────────────────
+
+✅ Container running on port 3001
+✅ Health endpoint returns: {"status": "healthy", ...}
+✅ Synthia API responds with Claude output
+✅ Agent state visible in Supabase (synthia-0)
+✅ All telemetry logged to observations table
+
+Estimated Time: 10-15 minutes
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+ROLLBACK (if needed)
+────────────────────────────────────────────────────────────────────────────
+
+docker stop synthia-control-room
+docker rm synthia-control-room
+docker rmi synthia-control-room:latest
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+MONITORING
+────────────────────────────────────────────────────────────────────────────
+
+# Real-time logs
+docker logs -f synthia-control-room --tail 100
+
+# Check API health continuously
+watch -n 5 'curl -s http://localhost:3001/api/health | jq .'
+
+# Monitor recent telemetry
+watch -n 10 'psql -h 31.220.58.212 -p 5434 -U postgres -d second_brain -c "SELECT * FROM observations ORDER BY created_at DESC LIMIT 10;"'
+
+═══════════════════════════════════════════════════════════════════════════════
