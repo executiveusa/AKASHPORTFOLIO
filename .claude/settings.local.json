@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//e/THE PAULI FILES/**)",
+      "Bash(npm run build)",
+      "Bash(PGPASSWORD=\"072090156d28a9df6502d94083e47990\" psql -h 31.220.58.212 -p 5434 -U postgres -d second_brain -f /tmp/apply_schema.sql)",
+      "Bash(node scripts/apply-schema.js)",
+      "Bash(/tmp/test_connection.sh:*)",
+      "Bash(__NEW_LINE_0367a59715459648__ chmod +x /tmp/test_connection.sh)",
+      "Bash(bash /tmp/test_connection.sh)",
+      "Bash(vercel inspect \"dashboard-agent-swarm\")",
+      "Read(//c/Users/execu/AppData/Local/Temp/claude/c--kupuri-media-cdmx/tasks/**)",
+      "Read(//c/Users/execu/.ssh/**)",
+      "Read(//c/Users/execu/.ssh//**)",
+      "Bash(timeout 10 ssh -i ~/.ssh/id_ed25519 root@31.220.58.212 \"echo ''SSH OK''\")",
+      "Bash(ssh -i:*)",
+      "Bash(scp -i ~/.ssh/id_ed25519 /c/kupuri-media-cdmx/apps/control-room/Dockerfile.prod root@31.220.58.212:/opt/synthia/control-room/apps/control-room/Dockerfile.prod)",
+      "Bash(scp -i ~/.ssh/id_ed25519 /c/kupuri-media-cdmx/apps/control-room/docker-compose.yml root@31.220.58.212:/opt/synthia/control-room/apps/control-room/docker-compose.yml)",
+      "Bash(scp -i ~/.ssh/id_ed25519 /c/kupuri-media-cdmx/package-lock.json root@31.220.58.212:/opt/synthia/control-room/apps/control-room/package-lock.json)",
+      "Read(//c/Users/execu/Downloads/KUPURI IMAGES/**)",
+      "Read(//e/ACTIVE PROJECTS-PIPELINE/ACTIVE PROJECTS-PIPELINE/AGENT ZERO/**)",
+      "Read(//c/Users/execu/Downloads/llm-council-master/llm-council-master/**)",
+      "Bash(npm run)",
+      "Read(//tmp/claude/c--kupuri-media-cdmx/tasks/**)"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
+    ]
+  }
+}

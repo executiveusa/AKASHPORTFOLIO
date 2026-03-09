@@ -38,3 +38,5 @@ logs/
 
 # Private Secrets
 secrets.md
+.vercel
+.env*.local

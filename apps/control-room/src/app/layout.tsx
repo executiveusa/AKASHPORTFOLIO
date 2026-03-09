@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
+import { Playfair_Display } from "next/font/google";
 import "./globals.css";
+
+const playfairDisplay = Playfair_Display({
+  variable: "--font-playfair-display",
+  subsets: ["latin"],
+  weights: ["400", "600", "700", "900"],
+});
 
 export const metadata: Metadata = {
   title: "Synthia™ 3.0 - Sistema Operativo Agentico",
@@ -12,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
+    <html lang="es" className={playfairDisplay.variable}>
       <body className="antialiased">
         {children}
       </body>

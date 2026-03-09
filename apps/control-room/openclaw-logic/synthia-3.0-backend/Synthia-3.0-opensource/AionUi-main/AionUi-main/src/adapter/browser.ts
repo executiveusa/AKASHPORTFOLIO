@@ -5,7 +5,7 @@
  */
 
 import { bridge, logger } from '@office-ai/platform';
-import type { ElectronBridgeAPI } from '@/types/electron';
+import type { ElectronBridgeAPI } from '../../src/types/electron';
 
 interface CustomWindow extends Window {
   electronAPI?: ElectronBridgeAPI;
@@ -23,7 +23,7 @@ if (win.electronAPI) {
   // Electron 环境 - 使用 IPC 通信
   bridge.adapter({
     emit(name, data) {
-      return win.electronAPI.emit(name, data);
+      return win.electronAPI?.emit(name, data);
     },
     on(emitter) {
       win.electronAPI?.on((event) => {

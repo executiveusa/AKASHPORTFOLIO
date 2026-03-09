@@ -25,7 +25,7 @@ async function run() {
       },
     });
 
-    for (const part of response.candidates[0].content.parts) {
+    for (const part of response.candidates?.[0]?.content?.parts ?? []) {
       if (part.inlineData) {
         console.log(part.inlineData.data);
         return;

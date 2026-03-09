@@ -1,22 +1,56 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Synthia 3.0 Brand Palette */
+  --color-charcoal-900: #1a1208;
+  --color-charcoal-800: #231a0c;
+  --color-charcoal-700: #2e2210;
+  --color-gold-400: #f5d78c;
+  --color-gold-600: #c9a84c;
+  --color-cream-100: #f5efe4;
+  --color-cream-200: #e8dcc8;
+  --color-cream-400: #b8a485;
+
+  --background: var(--color-charcoal-900);
+  --foreground: var(--color-cream-100);
 }
 
 @theme inline {
+  --color-charcoal-900: var(--color-charcoal-900);
+  --color-charcoal-800: var(--color-charcoal-800);
+  --color-charcoal-700: var(--color-charcoal-700);
+  --color-gold-400: var(--color-gold-400);
+  --color-gold-600: var(--color-gold-600);
+  --color-cream-100: var(--color-cream-100);
+  --color-cream-200: var(--color-cream-200);
+  --color-cream-400: var(--color-cream-400);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-playfair-display);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes gold-pulse {
+  0%, 100% {
+    opacity: 1;
   }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.glass-panel {
+  @apply backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl;
+}
+
+.glass-panel-elevated {
+  @apply backdrop-blur-xl bg-white/8 border border-gold-600/20 rounded-2xl;
+}
+
+.gold-pulse {
+  @apply animate-[gold-pulse_2s_ease-in-out_infinite];
 }
 
 body {

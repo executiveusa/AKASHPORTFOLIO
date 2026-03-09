@@ -18,7 +18,7 @@ const CONFIG = {
   vpsIp: process.env.VPS_IP || '31.220.58.212',
   coolifyUrl: process.env.COOLIFY_URL || 'http://31.220.58.212:8000',
   coolifyToken: process.env.COOLIFY_API_TOKEN || '1439|JNBGNRm9lON2g8DpkpKIa5TnRdGc8LaILhTgPTuR8d6b1c26',
-  sshKey: process.env.SSH_KEY_PATH || path.expandUser('~/.ssh/bambu_key'),
+  sshKey: process.env.SSH_KEY_PATH || path.join(process.env.HOME || process.env.USERPROFILE, '.ssh', 'bambu_key'),
   sshUser: 'root',
   workDir: '/opt/synthia/control-room',
   imageName: 'synthia-control-room:latest',

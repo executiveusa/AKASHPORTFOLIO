@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { BrowserWindow } from 'electron';
-import { ipcMain } from 'electron';
+import { BrowserWindow, ipcMain } from 'electron';
 
 import { bridge } from '@office-ai/platform';
 import { ADAPTER_BRIDGE_EVENT_KEY } from './constant';
@@ -19,7 +18,7 @@ interface BridgeEventData {
   data: unknown;
 }
 
-const adapterWindowList: Array<BrowserWindow> = [];
+const adapterWindowList: (InstanceType<typeof BrowserWindow>)[] = [];
 
 /**
  * WebSocket 广播函数类型
