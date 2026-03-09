@@ -87,14 +87,18 @@ bridge.adapter({
     // 保存 emitter 引用供 WebSocket 处理使用 / Save emitter reference for WebSocket handling
     bridgeEmitter = emitter;
 
-    ipcMain.handle(ADAPTER_BRIDGE_EVENT_KEY, (_event, info) => {
-      const { name, data } = JSON.parse(info) as BridgeEventData;
-      return Promise.resolve(emitter.emit(name, data));
+    ipcMain.on(ADAPTER_BRIDGE_EVENT_KEY, (_event, info) => {
+      try {
+        const { name, data } = JSON.parse(info) as BridgeEventData;
+        emitter.emit(name, data);
+      } catch (error) {
+        console.error('[MainAdapter] IPC event error:', error);
+      }
     });
   },
 });
 
-export const initMainAdapterWithWindow = (win: BrowserWindow) => {
+export const initMainAdapterWithWindow = (win: InstanceType<typeof BrowserWindow>) => {
   adapterWindowList.push(win);
   const off = () => {
     const index = adapterWindowList.indexOf(win);
