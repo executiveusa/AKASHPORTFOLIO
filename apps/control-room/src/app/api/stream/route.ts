@@ -29,7 +29,7 @@ function checkRateLimit(clientId: string, limit: number = 100, windowMs: number 
 // POST: Stream tokens from Claude API
 export async function POST(req: NextRequest) {
   try {
-    const clientId = req.headers.get('x-client-id') || req.ip || 'anonymous';
+    const clientId = req.headers.get('x-client-id') || req.headers.get('x-forwarded-for') || 'anonymous';
 
     if (!checkRateLimit(clientId, 100, 60000)) {
       return NextResponse.json(
