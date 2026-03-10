@@ -177,7 +177,7 @@ export class AvatarVoiceSync {
    */
   getTimelineVisualization(maxTime: number = 5000): string {
     const barLength = 40;
-    const bars = [];
+    const bars: string[] = [];
 
     this.currentAnimationTimeline.slice(0, Math.ceil(maxTime / 100)).forEach(frame => {
       const position = Math.round((frame.time / maxTime) * barLength);

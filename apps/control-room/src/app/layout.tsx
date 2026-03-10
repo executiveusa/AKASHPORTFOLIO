@@ -5,7 +5,7 @@ import "./globals.css";
 const playfairDisplay = Playfair_Display({
   variable: "--font-playfair-display",
   subsets: ["latin"],
-  weights: ["400", "600", "700", "900"],
+  weight: ["400", "600", "700", "900"],
 });
 
 export const metadata: Metadata = {
