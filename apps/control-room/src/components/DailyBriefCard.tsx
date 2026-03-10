@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
 
 interface BriefData {
   greeting: string;
@@ -85,9 +84,9 @@ export function DailyBriefCard({ userId, language = 'es' }: DailyBriefCardProps)
         </div>
         <button
           onClick={() => setIsDismissed(true)}
-          className="text-slate-400 hover:text-slate-300 transition-colors"
+          className="text-slate-400 hover:text-slate-300 transition-colors font-bold"
         >
-          <X size={20} />
+          ✕
         </button>
       </div>
 
