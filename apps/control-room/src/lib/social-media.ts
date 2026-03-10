@@ -6,9 +6,34 @@
  * Integrates with Indigo (growth) and Lapina (content) agents.
  */
 
+import fs from 'fs';
+import path from 'path';
 import { callMiniMax } from './minimax';
 import { synthiaObservability } from './observability';
 import { agentMail } from './agent-mail';
+
+const STORE_DIR = path.join(process.cwd(), '.campaigns-store');
+const STORE_FILE = path.join(STORE_DIR, 'campaigns.json');
+
+function ensureStore() {
+  if (!fs.existsSync(STORE_DIR)) fs.mkdirSync(STORE_DIR, { recursive: true });
+}
+
+function loadCampaigns(): Map<string, Campaign> {
+  ensureStore();
+  try {
+    if (fs.existsSync(STORE_FILE)) {
+      const data = JSON.parse(fs.readFileSync(STORE_FILE, 'utf-8'));
+      return new Map(Object.entries(data));
+    }
+  } catch { /* start fresh */ }
+  return new Map();
+}
+
+function persistCampaigns(store: Map<string, Campaign>) {
+  ensureStore();
+  fs.writeFileSync(STORE_FILE, JSON.stringify(Object.fromEntries(store), null, 2));
+}
 
 export type Platform = 'tiktok' | 'instagram' | 'twitter' | 'linkedin' | 'youtube_shorts';
 export type ContentType = 'demo_video' | 'carousel' | 'thread' | 'short_post' | 'long_form' | 'story';
@@ -51,7 +76,7 @@ export interface Campaign {
   notes: string;
 }
 
-const campaigns: Map<string, Campaign> = new Map();
+const campaigns: Map<string, Campaign> = loadCampaigns();
 
 const PLATFORM_SPECS: Record<Platform, {
   maxChars: number;
@@ -202,6 +227,7 @@ export async function createCampaign(
   };
 
   campaigns.set(id, campaign);
+  persistCampaigns(campaigns);
 
   synthiaObservability.logEvent({
     type: 'success',
@@ -263,6 +289,7 @@ export function recordMetrics(
   }
 
   campaigns.set(campaignId, campaign);
+  persistCampaigns(campaigns);
 }
 
 /**
