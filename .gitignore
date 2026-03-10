@@ -38,7 +38,15 @@ logs/
 # We want to keep the code but not the .git history of subdirs
 # AKASHPORTFOLIO-main/.git/ 
 
-# Private Secrets
+# Private Secrets + Deployment docs with credentials
 secrets.md
+BUILD_REPORT.md
+DEPLOYMENT_GUIDE.md
+DOCKER_AND_DEPLOYMENT.md
+STAGE_7_COMPLETION.md
+DEPLOY_NOW.md
+EXECUTE_DEPLOY.txt
+COOLIFY_DEPLOY.sh
+DEPLOY_SYNTHIA.sh
 .vercel
 .env*.local
