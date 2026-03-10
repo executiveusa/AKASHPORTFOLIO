@@ -10,6 +10,9 @@ import ViewingRoom from "../components/ViewingRoom";
 import SkillMarket from "../components/SkillMarket";
 import InviteGate from "../components/InviteGate";
 import OrgoConsole from "../components/OrgoConsole";
+import MeetingRoom from "../components/MeetingRoom";
+import AgentMailbox from "../components/AgentMailbox";
+import CouncilRoom from "../components/CouncilRoom";
 import type { Agent } from "@/lib/swarm";
 
 export default function Home() {
@@ -92,12 +95,39 @@ export default function Home() {
               <SkillMarket />
             </div>
 
-            {/* Power User Grid (The 20 Leverage Points) */}
+            {/* Power User Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
               <PowerButton label="Generación UGC" status="Listo" />
               <PowerButton label="Filtro ACIP" status="Activo" />
               <PowerButton label="Lead Radar" status="Escaneando" />
               <PowerButton label="Auto-Deploy" status="Standby" />
+            </div>
+
+            {/* Meeting Room — Live + Replay */}
+            <div className="mt-8 pt-8 border-t border-zinc-900">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-2 h-2 bg-pink-500 rounded-full animate-pulse"></div>
+                <h2 className="text-[10px] uppercase tracking-widest font-bold text-zinc-500">Sala de Reuniones — 3x Diario</h2>
+              </div>
+              <MeetingRoom />
+            </div>
+
+            {/* Agent Mail + Council Room */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8 pt-8 border-t border-zinc-900">
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                  <h2 className="text-[10px] uppercase tracking-widest font-bold text-zinc-500">Agent Mail</h2>
+                </div>
+                <AgentMailbox />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <h2 className="text-[10px] uppercase tracking-widest font-bold text-zinc-500">Consejo de LLMs</h2>
+                </div>
+                <CouncilRoom />
+              </div>
             </div>
           </div>
 
