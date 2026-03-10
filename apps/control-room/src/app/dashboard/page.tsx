@@ -16,7 +16,9 @@ import TaskDelegation from "../../components/TaskDelegation";
 import SocialMediaManager from "../../components/SocialMediaManager";
 import ReportsAndAnalytics from "../../components/ReportsAndAnalytics";
 import { DailyBriefCard } from "../../components/DailyBriefCard";
+import MeetingSchedule from "../../components/MeetingSchedule";
 import type { Agent } from "@/lib/swarm";
+import { MEETING_LOCATIONS, WEEKLY_SCHEDULE } from "@/lib/meeting-locations";
 
 export default function Dashboard() {
   const [agents, setAgents] = useState<Agent[]>([]);
@@ -222,6 +224,60 @@ export default function Dashboard() {
                   <PowerButton label="Lead Radar" status="Escaneando" language={language} />
                   <PowerButton label="Auto-Deploy" status="Standby" language={language} />
                 </div>
+              </div>
+
+              {/* World Meeting Locations – Demo Cards */}
+              <div className="glass-panel-elevated p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-[10px] uppercase tracking-widest font-bold text-gold-400">
+                    {language === 'es' ? '🌍 Lugares de Reunión Mundiales' : '🌍 World Meeting Locations'}
+                  </h2>
+                  <a
+                    href="/theater"
+                    className="text-[9px] uppercase tracking-widest text-gold-400 hover:text-gold-300 border border-gold-400/30 hover:border-gold-400 px-3 py-1 rounded-full transition-all"
+                  >
+                    {language === 'es' ? 'Abrir Teatro' : 'Open Theater'} →
+                  </a>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {MEETING_LOCATIONS.map((loc) => (
+                    <a
+                      key={loc.id}
+                      href={`/theater`}
+                      className="relative group rounded-xl overflow-hidden border border-zinc-800 hover:border-gold-400/50 transition-all"
+                    >
+                      <div className="relative h-28 overflow-hidden">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={loc.referenceImageUrl}
+                          alt={loc.nameEs}
+                          crossOrigin="anonymous"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.opacity = '0';
+                          }}
+                        />
+                        <div
+                          className="absolute inset-0"
+                          style={{
+                            background: `linear-gradient(to bottom, transparent 30%, #${loc.bgColor.toString(16).padStart(6, '0')}dd 100%)`,
+                          }}
+                        />
+                        <div className="absolute bottom-0 left-0 p-2">
+                          <p className="text-[8px] uppercase tracking-widest font-bold" style={{ color: loc.accentHex }}>
+                            {loc.neighborhood.split(',')[0]}
+                          </p>
+                          <p className="text-xs font-bold text-white leading-tight">{loc.nameEs.split('–')[0].trim()}</p>
+                        </div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+
+              {/* Council Meeting Schedule */}
+              <div className="glass-panel-elevated p-6">
+                <MeetingSchedule language={language} />
               </div>
             </div>
 

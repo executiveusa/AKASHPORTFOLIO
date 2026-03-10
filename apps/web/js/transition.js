@@ -111,8 +111,16 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("Different page - doing transition");
       event.preventDefault(); // Prevent immediate navigation
       animateTransition().then(() => {
+        // Update browser history for back button to work
+        window.history.pushState({ page: href }, "", href);
         window.location.href = href; // Navigate after transition
       });
     });
+  });
+
+  // Handle browser popstate event (back/forward buttons)
+  window.addEventListener("popstate", () => {
+    console.log("Back/Forward button pressed");
+    revealTransition();
   });
 });
