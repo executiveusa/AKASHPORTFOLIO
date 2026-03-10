@@ -199,6 +199,22 @@ export default function Dashboard() {
                   <span className="text-gold-400 font-bold uppercase tracking-widest text-sm">{labels.theaterLink}</span>
                 </a>
 
+                {/* ALEX™ Link Button */}
+                <a
+                  href="/alex"
+                  className="glass-panel-elevated px-6 py-4 hover:bg-gold-600/10 transition-all border border-gold-600/50 hover:border-gold-400 text-center"
+                >
+                  <span className="text-gold-400 font-bold uppercase tracking-widest text-sm">🤖 {language === 'es' ? 'ALEX™ AGENT' : 'ALEX™ AGENT'}</span>
+                </a>
+
+                {/* Skills Marketplace Link Button */}
+                <a
+                  href="/skills"
+                  className="glass-panel-elevated px-6 py-4 hover:bg-gold-600/10 transition-all border border-gold-600/50 hover:border-gold-400 text-center"
+                >
+                  <span className="text-gold-400 font-bold uppercase tracking-widest text-sm">⚡ {language === 'es' ? 'MARKETPLACE' : 'MARKETPLACE'}</span>
+                </a>
+
                 {/* ALEX Link Button */}
                 <a
                   href="/alex"
