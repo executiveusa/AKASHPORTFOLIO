@@ -18,6 +18,8 @@ out/
 # Environment secrets
 .env
 .env.local
+master.env
+secrets.md
 .env.development.local
 .env.test.local
 .env.production.local
