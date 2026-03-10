@@ -15,6 +15,7 @@ import OrgoConsole from "../../components/OrgoConsole";
 import TaskDelegation from "../../components/TaskDelegation";
 import SocialMediaManager from "../../components/SocialMediaManager";
 import ReportsAndAnalytics from "../../components/ReportsAndAnalytics";
+import { DailyBriefCard } from "../../components/DailyBriefCard";
 import type { Agent } from "@/lib/swarm";
 
 export default function Dashboard() {
@@ -175,6 +176,9 @@ export default function Dashboard() {
                 </div>
               </div>
 
+              {/* Daily Brief Card */}
+              <DailyBriefCard language={language} />
+
               <div className="glass-panel-elevated p-6">
                 <AgentGrid />
               </div>
@@ -183,13 +187,32 @@ export default function Dashboard() {
                 <ReportsAndAnalytics />
               </div>
 
-              {/* Theater Link Button */}
-              <a
-                href="/theater"
-                className="glass-panel-elevated px-6 py-4 hover:bg-gold-600/10 transition-all border border-gold-600/50 hover:border-gold-400 text-center"
-              >
-                <span className="text-gold-400 font-bold uppercase tracking-widest">{labels.theaterLink}</span>
-              </a>
+              {/* Quick Access Buttons */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Theater Link Button */}
+                <a
+                  href="/theater"
+                  className="glass-panel-elevated px-6 py-4 hover:bg-gold-600/10 transition-all border border-gold-600/50 hover:border-gold-400 text-center"
+                >
+                  <span className="text-gold-400 font-bold uppercase tracking-widest text-sm">{labels.theaterLink}</span>
+                </a>
+
+                {/* ALEX Link Button */}
+                <a
+                  href="/alex"
+                  className="glass-panel-elevated px-6 py-4 hover:bg-amber-600/10 transition-all border border-amber-600/50 hover:border-amber-400 text-center"
+                >
+                  <span className="text-amber-400 font-bold uppercase tracking-widest text-sm">🤖 ALEX™</span>
+                </a>
+
+                {/* Skills Link Button */}
+                <a
+                  href="/skills"
+                  className="glass-panel-elevated px-6 py-4 hover:bg-amber-600/10 transition-all border border-amber-600/50 hover:border-amber-400 text-center"
+                >
+                  <span className="text-amber-400 font-bold uppercase tracking-widest text-sm">⚡ {language === 'es' ? 'Habilidades' : 'Skills'}</span>
+                </a>
+              </div>
 
               {/* Power Buttons */}
               <div className="glass-panel-elevated p-6">
