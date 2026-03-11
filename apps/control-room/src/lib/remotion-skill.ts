@@ -47,8 +47,7 @@ export class RemotionSkill {
                 });
             }
 
-            // TODO: Wire actual Remotion API
-            // For now, return structured stub
+            // STUB MODE: returns a local jobId until RUNWAY_API_KEY/REMOTION_API_KEY is configured
             const jobId = `remotion-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
             return {
@@ -81,8 +80,7 @@ export class RemotionSkill {
      */
     async getRenderStatus(jobId: string): Promise<RemotionRenderResult> {
         try {
-            // TODO: Wire to Remotion status API
-            // Stub: assume complete after 5s
+            // STUB MODE: simulates completion after 5s; replace with Runway/Remotion status API call
             const age = parseInt(jobId.split('-')[1]) || 0;
             const elapsed = Date.now() - age;
 
@@ -150,7 +148,7 @@ export class RemotionSkill {
      * List available templates
      */
     async listTemplates(): Promise<string[]> {
-        // TODO: Fetch from Remotion API
+        // STUB: returns static list; replace with API call when Runway SDK is wired
         return [
             'marketing_intro',
             'demo_walkthrough',

@@ -5,6 +5,109 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import type { Agent } from '@/lib/swarm';
 
+interface CouncilMeeting {
+  id: string;
+  topic: string;
+  status: 'pending' | 'live' | 'completed';
+  participants: string[];
+  decisions: string[];
+  createdAt: string;
+}
+
+function CouncilPanel() {
+  const [meetings, setMeetings] = useState<CouncilMeeting[]>([]);
+  const [nextSessions, setNextSessions] = useState<Array<{ label: string; next: string }>>([]);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const fetchMeetings = async () => {
+    try {
+      const res = await fetch('/api/council?status=live');
+      if (res.ok) {
+        const data = await res.json();
+        setMeetings(Array.isArray(data) ? data : data.meetings ?? []);
+      }
+    } catch {
+      // Silently fail — panel is non-critical
+    }
+  };
+
+  const fetchSchedule = async () => {
+    try {
+      const res = await fetch('/api/council/cron');
+      if (res.ok) {
+        const data = await res.json();
+        setNextSessions(data.schedules ?? []);
+      }
+    } catch {
+      // Non-critical
+    }
+  };
+
+  useEffect(() => {
+    fetchMeetings();
+    fetchSchedule();
+    intervalRef.current = setInterval(fetchMeetings, 30_000);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
+
+  const liveMeeting = meetings.find((m) => m.status === 'live');
+
+  return (
+    <div className="w-full mt-2 bg-zinc-950/70 border border-zinc-800 rounded-xl p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-500">
+          Sala del Consejo LLM
+        </span>
+        {liveMeeting && (
+          <span className="flex items-center gap-1 text-[9px] font-semibold text-emerald-400">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            EN VIVO
+          </span>
+        )}
+      </div>
+
+      {liveMeeting ? (
+        <div className="space-y-2">
+          <p className="text-xs text-zinc-200 font-medium">{liveMeeting.topic}</p>
+          <div className="flex flex-wrap gap-1 mt-1">
+            {liveMeeting.participants?.map((p) => (
+              <span key={p} className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400">
+                {p}
+              </span>
+            ))}
+          </div>
+          {liveMeeting.decisions?.length > 0 && (
+            <ul className="mt-2 space-y-1">
+              {liveMeeting.decisions.map((d, i) => (
+                <li key={i} className="text-[11px] text-zinc-300">✓ {d}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <p className="text-[11px] text-zinc-500 mb-2">Sin sesión activa. Próximas convocatorias:</p>
+          {nextSessions.slice(0, 3).map((s, i) => (
+            <div key={i} className="flex justify-between items-center text-[11px]">
+              <span className="text-zinc-400">{s.label}</span>
+              <span className="text-zinc-600">
+                {s.next
+                  ? new Date(s.next).toLocaleDateString('es-MX', {
+                      weekday: 'short', month: 'short', day: 'numeric',
+                      hour: '2-digit', minute: '2-digit',
+                    })
+                  : '—'}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface ViewingRoomProps {
     agents: Agent[];
 }
@@ -119,11 +222,14 @@ export default function ViewingRoom({ agents }: ViewingRoomProps) {
     }, [agents]);
 
     return (
-        <div className="relative w-full h-[400px] bg-zinc-950/50 rounded-2xl border border-zinc-800 overflow-hidden">
-            <div className="absolute top-4 left-6 z-10">
-                <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-500">Visualización 3D Enjambre</h3>
+        <div className="w-full flex flex-col gap-0">
+            <div className="relative w-full h-[400px] bg-zinc-950/50 rounded-2xl border border-zinc-800 overflow-hidden">
+                <div className="absolute top-4 left-6 z-10">
+                    <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-500">Visualización 3D Enjambre</h3>
+                </div>
+                <div ref={containerRef} className="w-full h-full" />
             </div>
-            <div ref={containerRef} className="w-full h-full" />
+            <CouncilPanel />
         </div>
     );
 }

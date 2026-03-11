@@ -19,7 +19,7 @@
   .hero .hero-header.hero-header-1 {
     position: relative;
     transform: translateX(-2%);
-    z-index: -1;
+    z-index: 1;
   }
   
   .hero .hero-header.hero-header-2 {
