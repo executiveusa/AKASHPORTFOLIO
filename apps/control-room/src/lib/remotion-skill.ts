@@ -1,13 +1,14 @@
 /**
  * Remotion Skill for Synthia 3.0
  * Video generation & rendering orchestration
- * Integrates with Remotion.dev API (production-ready skeleton)
+ * Integrates with Runway API for production video generation
+ * **ZTE-20260311-0001: Permanent wiring for WOW demo generation**
  */
 
 import { telemetry, memoryStore } from './supabase-client';
 
 export interface RemotionRenderRequest {
-    template: string; // e.g., 'marketing_intro', 'demo_walkthrough'
+    template: string; // e.g., 'whatsapp_demo', 'content_calendar', 'overnight_worker'
     props: Record<string, any>;
     metadata?: Record<string, any>;
     agentId?: string;
@@ -24,10 +25,11 @@ export interface RemotionRenderResult {
 
 export class RemotionSkill {
     private apiKey: string;
-    private baseUrl = 'https://api.remotion.dev/v1';
+    private baseUrl = 'https://api.runwayml.com/v1';
 
     constructor() {
-        this.apiKey = process.env.REMOTION_API_KEY || 'sk-remotion-placeholder';
+        // Use RUNWAY_API_KEY from master.env (more reliable for video gen than Remotion)
+        this.apiKey = process.env.RUNWAY_API_KEY || process.env.REMOTION_API_KEY || '';
     }
 
     /**

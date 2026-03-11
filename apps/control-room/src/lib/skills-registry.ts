@@ -694,6 +694,59 @@ export const SKILLS_REGISTRY: Skill[] = [
     ],
     tier_required: 'agency',
   },
+
+  // WOW VIDEO SKILLS — ZTE-20260311-0001
+  {
+    id: 'video_whatsapp_demo',
+    name_es: 'Video: Demo WhatsApp Auto-Respuesta',
+    name_en: 'Video: WhatsApp Auto-Reply Demo',
+    category: 'content',
+    pain_point_es: 'Necesito mostrar cómo ALEX™ funciona',
+    solution_es: 'ALEX™ genera demo video de auto-respuestas',
+    wow_demo: 'whatsapp_demo',
+    prompt_template: 'Genera video demo WhatsApp. Usando plantilla: whatsapp_demo de wow-demos.ts',
+    inputs: [
+      { name: 'demo_type', type: 'text', required: true, placeholder: 'whatsapp_demo' },
+    ],
+    outputs: [
+      { name: 'video_url', format: 'text', description: 'URL del video demo generado' },
+    ],
+    tier_required: 'lite',
+  },
+  {
+    id: 'video_content_calendar',
+    name_es: 'Video: Demo Generador de Calendario',
+    name_en: 'Video: Content Calendar Demo',
+    category: 'content',
+    pain_point_es: 'Necesito convencer a mi equipo',
+    solution_es: 'ALEX™ genera video mostrando 30 días de contenido en 3 minutos',
+    wow_demo: 'content_calendar',
+    prompt_template: 'Genera video demo calendario. Usando plantilla: content_calendar de wow-demos.ts',
+    inputs: [
+      { name: 'demo_type', type: 'text', required: true, placeholder: 'content_calendar' },
+    ],
+    outputs: [
+      { name: 'video_url', format: 'text', description: 'URL del video demo generado' },
+    ],
+    tier_required: 'lite',
+  },
+  {
+    id: 'video_overnight_worker',
+    name_es: 'Video: Trabajador de Noche',
+    name_en: 'Video: Overnight Worker',
+    category: 'content',
+    pain_point_es: 'Quiero mostrar el poder de ALEX™',
+    solution_es: 'ALEX™ genera video mostrando 12 tareas completadas mientras duermes',
+    wow_demo: 'overnight_worker',
+    prompt_template: 'Genera video demo overnight worker. Usando plantilla: overnight_worker de wow-demos.ts',
+    inputs: [
+      { name: 'demo_type', type: 'text', required: true, placeholder: 'overnight_worker' },
+    ],
+    outputs: [
+      { name: 'video_url', format: 'text', description: 'URL del video demo generado' },
+    ],
+    tier_required: 'lite',
+  },
 ];
 
 export default SKILLS_REGISTRY;
