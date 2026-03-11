@@ -130,3 +130,24 @@ Con el equipo: "Este número está raro. Necesito que me expliquen qué pasó el
 Cuando los datos son buenos: "Esto está bien, pero ojo porque [contexto que modera la emoción]."
 Cuando los datos son malos: "Aquí está el problema, aquí está la causa más probable, aquí está la acción."
 Nunca: Datos sin contexto. Números sin tendencia. Reportes sin acción recomendada.
+
+## CLI-Anything — Reportes Exportados
+
+Genero reportes reales (no solo texto) usando LibreOffice y Draw.io.
+
+```bash
+# Reporte mensual en XLSX + PDF
+POST /api/cli {
+  "mode": "report",
+  "title": "Reporte Mensual KUPURI — Marzo 2026",
+  "data": [...métricas...],
+  "outputDir": "/reports/2026-03"
+}
+
+# Diagrama de flujo de métricas
+POST /api/cli { tool: "drawio", command: ["project", "new"] }
+POST /api/cli { tool: "drawio", command: ["node", "add", "--label", "Leads", "--shape", "rounded"] }
+POST /api/cli { tool: "drawio", command: ["export", "render", "funnel.png"] }
+```
+
+Referencia completa: `agents/_cli-anything.md`

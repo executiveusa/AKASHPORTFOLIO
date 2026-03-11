@@ -189,7 +189,103 @@ This document tracks all agent-based automation, LLM integrations, and workflow 
 
 ---
 
+---
+
+## CLI-Anything Integration
+
+**Source**: https://github.com/HKUDS/CLI-Anything
+**Added**: 2026-03-11
+**Status**: Hardwired skill — available to ALL Synthia 3.0 agents
+
+### What It Is
+
+CLI-Anything transforms professional desktop software into agent-controllable CLIs with structured JSON output. Every Synthia agent can now produce real professional files — not just text responses.
+
+### Available Tools
+
+| Tool | CLI Command | Primary Agents |
+|------|-------------|----------------|
+| GIMP | `cli-anything-gimp` | Merlina, Lapina Instagram |
+| Blender | `cli-anything-blender` | Merlina, Indigo |
+| Inkscape | `cli-anything-inkscape` | Merlina, Lapina LinkedIn |
+| Kdenlive | `cli-anything-kdenlive` | Lapina TikTok, Lapina Instagram, Indigo |
+| Audacity | `cli-anything-audacity` | Lapina TikTok, Ivette Voice |
+| LibreOffice | `cli-anything-libreoffice` | Synthia, Morpho, Clandestino, Ralphy |
+| OBS Studio | `cli-anything-obs-studio` | Indigo, Synthia |
+| Draw.io | `cli-anything-drawio` | Morpho, Ralphy |
+| AnyGen | `cli-anything-anygen` | Synthia, Indigo, Lapina |
+
+### Implementation Files
+
+- **Lib wrapper**: `apps/control-room/src/lib/cli-anything.ts`
+- **API route**: `apps/control-room/src/app/api/cli/route.ts`
+- **Agent skill**: `apps/control-room/agents/_cli-anything.md`
+
+### API Endpoints
+
+```
+GET  /api/cli               → discover installed tools
+GET  /api/cli?tool=gimp     → get tool capabilities
+POST /api/cli               → execute command or workflow
+```
+
+### Install
+
+```bash
+pip install cli-anything-gimp cli-anything-blender cli-anything-inkscape \
+            cli-anything-kdenlive cli-anything-audacity cli-anything-libreoffice \
+            cli-anything-obs-studio cli-anything-drawio cli-anything-anygen
+```
+
+---
+
+## Synthia 3.0 Agent Roster
+
+**Location**: `apps/control-room/agents/`
+**Added**: 2026-03-08 → 2026-03-11
+
+| Agent | File | Role |
+|-------|------|------|
+| Synthia Prime | `synthia-prime.md` | CEO Digital, orchestrator |
+| Ralphy | `ralphy.md` | Quality coach (Lightning Protocol) |
+| Indigo | `indigo.md` | Growth hacker, A/B testing |
+| Lapina | `lapina.md` | Content creator coordinator |
+| Lapina TikTok | `lapina-tiktok.md` | TikTok specialist |
+| Lapina Instagram | `lapina-instagram.md` | Instagram specialist |
+| Lapina LinkedIn | `lapina-linkedin.md` | LinkedIn/B2B specialist |
+| Clandestino | `clandestino.md` | Sales & BD |
+| Merlina | `merlina.md` | Creative director |
+| Morpho | `morpho.md` | Analytics |
+| Ivette Voice | `ivette-voice.md` | Brand guardian |
+| NEXUS | `_nexus.md` | Orchestration framework |
+| CLI-Anything | `_cli-anything.md` | Universal creative execution skill |
+
+### Supporting Systems
+
+| System | File | Purpose |
+|--------|------|---------|
+| Agent Mail | `src/lib/agent-mail.ts` | Inter-agent messaging |
+| LLM Council | `src/lib/council.ts` | 5-member deliberation system |
+| Meeting Room | `src/lib/meeting-room.ts` | 3x daily cron meetings |
+| Social Media | `src/lib/social-media.ts` | A/B campaign automation |
+| CLI-Anything | `src/lib/cli-anything.ts` | Creative software control |
+| Swarm | `src/lib/swarm.ts` | 8-agent roster + goal tracking |
+
+---
+
 ## Change Log
+
+### 2026-03-11
+- Added CLI-Anything universal skill to all agents
+- Created `cli-anything.ts` lib + `/api/cli` route
+- Added Lapina platform sub-agents (TikTok, Instagram, LinkedIn)
+- Added campaign disk persistence to `social-media.ts`
+
+### 2026-03-08
+- Full Synthia 3.0 agent roster (8 agents + NEXUS framework)
+- LLM Council, Meeting Room, Agent Mail, Social Media A/B systems
+- Vercel cron jobs for 3x daily meetings
+- Security fix: MiniMax API key moved to env vars
 
 ### 2026-03-03
 - Created agents.md
