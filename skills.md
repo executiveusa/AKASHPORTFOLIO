@@ -586,12 +586,80 @@ Phase 3: synthesizeVotes() → final decision + action items
 
 ---
 
+---
+
+### 14. OpenFang Agent OS
+
+**Skill Name**: `openfang-agent-os`
+**Type**: Autonomous Agent Infrastructure
+**Status**: Active
+**Integration**: `src/lib/openfang.ts` + `/api/openfang` + `agents/_openfang.md`
+**Source**: https://github.com/RightNow-AI/openfang
+
+#### What It Does
+
+OpenFang is a Rust-based Agent Operating System (32MB binary, 180ms cold start) that runs as a daemon and provides:
+- **7 pre-built Hands** — autonomous execution units for real-world tasks
+- **40 channel adapters** — deliver messages to WhatsApp, Telegram, Slack, Email, Discord, etc.
+- **53 built-in tools** — web browsing, file ops, video processing, OSINT, and more
+- **27 LLM providers** — Claude, Gemini, MiniMax, Groq, Ollama, and 22 more
+- **Vector memory** — SQLite-backed persistent memory with semantic search
+- **Autonomous scheduling** — Hands run on cron schedules without human prompts
+
+#### Hand → Synthia Agent Mapping
+
+| Hand | Synthia Agent | Real-World Capability Unlocked |
+|------|---------------|-------------------------------|
+| Clip | Lapina TikTok | YouTube → vertical short + auto-captions + voiceover |
+| Lead | Clandestino | Daily ICP prospect discovery + scoring |
+| Collector | Morpho | OSINT monitoring, change detection, knowledge graphs |
+| Predictor | Council + Morpho | Calibrated superforecasting for decisions |
+| Researcher | All agents | Source-credible deep research without hallucinations |
+| Twitter | Lapina sub-agents | Real social posting with Ivette approval gates |
+| Browser | Indigo | Web automation: competitor scraping, lead capture |
+
+#### Ivette Approval Loop Pattern
+
+```typescript
+// Agent sends WhatsApp to Ivette before taking irreversible action
+await fetch('/api/openfang', {
+  method: 'POST',
+  body: JSON.stringify({
+    mode: 'send_channel',
+    platform: 'whatsapp',
+    to: '+521XXXXXXXXXX',
+    message: 'Ivette, lead calificado: Acme Corp (ICP 92/100). ¿Iniciamos secuencia? SÍ/NO',
+  }),
+});
+```
+
+#### API Usage
+
+```bash
+GET  /api/openfang                           # Status + list of deployed Hands
+GET  /api/openfang?hand=<id>                 # Specific Hand details
+POST /api/openfang { mode: "deploy_hand" }   # Deploy a Hand with config + schedule
+POST /api/openfang { mode: "trigger" }       # Trigger Hand execution immediately
+POST /api/openfang { mode: "send_channel" }  # Send via WhatsApp/Telegram/Slack/…
+POST /api/openfang { mode: "query_memory" }  # Semantic search in agent memory
+```
+
+#### Training Points
+- Always call `GET /api/openfang` first to check daemon status before operations
+- Use `send_channel` for Ivette approval loop before any irreversible action
+- Hands run autonomously on schedule — agents don't need to trigger every run
+- Fallback is graceful: when daemon not running, all endpoints return helpful install instructions
+- In production: set `OPENFANG_BASE_URL=http://openfang:4200` for Docker internal networking
+
+---
+
 ## Revision History
 
 ### 2026-03-11
 - Added Skill 11: CLI-Anything (hardwired to all agents)
 - Added Skill 12: A/B Content Campaign Automation
 - Added Skill 13: LLM Council Deliberation
+- Added Skill 14: OpenFang Agent OS (autonomous Hands + 40 channel adapters + Ivette approval loop)
 - Updated agent training matrix
 
 ### 2026-03-03

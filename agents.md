@@ -64,6 +64,14 @@ This document tracks all agent-based automation, LLM integrations, and workflow 
   - Decision-making framework
   - Optimization logic
 
+- **OpenFang Agent OS** (`lib/openfang.ts`)
+  - Autonomous agent daemon client (http://localhost:4200)
+  - 7 pre-built Hands: Clip, Lead, Collector, Predictor, Researcher, Twitter, Browser
+  - 40 channel adapters: WhatsApp, Telegram, Discord, Slack, Email, and 35+ more
+  - Ivette approval loop: agents send WhatsApp/Telegram to Ivette for human-in-the-loop decisions
+  - Route: `/api/openfang` — modes: `deploy_hand | trigger | send_channel | query_memory`
+  - Skill doc: `agents/_openfang.md`
+
 - **Remotion** (`lib/remotion.ts`)
   - Video generation automation
   - Asset creation pipelines
