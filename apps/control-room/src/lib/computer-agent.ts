@@ -4,7 +4,28 @@
  * Used by freelance-hunter when direct APIs are unavailable
  */
 
-import { chromium, Browser, Page, BrowserContext } from 'playwright';
+// Dynamic import so this module doesn't fail at build time on Vercel
+// (playwright is only available on servers where it's explicitly installed)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let playwrightModule: any = null;
+async function getPlaywright() {
+  if (!playwrightModule) {
+    playwrightModule = await import('playwright').catch(() => null);
+  }
+  return playwrightModule;
+}
+
+type Browser = { newContext: (opts?: object) => Promise<BrowserContext>; close: () => Promise<void> };
+type BrowserContext = { newPage: () => Promise<Page>; close: () => Promise<void> };
+type Page = {
+  goto: (url: string, opts?: object) => Promise<unknown>;
+  innerText: (selector: string) => Promise<string>;
+  $$eval: (selector: string, fn: (els: Element[]) => unknown) => Promise<unknown>;
+  click: (selector: string) => Promise<void>;
+  fill: (selector: string, value: string) => Promise<void>;
+  screenshot: (opts?: object) => Promise<Buffer>;
+  setDefaultTimeout: (timeout: number) => void;
+};
 
 export interface AgentBrowserOptions {
   headless?: boolean;
@@ -36,7 +57,9 @@ export class ComputerAgent {
   }
 
   async launch(): Promise<void> {
-    this.browser = await chromium.launch({ headless: this.options.headless });
+    const pw = await getPlaywright();
+    if (!pw) throw new Error('playwright is not installed on this server');
+    this.browser = await pw.chromium.launch({ headless: this.options.headless });
     this.context = await this.browser.newContext({
       userAgent: this.options.userAgent,
       locale: 'es-MX',

@@ -1,19 +1,13 @@
 {
   "buildCommand": "npm run build",
   "installCommand": "npm install --legacy-peer-deps",
-  "outputDirectory": "apps/control-room/.next",
+  "outputDirectory": ".next",
   "framework": "nextjs",
   "regions": ["sfo1"],
   "functions": {
-    "apps/control-room/src/app/api/**/*.ts": {
+    "src/app/api/**/*.ts": {
       "memory": 512,
       "maxDuration": 30
-    }
-  },
-  "git": {
-    "deploymentEnabled": {
-      "main": true,
-      "claude/deploy-vercel-backend-update-H6MlJ": true
     }
   },
   "headers": [
