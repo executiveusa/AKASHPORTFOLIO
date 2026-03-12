@@ -59,13 +59,15 @@ export class ComputerAgent {
   async launch(): Promise<void> {
     const pw = await getPlaywright();
     if (!pw) throw new Error('playwright is not installed on this server');
-    this.browser = await pw.chromium.launch({ headless: this.options.headless });
-    this.context = await this.browser.newContext({
+    const browser = await pw.chromium.launch({ headless: this.options.headless });
+    this.browser = browser;
+    const ctx = await browser.newContext({
       userAgent: this.options.userAgent,
       locale: 'es-MX',
       timezoneId: 'America/Mexico_City',
     });
-    this.page = await this.context.newPage();
+    this.context = ctx;
+    this.page = await ctx.newPage();
     this.page.setDefaultTimeout(this.options.timeout);
   }
 
