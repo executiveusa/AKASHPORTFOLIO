@@ -1,0 +1,15 @@
+# Exclude large files/directories from Vercel deployment
+apps/control-room/openclaw-logic/
+openclaw-logic/
+AKASHPORTFOLIO-main/
+backend/
+*.sh
+*.bat
+memory/
+workspace/
+tools/
+e2e/
+**/*.log
+**/*.bak
+public/images/*.jpg
+public/images/*.png
