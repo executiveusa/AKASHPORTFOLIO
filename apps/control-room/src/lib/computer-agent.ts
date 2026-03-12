@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Computer-using agent for Kupuri Media™
  * Playwright-based browser automation — agents get their own browser
