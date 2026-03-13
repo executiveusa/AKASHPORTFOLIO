@@ -660,9 +660,9 @@ export default function AlexLandingPage() {
                   ))}
                 </ul>
 
-                <button className="w-full py-3 bg-amber-600 hover:bg-amber-700 font-bold rounded-lg transition-colors text-sm">
+                <a href="/dashboard" className="w-full py-3 bg-amber-600 hover:bg-amber-700 font-bold rounded-lg transition-colors text-sm block text-center">
                   {plan.cta}
-                </button>
+                </a>
               </div>
             ))}
           </div>
@@ -687,9 +687,9 @@ export default function AlexLandingPage() {
         <div className="max-w-3xl mx-auto text-center">
           <h3 className="text-4xl font-black mb-4">{t.finalCta.title}</h3>
           <p className="text-xl text-slate-300 mb-8">{t.finalCta.subtitle}</p>
-          <button className="px-8 py-4 bg-amber-600 hover:bg-amber-700 font-bold rounded-lg transition-colors text-lg">
+          <a href="/dashboard" className="inline-block px-8 py-4 bg-amber-600 hover:bg-amber-700 font-bold rounded-lg transition-colors text-lg">
             {t.finalCta.button}
-          </button>
+          </a>
         </div>
       </section>
 

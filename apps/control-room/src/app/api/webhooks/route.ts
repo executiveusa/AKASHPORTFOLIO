@@ -80,7 +80,8 @@ async function handleWhatsAppMessage(data: any) {
     // Trigger council meeting if message mentions discussion
     if (text.toLowerCase().includes('consejo') || text.toLowerCase().includes('council')) {
       // POST to /api/council to start a meeting
-      const response = await fetch('http://localhost:3001/api/council', {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
+      const response = await fetch(`${appUrl}/api/council`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -114,7 +115,8 @@ async function handleTikTokComment(data: any) {
 
     // Optionally trigger council if comment is a question
     if (text.includes('?')) {
-      const response = await fetch('http://localhost:3001/api/council', {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
+      const response = await fetch(`${appUrl}/api/council`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

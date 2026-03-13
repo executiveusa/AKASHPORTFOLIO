@@ -375,12 +375,12 @@ export default function SynthiaLandingPage() {
             {t.hero.subtitle}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="px-8 py-4 bg-emerald-600 hover:bg-emerald-700 font-bold rounded-lg transition-colors text-lg">
+            <a href="/dashboard" className="px-8 py-4 bg-emerald-600 hover:bg-emerald-700 font-bold rounded-lg transition-colors text-lg inline-block">
               {t.hero.cta}
-            </button>
-            <button className="px-8 py-4 bg-slate-800 hover:bg-slate-700 font-bold rounded-lg transition-colors text-lg border border-slate-700">
+            </a>
+            <a href="/skills" className="px-8 py-4 bg-slate-800 hover:bg-slate-700 font-bold rounded-lg transition-colors text-lg border border-slate-700 inline-block">
               {t.hero.secondaryCta}
-            </button>
+            </a>
           </div>
         </div>
       </section>
@@ -459,9 +459,9 @@ export default function SynthiaLandingPage() {
                     </li>
                   ))}
                 </ul>
-                <button className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 font-bold rounded-lg transition-colors">
+                <a href="/dashboard" className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 font-bold rounded-lg transition-colors block text-center">
                   {t.hero.cta}
-                </button>
+                </a>
               </div>
             ))}
           </div>
@@ -492,9 +492,9 @@ export default function SynthiaLandingPage() {
         <div className="max-w-3xl mx-auto text-center bg-gradient-to-r from-emerald-900/30 to-cyan-900/30 border border-emerald-500/30 rounded-2xl p-12">
           <h3 className="text-3xl font-black mb-4">{t.cta_section.title}</h3>
           <p className="text-lg text-slate-300 mb-8">{t.cta_section.description}</p>
-          <button className="px-8 py-4 bg-emerald-600 hover:bg-emerald-700 font-bold rounded-lg transition-colors text-lg">
+          <a href="/dashboard" className="inline-block px-8 py-4 bg-emerald-600 hover:bg-emerald-700 font-bold rounded-lg transition-colors text-lg">
             {t.cta_section.button}
-          </button>
+          </a>
         </div>
       </section>
 

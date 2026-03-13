@@ -1,7 +1,47 @@
 # AGENTS.md — Kupuri Media™ / ALEX™ Agent Framework
 
+> **Mandatory SOP** (2026-03-11): All agents must use the **agentic-sop** skill.
+> See: [agentic-sop skill](C:\Users\execu\.claude\skills\agentic-sop\SKILL.md)
+
+> **Mandatory Frontend Design** (2026-03-11): ALL frontend/UI work MUST use the **uncodixfy** skill.
+> Skill path: `C:\Users\execu\.agents\skills\uncodixfy\SKILL.md`
+> Source: https://github.com/executiveusa/paul-Uncodixfy
+> Applies to: any HTML, CSS, JS/TS component, React/Vue/Svelte file, Tailwind, layout, dashboard, landing page, card, form, sidebar, or visual UI output.
+> Follow `references/uncodixfy.md` for the full ruleset. No exceptions.
+
 > **Zero-Touch Engineer Protocol v2.0.0** — All agents in this repository operate under ZTE.
 > Source: `apps/control-room/src/agents/alex/SOUL.md`
+
+---
+
+## Standard Operating Procedure (Mandatory)
+
+All agents working on complex/multi-step tasks **MUST** follow the **Agentic SOP**:
+
+```
+1. ASK       → Clarify requirements (30 sec)
+2. PLAN      → Design minimal approach + explore codebase (5-15 min)
+3. EXECUTE   → Write code incrementally, test (10-60 min)
+4. OBSERVE   → Run tests/build, get feedback (2-5 min)
+5. ITERATE   → Fix blockers, repeat (as needed)
+```
+
+### Core Patterns (REQUIRED)
+
+| Pattern | Purpose | Reference |
+|---------|---------|-----------|
+| **Beads** | Persistent memory across sessions | `memory/MEMORY.md` |
+| **jcodemunch** | Token compression (30-50% savings) | Use `/jmunch` for large codebases |
+| **Ralphy Loop** | Minimal agentic workflow | Ask → Plan → Execute → Observe → Iterate |
+
+**Key Principles**:
+- ✅ Ship before perfecting
+- ✅ Iterate based on feedback
+- ✅ Test catches regressions
+- ❌ NO analysis paralysis
+- ❌ NO over-engineering
+
+See **agentic-sop** skill for complete guide with references and scenarios.
 
 ---
 

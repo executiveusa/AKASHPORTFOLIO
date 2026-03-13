@@ -58,13 +58,27 @@ export async function GET(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
-    const { code } = body;
+    const { code, email } = body;
 
     if (!code) {
       return NextResponse.json({ error: 'code required' }, { status: 400 });
     }
 
-    return NextResponse.json({ error: 'Invalid invite code' }, { status: 404 });
+    // Hardcoded beta invite codes for MVP
+    const VALID_CODES = ['KUPURI2026', 'ALEXBETA', 'CDMX001', 'SYNTHIA2026', 'STAGE8MVP'];
+
+    if (!VALID_CODES.includes(code.toUpperCase())) {
+      return NextResponse.json({ error: 'Invalid invite code' }, { status: 404 });
+    }
+
+    // Code is valid - return success
+    return NextResponse.json({
+      success: true,
+      message: 'Beta access granted',
+      code,
+      accessLevel: 'beta',
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
+    }, { status: 200 });
   } catch (error) {
     console.error('Invite code redemption error:', error);
     return NextResponse.json({ error: 'Failed to redeem code' }, { status: 500 });

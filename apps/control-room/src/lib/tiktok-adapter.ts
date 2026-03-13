@@ -171,11 +171,15 @@ export class TikTokAdapter {
   /**
    * Filter comments by sentiment (remove spam/negative if needed)
    */
-  filterByQuality(comments: TikTokComment[], minSentimentScore: number = -0.5): TikTokComment[] {
-    return comments.filter(async c => {
+  async filterByQuality(comments: TikTokComment[], minSentimentScore: number = -0.5): Promise<TikTokComment[]> {
+    const results: TikTokComment[] = [];
+    for (const c of comments) {
       const sentiment = await this.analyzeSentiment(c.text);
-      return sentiment.score >= minSentimentScore;
-    });
+      if (sentiment.score >= minSentimentScore) {
+        results.push(c);
+      }
+    }
+    return results;
   }
 }
 
