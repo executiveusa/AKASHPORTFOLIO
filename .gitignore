@@ -48,5 +48,23 @@ DEPLOY_NOW.md
 EXECUTE_DEPLOY.txt
 COOLIFY_DEPLOY.sh
 DEPLOY_SYNTHIA.sh
+DEPLOYMENT_SUMMARY.md
+VERCEL_DEPLOYMENT_COMPLETE.md
 .vercel
 .env*.local
+
+# Credential test scripts (never commit these)
+test_*.ps1
+test_*.py
+check_*.py
+GH_PAT*
+
+# Binaries
+*.exe
+rustup-init*
+
+# Editor + temp dirs
+.vscode/
+.git-temp/
+.yarn/cache/
+.yarn/unplugged/
