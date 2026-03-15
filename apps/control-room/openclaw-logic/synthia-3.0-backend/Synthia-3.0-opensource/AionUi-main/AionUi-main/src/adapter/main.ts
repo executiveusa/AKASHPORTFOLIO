@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BrowserWindow, ipcMain } from 'electron';
+import type { BrowserWindow } from 'electron';
+import { ipcMain } from 'electron';
 
 import { bridge } from '@office-ai/platform';
 import { ADAPTER_BRIDGE_EVENT_KEY } from './constant';
@@ -18,7 +19,7 @@ interface BridgeEventData {
   data: unknown;
 }
 
-const adapterWindowList: (InstanceType<typeof BrowserWindow>)[] = [];
+const adapterWindowList: Array<BrowserWindow> = [];
 
 /**
  * WebSocket 广播函数类型
@@ -87,18 +88,14 @@ bridge.adapter({
     // 保存 emitter 引用供 WebSocket 处理使用 / Save emitter reference for WebSocket handling
     bridgeEmitter = emitter;
 
-    ipcMain.on(ADAPTER_BRIDGE_EVENT_KEY, (_event, info) => {
-      try {
-        const { name, data } = JSON.parse(info) as BridgeEventData;
-        emitter.emit(name, data);
-      } catch (error) {
-        console.error('[MainAdapter] IPC event error:', error);
-      }
+    ipcMain.handle(ADAPTER_BRIDGE_EVENT_KEY, (_event, info) => {
+      const { name, data } = JSON.parse(info) as BridgeEventData;
+      return Promise.resolve(emitter.emit(name, data));
     });
   },
 });
 
-export const initMainAdapterWithWindow = (win: InstanceType<typeof BrowserWindow>) => {
+export const initMainAdapterWithWindow = (win: BrowserWindow) => {
   adapterWindowList.push(win);
   const off = () => {
     const index = adapterWindowList.indexOf(win);
