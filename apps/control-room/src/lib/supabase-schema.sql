@@ -140,3 +140,114 @@ FOR EACH ROW EXECUTE FUNCTION update_agent_state_updated_at();
 
 CREATE TRIGGER conversations_updated_at BEFORE UPDATE ON conversations
 FOR EACH ROW EXECUTE FUNCTION update_agent_state_updated_at();
+
+-- =============================================================================
+-- SPHERE OS ADDITIONS — Phase 1 (Vibe Graph + Agent Memory + Council)
+-- =============================================================================
+
+-- Sphere Sessions (tracks each Sphere OS activation)
+CREATE TABLE IF NOT EXISTS sphere_sessions (
+    id TEXT PRIMARY KEY,              -- UUID
+    initiated_by TEXT NOT NULL,       -- 'ivette' or agent_id
+    status TEXT DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'closed')),
+    topic TEXT,
+    active_agent_ids TEXT[] DEFAULT '{}',
+    started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    closed_at TIMESTAMP WITH TIME ZONE,
+    metadata JSONB DEFAULT '{}'::jsonb
+);
+
+-- Sphere Meetings (council meeting records with full synthesis)
+CREATE TABLE IF NOT EXISTS sphere_meetings (
+    id TEXT PRIMARY KEY,              -- UUID = meetingId
+    topic TEXT NOT NULL,
+    narrative TEXT,                   -- 3-5 sentence story arc
+    decisions JSONB DEFAULT '[]'::jsonb,
+    action_items JSONB DEFAULT '[]'::jsonb,
+    open_questions JSONB DEFAULT '[]'::jsonb,
+    prd_fragment TEXT,
+    turn_count INTEGER DEFAULT 0,
+    started_at TIMESTAMP WITH TIME ZONE,
+    closed_at TIMESTAMP WITH TIME ZONE,
+    generated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Vibe Graph Nodes (ecosystem context facts for all agents)
+CREATE TABLE IF NOT EXISTS vibe_nodes (
+    id TEXT PRIMARY KEY,                           -- UUID
+    kind TEXT NOT NULL CHECK (kind IN ('agent','task','fact','memory','goal','resource','relationship')),
+    owner_agent_id TEXT NOT NULL,
+    label TEXT NOT NULL,
+    content TEXT NOT NULL,
+    tags TEXT[] DEFAULT '{}',
+    confidence FLOAT DEFAULT 1.0 CHECK (confidence >= 0 AND confidence <= 1),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    last_verified_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    superseded_by TEXT REFERENCES vibe_nodes(id),
+    metadata JSONB DEFAULT '{}'::jsonb
+);
+
+-- Vibe Graph Edges (relationships between nodes)
+CREATE TABLE IF NOT EXISTS vibe_edges (
+    id TEXT PRIMARY KEY,               -- UUID
+    source_id TEXT NOT NULL REFERENCES vibe_nodes(id) ON DELETE CASCADE,
+    target_id TEXT NOT NULL REFERENCES vibe_nodes(id) ON DELETE CASCADE,
+    kind TEXT NOT NULL CHECK (kind IN ('depends_on','conflicts_with','related_to','owns','created','supersedes','references')),
+    weight FLOAT DEFAULT 0.8 CHECK (weight >= 0 AND weight <= 1),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Per-Agent Persistent Memory (sphere-level long-term knowledge)
+CREATE TABLE IF NOT EXISTS agent_memory (
+    id TEXT PRIMARY KEY,               -- UUID
+    agent_id TEXT NOT NULL,
+    kind TEXT NOT NULL CHECK (kind IN ('fact','preference','task_outcome','relationship','directive','lesson','goal')),
+    content TEXT NOT NULL,
+    summary TEXT NOT NULL,             -- <= 120 chars
+    importance FLOAT DEFAULT 0.5 CHECK (importance >= 0 AND importance <= 1),
+    confidence FLOAT DEFAULT 1.0 CHECK (confidence >= 0 AND confidence <= 1),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    last_accessed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    last_verified_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    access_count INTEGER DEFAULT 0,
+    superseded_by TEXT REFERENCES agent_memory(id),
+    tags TEXT[] DEFAULT '{}',
+    source TEXT DEFAULT 'council' CHECK (source IN ('ivette','council','self','watcher'))
+);
+
+-- Sphere OS Indexes
+CREATE INDEX IF NOT EXISTS idx_vibe_nodes_owner ON vibe_nodes(owner_agent_id);
+CREATE INDEX IF NOT EXISTS idx_vibe_nodes_kind ON vibe_nodes(kind);
+CREATE INDEX IF NOT EXISTS idx_vibe_nodes_confidence ON vibe_nodes(confidence);
+CREATE INDEX IF NOT EXISTS idx_vibe_nodes_superseded ON vibe_nodes(superseded_by);
+CREATE INDEX IF NOT EXISTS idx_vibe_edges_source ON vibe_edges(source_id);
+CREATE INDEX IF NOT EXISTS idx_vibe_edges_target ON vibe_edges(target_id);
+CREATE INDEX IF NOT EXISTS idx_agent_memory_agent ON agent_memory(agent_id);
+CREATE INDEX IF NOT EXISTS idx_agent_memory_kind ON agent_memory(kind);
+CREATE INDEX IF NOT EXISTS idx_agent_memory_importance ON agent_memory(importance DESC);
+CREATE INDEX IF NOT EXISTS idx_agent_memory_superseded ON agent_memory(superseded_by);
+CREATE INDEX IF NOT EXISTS idx_sphere_sessions_status ON sphere_sessions(status);
+CREATE INDEX IF NOT EXISTS idx_sphere_meetings_started ON sphere_meetings(started_at DESC);
+
+-- Confidence Decay Functions (called nightly by cron)
+CREATE OR REPLACE FUNCTION decay_vibe_confidence(cutoff TIMESTAMP WITH TIME ZONE)
+RETURNS void AS $$
+BEGIN
+    UPDATE vibe_nodes
+    SET confidence = GREATEST(0, confidence - 0.10)
+    WHERE last_verified_at < cutoff
+      AND superseded_by IS NULL
+      AND confidence > 0;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION decay_agent_memory_confidence(cutoff TIMESTAMP WITH TIME ZONE)
+RETURNS void AS $$
+BEGIN
+    UPDATE agent_memory
+    SET confidence = GREATEST(0, confidence - 0.05)
+    WHERE last_verified_at < cutoff
+      AND superseded_by IS NULL
+      AND confidence > 0;
+END;
+$$ LANGUAGE plpgsql;
