@@ -119,6 +119,9 @@ export default function SkillsPage() {
           </div>
 
           <div className="flex items-center gap-4">
+            <Link href="/dashboard" className="text-[10px] uppercase tracking-widest text-slate-400 hover:text-white transition-colors border border-slate-700 hover:border-slate-500 px-3 py-1.5 rounded">
+              ← {language === 'es' ? 'Dashboard' : 'Dashboard'}
+            </Link>
             <button
               onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
               className="px-3 py-1 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors"

@@ -98,9 +98,18 @@ export default function Dashboard() {
 
               {/* Branding */}
               <div className="flex flex-col gap-2 flex-1">
-                <h1 className="text-6xl font-display font-bold tracking-tight text-gold-400">
-                  {labels.title}
-                </h1>
+                <div className="flex items-center gap-4">
+                  <a
+                    href="/landing"
+                    className="text-[9px] uppercase tracking-widest text-cream-400 hover:text-gold-400 transition-colors border border-gold-600/20 hover:border-gold-400/40 px-2 py-1"
+                    title={language === 'es' ? 'Volver al inicio' : 'Back to home'}
+                  >
+                    ← {language === 'es' ? 'Inicio' : 'Home'}
+                  </a>
+                  <h1 className="text-6xl font-display font-bold tracking-tight text-gold-400">
+                    {labels.title}
+                  </h1>
+                </div>
                 <p className="text-[10px] uppercase tracking-[0.5em] text-cream-400">
                   {labels.subtitle} // KUPURI MEDIA™
                 </p>
@@ -151,7 +160,10 @@ export default function Dashboard() {
             {/* LEFT COLUMN: NERVE (Communications & Controls) */}
             <div className="xl:col-span-3 flex flex-col gap-8">
               <div className="glass-panel-elevated p-6">
-                <h2 className="text-[10px] uppercase tracking-widest font-bold text-gold-400 mb-4">{labels.nerve}</h2>
+                <h2 className="text-[10px] uppercase tracking-widest font-bold text-gold-400 mb-1">{labels.nerve}</h2>
+                <p className="text-[9px] text-cream-400 mb-4 uppercase tracking-widest">
+                  {language === 'es' ? 'Comunicaciones y control' : 'Communications & control'}
+                </p>
                 <SynthiaTerminal />
               </div>
               <div className="glass-panel-elevated p-6">
@@ -165,7 +177,10 @@ export default function Dashboard() {
             {/* CENTER COLUMN: COMMAND (Operations & Visualization) */}
             <div className="xl:col-span-6 flex flex-col gap-8">
               <div className="glass-panel-elevated p-6">
-                <h2 className="text-[10px] uppercase tracking-widest font-bold text-gold-400 mb-4">{labels.command}</h2>
+                <h2 className="text-[10px] uppercase tracking-widest font-bold text-gold-400 mb-1">{labels.command}</h2>
+                <p className="text-[9px] text-cream-400 mb-4 uppercase tracking-widest">
+                  {language === 'es' ? 'Operaciones y visualización' : 'Operations & visualization'}
+                </p>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="flex flex-col gap-4">
                     <div className="flex items-center gap-2">
@@ -189,46 +204,25 @@ export default function Dashboard() {
                 <ReportsAndAnalytics />
               </div>
 
-              {/* Quick Access Buttons */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Theater Link Button */}
+              {/* Quick Access */}
+              <div className="grid grid-cols-3 gap-2">
                 <a
                   href="/theater"
-                  className="glass-panel-elevated px-6 py-4 hover:bg-gold-600/10 transition-all border border-gold-600/50 hover:border-gold-400 text-center"
+                  className="glass-panel-elevated px-4 py-3 hover:bg-gold-600/10 transition-all text-center"
                 >
-                  <span className="text-gold-400 font-bold uppercase tracking-widest text-sm">{labels.theaterLink}</span>
+                  <span className="text-gold-400 font-bold uppercase tracking-widest text-xs block">{labels.theaterLink}</span>
                 </a>
-
-                {/* ALEX™ Link Button */}
                 <a
                   href="/alex"
-                  className="glass-panel-elevated px-6 py-4 hover:bg-gold-600/10 transition-all border border-gold-600/50 hover:border-gold-400 text-center"
+                  className="glass-panel-elevated px-4 py-3 hover:bg-gold-600/10 transition-all text-center"
                 >
-                  <span className="text-gold-400 font-bold uppercase tracking-widest text-sm">🤖 {language === 'es' ? 'ALEX™ AGENT' : 'ALEX™ AGENT'}</span>
+                  <span className="text-gold-400 font-bold uppercase tracking-widest text-xs block">🤖 ALEX™</span>
                 </a>
-
-                {/* Skills Marketplace Link Button */}
                 <a
                   href="/skills"
-                  className="glass-panel-elevated px-6 py-4 hover:bg-gold-600/10 transition-all border border-gold-600/50 hover:border-gold-400 text-center"
+                  className="glass-panel-elevated px-4 py-3 hover:bg-gold-600/10 transition-all text-center"
                 >
-                  <span className="text-gold-400 font-bold uppercase tracking-widest text-sm">⚡ {language === 'es' ? 'MARKETPLACE' : 'MARKETPLACE'}</span>
-                </a>
-
-                {/* ALEX Link Button */}
-                <a
-                  href="/alex"
-                  className="glass-panel-elevated px-6 py-4 hover:bg-amber-600/10 transition-all border border-amber-600/50 hover:border-amber-400 text-center"
-                >
-                  <span className="text-amber-400 font-bold uppercase tracking-widest text-sm">🤖 ALEX™</span>
-                </a>
-
-                {/* Skills Link Button */}
-                <a
-                  href="/skills"
-                  className="glass-panel-elevated px-6 py-4 hover:bg-amber-600/10 transition-all border border-amber-600/50 hover:border-amber-400 text-center"
-                >
-                  <span className="text-amber-400 font-bold uppercase tracking-widest text-sm">⚡ {language === 'es' ? 'Habilidades' : 'Skills'}</span>
+                  <span className="text-gold-400 font-bold uppercase tracking-widest text-xs block">⚡ {language === 'es' ? 'Habilidades' : 'Skills'}</span>
                 </a>
               </div>
 
@@ -300,7 +294,10 @@ export default function Dashboard() {
             {/* RIGHT COLUMN: MANIFEST (Vision & Tools) */}
             <div className="xl:col-span-3 flex flex-col gap-8">
               <div className="glass-panel-elevated p-6">
-                <h2 className="text-[10px] uppercase tracking-widest font-bold text-gold-400 mb-4">{labels.manifest}</h2>
+                <h2 className="text-[10px] uppercase tracking-widest font-bold text-gold-400 mb-1">{labels.manifest}</h2>
+                <p className="text-[9px] text-cream-400 mb-4 uppercase tracking-widest">
+                  {language === 'es' ? 'Visión y herramientas' : 'Vision & tools'}
+                </p>
                 <TaskDelegation />
               </div>
               <div className="glass-panel-elevated p-6">
