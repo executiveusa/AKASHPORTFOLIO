@@ -66,76 +66,130 @@ Every autonomous action follows this 7-stage loop with no human intervention req
 
 ---
 
-## Agent Roster
+## Sphere OS™ — 9 Dolores Cannon Agents + La Vigilante
 
-| ID | Name | Role | Model |
-|----|------|------|-------|
-| `alex-chief` | ALEX™ | Chief of Staff — Coordinadora General | Mercury 2 → Claude fallback |
-| `advisor-economic` | Dr. Economía | Arbitrage & financial analysis | Claude |
-| `advisor-cultural` | Dra. Cultura | Content strategy & CDMX community | Claude |
-| `advisor-tech` | Ing. Teknos | Systems architecture & automation | Claude |
-| `advisor-social` | Lic. Social | Freelance relations & clients | Claude |
-| `freelance-hunter` | Cazadora | Scans Upwork/Workana/Fiverr, drafts proposals | Claude |
-| `income-clerk` | Contadora | Stripe/PayPal/Crypto invoicing & payments | - |
-| `arbitrage-scout` | Scout | LATAM forex monitoring & arbitrage signals | - |
-| `blog-scribe` | Escriba | SEO blog posts in Spanish + English | Claude |
-| `cron-scheduler` | Cronos | Triggers council meetings on schedule | - |
+Each Sphere is an autonomous LATAM Spanish AI agent with a unique voice, frequency, and soul file.
+Voice stack: **Mercury 2 Inception API → ElevenLabs `eleven_multilingual_v2` → text fallback**
+
+| SphereAgentId | Display Name | Locale | Role | Base Color | Hz | Voice ID (ElevenLabs default) |
+|---|---|---|---|---|---|---|
+| `synthia` | SYNTHIA™ | es-MX CDMX ♀ | Chief of Staff — Coordinadora General | `#8b5cf6` violet | 0.85 | `EXAVITQu4vr4xnSDxMaL` |
+| `alex` | ALEX™ | es-MX CDMX ♂ | Estratega Ejecutivo — Chief Advisor | `#d4af37` gold | 0.80 | `ErXwobaYiN019PkySvjV` |
+| `cazadora` | CAZADORA™ | es-CO Colombian ♀ | Cazadora de Oportunidades — Prospect Hunter | `#ef4444` red | 0.95 | `AZnzlk1XvdvUeBnXmlld` |
+| `forjadora` | FORJADORA™ | es-AR Rioplatense ♀ | Arquitecta de Sistemas — Systems Builder | `#22c55e` green | 0.45 | `MF3mGyEYCl7XYWbV9V6O` |
+| `seductora` | SEDUCTORA™ | es-CU Habanera ♀ | Closera Maestra — Sales & Persuasion | `#eab308` gold | 0.65 | `jsCqWAovK2LkecY7zXl4` |
+| `consejo` | CONSEJO™ | es-CL Chilean ♀ | Consejero Mayor — Council Facilitator | `#1d4ed8` blue | 0.25 | `TxGEqnHWrfWFTfGW9XjX` |
+| `dr-economia` | DR. ECONOMÍA | es-VE Venezuelan ♂ | Analista Financiero — Arbitrage & Finance | `#f97316` orange | 0.75 | `pNInz6obpgDQGcFmaJgB` |
+| `dra-cultura` | DRA. CULTURA | es-PE Peruvian ♀ | Estratega Cultural — Content & Community | `#f43f5e` rose | 0.55 | `XrExE9yKIg1WjnnlVkGX` |
+| `ing-teknos` | ING. TEKNOS | es-PR Puerto Rican ♂ | Ingeniero de Sistemas — Tech Architecture | `#06b6d4` cyan | 0.35 | `flq6f7yk4E4fJM5XTYuZ` |
+| `la-vigilante` | LA VIGILANTE™ | Español neutro | Guardian del Consejo — Lightning Agent | `#64748b` slate | — | *(no voice)* |
+
+Soul files: `apps/control-room/src/agents/spheres/{name}/{SOUL,HEART,MISSION,IDENTITY}.md`
+La Vigilante: `apps/control-room/src/agents/la-vigilante/{SOUL,MISSION,index.ts}`
+
+---
+
+## Ralphy Loop — Mandatory Execution Protocol
+
+```
+ASK → PLAN → EXECUTE → OBSERVE → ITERATE
+```
+
+**Enforcement rules (La Vigilante monitors compliance):**
+
+1. **ASK** — Clarify scope before touching code. Ambiguity = blocked task.
+2. **PLAN** — `GET /api/vibe?agent={id}` MUST be called before any execution step.
+3. **EXECUTE** — One atomic change per loop. Commit after each passing test.
+4. **OBSERVE** — Run `get_errors` or `pnpm build` after every file edit.
+5. **ITERATE** — Record results in `agent_memory` before starting the next loop.
+
+Violations trigger an automatic La Vigilante **warning alert** logged to `/api/watcher`.
+
+---
+
+## Vibe Graph Protocol
+
+The **Vibe Graph** is a shared context graph preventing agent collisions.
+
+**Every agent MUST:**
+```
+Before acting:   GET /api/vibe?agent={sphereId}
+After acting:    POST /api/vibe  { kind: 'ingest', agentId, nodeKind, label, content }
+On conflict:     PATCH /api/vibe { nodeId }  (invalidate stale node)
+```
+
+Vibe Graph tables: `vibe_nodes`, `vibe_edges` (Supabase)
+Decay function: `decay_vibe_confidence()` — run nightly via `POST /api/cron/nightly-summary`
+
+---
+
+## jcodemunch Protocol
+
+When any source file exceeds **500 lines**, La Vigilante auto-emits a directive:
+
+> "Apply jcodemunch: split `{filename}` into modules ≤200 lines before continuing."
+
+**Rule**: No new code added to files >500 lines until refactor is done.
+**Tool**: Use `/jmunch` in Copilot or Claude to get a compression plan.
+
+---
+
+---
+
+## API Endpoints
+
+| Route | Method | Purpose |
+|-------|--------|---------|
+| `/api/spheres/voice` | POST | Voice synthesis for any sphere → audio/mpeg |
+| `/api/vibe` | GET/POST/PATCH | Vibe Graph context ingest + retrieval |
+| `/api/council/orchestrator` | POST/GET | Start meeting / SSE stream |
+| `/api/watcher` | GET/POST | La Vigilante status + alert feed |
+| `/api/cron/sphere-hunt` | GET | Prospecting sweep (L–V 14:00 CST) |
+| `/api/cron/nightly-summary` | GET | Nightly synthesis + memory decay (02:00 CST) |
+| `/api/alex` | POST | Chat with ALEX™ directly |
+| `/api/arbitrage` | GET | LATAM forex brief |
+| `/api/income` | POST | Create invoice |
+
+---
+
+## Cron Schedule (Mexico City Time / CST = UTC−6)
+
+```
+09:00 Mon–Fri  → Daily Standup (POST /api/council/orchestrator)
+14:00 Mon–Fri  → Sphere Hunt — prospecting sweep (/api/cron/sphere-hunt)
+02:00 daily    → Nightly summary + memory decay (/api/cron/nightly-summary)
+```
+
+`vercel.json` crons:
+```json
+"crons": [
+  { "path": "/api/council/cron",        "schedule": "0 15 * * 1-5" },
+  { "path": "/api/cron/sphere-hunt",    "schedule": "0 20 * * 1-5" },
+  { "path": "/api/cron/nightly-summary","schedule": "0 8 * * *" }
+]
+```
 
 ---
 
 ## Delegation Rules
 
-1. **ALEX™ always routes to specialists** — never executes financial transactions directly.  
-2. **Freelance proposals require Ivette approval** before submission — `freelance-hunter` drafts, Ivette sends.  
-3. **Blog posts** are drafted by `blog-scribe`, reviewed by ALEX™, and require at least 1 pass of SEO scoring before publish.  
-4. **Council meetings** are recorded and visible in the Viewing Room at `/` — Ivette can watch in real-time.  
-5. **Income automation** caps at $500/auto-invoice; above that requires confirmation.
+1. **SYNTHIA™ always routes to specialist spheres** — never executes financial transactions directly.
+2. **CAZADORA™ drafts proposals; Ivette approves before send.**
+3. **DRA. CULTURA™ generates content; SYNTHIA™ reviews for tone.**
+4. **DR. ECONOMÍA™ flags arbitrage; >$500 requires Ivette confirmation.**
+5. **Council meetings are SSE-streamed** — viewable at `/spheres` in real-time.
 
 ---
 
-## Tool Permissions
+## Circuit Breakers
 
-| Agent | Stripe | PayPal | Crypto | Google Maps | ElevenLabs | Git Push |
-|-------|--------|--------|--------|-------------|------------|----------|
-| alex-chief | read | read | read | ✅ | ✅ | ❌ |
-| income-clerk | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| freelance-hunter | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
-| blog-scribe | ❌ | ❌ | ❌ | ✅ | ❌ | draft only |
-
----
-
-## Endpoints
-
-| Route | Purpose |
-|-------|---------|
-| `POST /api/alex` | Chat with ALEX™ |
-| `POST /api/alex/voice` | ElevenLabs voice synthesis |
-| `GET  /api/arbitrage` | LATAM forex brief |
-| `POST /api/income` | Create invoice (Stripe/PayPal/Crypto) |
-| `GET  /api/council` | Active council meetings |
-| `POST /api/council/cron` | Trigger scheduled meeting |
-| `GET  /api/agent-mail` | Agent mailbox |
-
----
-
-## Cron Schedule (Mexico City Time / CST)
-
-```
-09:00 Mon–Fri  → Daily Standup (POST /api/council/cron)
-10:00 Monday   → Weekly Strategy Session
-15:00 1st/mo   → Monthly Finance Review
-*/30 * * * *   → Freelance platform scan (Upwork + Workana)
-00:00 daily    → Arbitrage brief generation
-```
-
-Add to `vercel.json`:
-```json
-"crons": [
-  { "path": "/api/council/cron", "schedule": "0 15 * * 1-5" },
-  { "path": "/api/council/cron", "schedule": "0 16 * * 1" },
-  { "path": "/api/council/cron", "schedule": "0 21 1 * *" }
-]
-```
+| Trigger | Limit | Action |
+|---------|-------|--------|
+| Single task LLM cost | $10 USD | PAUSE → notify Ivette |
+| Daily LLM budget | $5 USD (warn) / $10 USD (halt) | La Vigilante alert |
+| API error rate | >3 consecutive | Fall back to cached/stub mode |
+| Production secret exposure | Any | ABORT immediately |
+| Vibe Graph conflicts active | >7 | La Vigilante critical alert |
 
 ---
 
@@ -144,29 +198,38 @@ Add to `vercel.json`:
 ```bash
 # Core AI
 ANTHROPIC_API_KEY=
+LITELLM_BASE_URL=http://localhost:8000
+
+# Mercury 2 Inception API
 MERCURY_API_KEY=
 MERCURY_API_ENDPOINT=
 
-# Voice
-ELEVENLABS_API_KEY=
-ELEVENLABS_VOICE_ID=
+# PersonaPlex
+PERSONA_PLEX_API_KEY=
 
-# Maps
-GOOGLE_MAPS_API_KEY=
+# ElevenLabs (fallback voice)
+ELEVEN_LABS_API_KEY=
 
-# Income
-STRIPE_SECRET_KEY=
-PAYPAL_CLIENT_ID=
-PAYPAL_CLIENT_SECRET=
-COINBASE_COMMERCE_API_KEY=
+# Per-sphere voice overrides (optional — defaults in mercury-voice.ts)
+SPHERE_SYNTHIA_VOICE_ID=
+SPHERE_ALEX_VOICE_ID=
+SPHERE_CAZADORA_VOICE_ID=
+SPHERE_FORJADORA_VOICE_ID=
+SPHERE_SEDUCTORA_VOICE_ID=
+SPHERE_CONSEJO_VOICE_ID=
+SPHERE_DR_ECONOMIA_VOICE_ID=
+SPHERE_DRA_CULTURA_VOICE_ID=
+SPHERE_ING_TEKNOS_VOICE_ID=
 
-# Forex
-EXCHANGERATE_API_KEY=
-
-# Infrastructure
+# Supabase
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# Cron security
 CRON_SECRET=
+
+# App
 NEXT_PUBLIC_APP_URL=
 ```
 
@@ -175,10 +238,11 @@ NEXT_PUBLIC_APP_URL=
 ## Security
 
 - No secrets in git. All keys via environment variables only.
-- `CRON_SECRET` required for all cron endpoints.
+- `CRON_SECRET` header required for all cron endpoints.
 - All income operations logged to Supabase `agent_tasks` table.
 - Financial circuit breakers enforced at middleware level.
+- La Vigilante audits all POST actions to `/api/watcher`.
 
 ---
 
-_Kupuri Media™ — Powered by ALEX™ v3.0 · Santa María la Ribera, CDMX_
+_Kupuri Media™ — Sphere OS™ v2.0 · Powered by 9+1 Dolores Cannon Agents · Santa María la Ribera, CDMX_
