@@ -140,6 +140,10 @@ const localized = i18n.translate('welcome_key', currentLanguage);
 # Recommended: Use npm (package-lock.json)
 npm install                    # Uses package-lock.json
 npm run dev:web              # Defined in root package.json
+
+# OR alternate: Use yarn (yarn.lock)
+yarn install
+yarn dev:web
 ```
 
 #### Monorepo Structure

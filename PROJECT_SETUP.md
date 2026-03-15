@@ -247,6 +247,13 @@ git pull origin <branch-name>
 ## Troubleshooting
 
 ### Dependencies Not Installing
+```bash
+# Clear npm cache
+npm cache clean --force
+
+# Remove lock file and reinstall
+rm package-lock.json
+npm install
 
 If dependencies are not installing properly, use the following command for reproducible installs:
 
