@@ -1,5 +1,12 @@
-.env*
-# Other entries in .gitignore
-# ...
+node_modules/
+.vercel/
+dist/
+.env
 .env.local
-# Removed redundant .env.local entry on line 20
+.DS_Store
+*.local
+.vercel
+__pycache__/
+*.pyc
+.pytest_cache/
+scripts/*.log
