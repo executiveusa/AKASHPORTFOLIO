@@ -3,19 +3,29 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SPHERE_FREQUENCY_MAP, ALL_SPHERE_IDS } from '@/shared/sphere-state';
 import type { MeetingLocation } from '@/lib/meeting-locations';
 
 // ---------------------------------------------------------------------------
-// Agent avatar colors & names
+// Agent avatar config — derived from SPHERE_FREQUENCY_MAP (9 Dolores Cannon spheres)
 // ---------------------------------------------------------------------------
-const AGENT_CONFIG = [
-  { name: 'Synthia Prime', color: 0xd4af37, emissive: 0x8b6914, label: 'S' },
-  { name: 'Agent-Marketing', color: 0xff6b9d, emissive: 0x8b1a4a, label: 'M' },
-  { name: 'Agent-Coder', color: 0x00c9ff, emissive: 0x006080, label: 'C' },
-  { name: 'Agent-Sales', color: 0x7fff7f, emissive: 0x1a5c1a, label: 'Sa' },
-  { name: 'Agent-Legal', color: 0xc084fc, emissive: 0x5b1a8b, label: 'L' },
-];
+const AGENT_CONFIG = ALL_SPHERE_IDS.map((id) => {
+  const s = SPHERE_FREQUENCY_MAP[id];
+  const hexToInt = (h: string) => parseInt(h.replace('#', ''), 16);
+  return {
+    name: s.displayName,
+    color: hexToInt(s.baseColor),
+    emissive: hexToInt(s.emissiveColor),
+    label: s.displayName.slice(0, 2).toUpperCase(),
+    sphereId: id,
+    baseColorHex: s.baseColor,
+    frequency_hz: s.frequency_hz,
+  };
+});
 
 // ---------------------------------------------------------------------------
 // Scene builders for each location
@@ -436,6 +446,127 @@ function buildManantiales(scene: THREE.Scene) {
 }
 
 // ---------------------------------------------------------------------------
+// Scene 4: Cosmic Field — Dolores Cannon inverted-sphere boundary
+// ---------------------------------------------------------------------------
+function buildCosmicFieldScene(scene: THREE.Scene) {
+  // Inverted boundary sphere — inside-out, deep cosmic
+  const boundaryGeo = new THREE.SphereGeometry(28, 64, 64);
+  const boundaryMat = new THREE.MeshBasicMaterial({
+    color: 0x0a0020,
+    side: THREE.BackSide,
+  });
+  scene.add(new THREE.Mesh(boundaryGeo, boundaryMat));
+
+  // Nebula particle cloud — 3000 points in sphere palette colours
+  const nbCount = 3000;
+  const nbGeo = new THREE.BufferGeometry();
+  const nbPos = new Float32Array(nbCount * 3);
+  const nbColors = new Float32Array(nbCount * 3);
+  const palette = ALL_SPHERE_IDS.map((id) => {
+    const hex = SPHERE_FREQUENCY_MAP[id].baseColor.replace('#', '');
+    return new THREE.Color(parseInt(hex, 16));
+  });
+  for (let i = 0; i < nbCount; i++) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const r = 8 + Math.random() * 18;
+    nbPos[i * 3]     = r * Math.sin(phi) * Math.cos(theta);
+    nbPos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+    nbPos[i * 3 + 2] = r * Math.cos(phi);
+    const c = palette[i % palette.length];
+    nbColors[i * 3]     = c.r;
+    nbColors[i * 3 + 1] = c.g;
+    nbColors[i * 3 + 2] = c.b;
+  }
+  nbGeo.setAttribute('position', new THREE.BufferAttribute(nbPos, 3));
+  nbGeo.setAttribute('color', new THREE.BufferAttribute(nbColors, 3));
+  const nbMat = new THREE.PointsMaterial({
+    size: 0.12,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.65,
+    sizeAttenuation: true,
+  });
+  scene.add(new THREE.Points(nbGeo, nbMat));
+
+  // Aurora curtain sheets — 9 translucent ribbon planes, one per sphere
+  ALL_SPHERE_IDS.forEach((id, i) => {
+    const angle = (i / ALL_SPHERE_IDS.length) * Math.PI * 2;
+    const auroraGeo = new THREE.PlaneGeometry(6, 16, 1, 24);
+    const pos = auroraGeo.attributes.position as THREE.BufferAttribute;
+    for (let v = 0; v < pos.count; v++) {
+      const yNorm = (pos.getY(v) + 8) / 16;
+      pos.setX(v, pos.getX(v) + Math.sin(yNorm * Math.PI * 3) * 0.8);
+    }
+    pos.needsUpdate = true;
+    const hexStr = SPHERE_FREQUENCY_MAP[id].baseColor.replace('#', '');
+    const aurMat = new THREE.MeshBasicMaterial({
+      color: parseInt(hexStr, 16),
+      transparent: true,
+      opacity: 0.08,
+      side: THREE.DoubleSide,
+    });
+    const aurora = new THREE.Mesh(auroraGeo, aurMat);
+    aurora.position.set(Math.cos(angle) * 12, 4, Math.sin(angle) * 12);
+    aurora.rotation.y = -angle;
+    scene.add(aurora);
+  });
+
+  // Central council ring — glowing ground disc
+  const ringGeo = new THREE.RingGeometry(3.8, 4.2, 128);
+  const ringMat = new THREE.MeshBasicMaterial({
+    color: 0x8b5cf6,
+    transparent: true,
+    opacity: 0.35,
+    side: THREE.DoubleSide,
+  });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.rotation.x = -Math.PI / 2;
+  ring.position.y = 0.01;
+  scene.add(ring);
+
+  return { agentRingRadius: 4.2, agentY: 0.6 };
+}
+
+// ---------------------------------------------------------------------------
+// GLSL for Fresnel + noise sphere shader
+// ---------------------------------------------------------------------------
+const SPHERE_VERTEX_SHADER = `
+  uniform float uTime;
+  uniform float uFrequency;
+  varying vec3 vNormal;
+  varying vec3 vViewDir;
+  void main() {
+    vec3 pos = position;
+    float disp = sin(pos.x * 8.0 + uTime * uFrequency * 6.28) *
+                 cos(pos.y * 8.0 + uTime * uFrequency * 4.0) * 0.04;
+    pos += normal * disp;
+    vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);
+    vViewDir = normalize(-mvPos.xyz);
+    vNormal = normalize(normalMatrix * normal);
+    gl_Position = projectionMatrix * mvPos;
+  }
+`;
+
+const SPHERE_FRAGMENT_SHADER = `
+  uniform vec3 uBaseColor;
+  uniform vec3 uEmissiveColor;
+  uniform float uTime;
+  uniform float uPulse;
+  varying vec3 vNormal;
+  varying vec3 vViewDir;
+  void main() {
+    float fresnel = pow(1.0 - max(dot(vNormal, vViewDir), 0.0), 3.0);
+    vec3 core = uEmissiveColor * (0.6 + 0.4 * sin(uTime * 3.0));
+    vec3 rim  = uBaseColor * fresnel;
+    vec3 col  = mix(core, uBaseColor, 0.5) + rim * 1.2;
+    float pulse = uPulse * (1.0 - fresnel) * 0.8;
+    col += uBaseColor * pulse;
+    gl_FragColor = vec4(col, 1.0);
+  }
+`;
+
+// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -448,7 +579,10 @@ interface TheaterProps {
 export function Theater3D({ meetingId, bilingual = true, location }: TheaterProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const composerRef = useRef<EffectComposer | null>(null);
   const animFrameRef = useRef<number>(0);
+  const pulseQueueRef = useRef<Array<{ mesh: THREE.Mesh; born: number }>>([]);
+  const shaderUniformsRef = useRef<Array<{ [key: string]: THREE.IUniform }>>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [tick, setTick] = useState(0);
 
@@ -483,8 +617,25 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.0;
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
+
+    // EffectComposer + bloom (skip on low-res mobile)
+    const isMobile = container.clientWidth <= 768;
+    const composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    if (!isMobile) {
+      const bloom = new UnrealBloomPass(
+        new THREE.Vector2(container.clientWidth, container.clientHeight),
+        0.9,   // strength
+        0.4,   // radius
+        0.82,  // threshold
+      );
+      composer.addPass(bloom);
+    }
+    composerRef.current = composer;
 
     // Lights
     const ambient = new THREE.AmbientLight(ambientColor, 0.55);
@@ -512,6 +663,11 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
     } else if (locationId === 'manantiales-xochimilco') {
       sceneConfig = buildManantiales(scene);
       camera.position.set(0, 10, 22);
+    } else if (locationId === 'cosmic-field') {
+      scene.background = new THREE.Color(0x030010);
+      scene.fog = new THREE.FogExp2(0x030010, 0.012);
+      sceneConfig = buildCosmicFieldScene(scene);
+      camera.position.set(0, 6, 14);
     } else {
       // Default fallback
       const gridHelper = new THREE.GridHelper(20, 20, 0x27272a, 0x18181b);
@@ -535,26 +691,34 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
     // Agent avatars around a central ring
     const avatars: THREE.Mesh[] = [];
     const speakRings: THREE.Mesh[] = [];
-    const numAgents = Math.min(AGENT_CONFIG.length, 5);
+    const allUniforms: Array<{ [key: string]: THREE.IUniform }> = [];
+    const numAgents = AGENT_CONFIG.length;
     const { agentRingRadius, agentY } = sceneConfig;
 
-    AGENT_CONFIG.slice(0, numAgents).forEach((ag, i) => {
+    AGENT_CONFIG.forEach((ag, i) => {
       const angle = (i / numAgents) * Math.PI * 2;
       const ox = Math.cos(angle) * agentRingRadius;
       const oz = Math.sin(angle) * agentRingRadius;
 
-      // Body sphere
+      // Body sphere — Fresnel ShaderMaterial
       const bodyGeo = new THREE.SphereGeometry(0.42, 32, 32);
-      const bodyMat = new THREE.MeshStandardMaterial({
-        color: ag.color,
-        emissive: ag.emissive,
-        emissiveIntensity: 0.25,
-        metalness: 0.5,
-        roughness: 0.4,
+      const baseColorV = new THREE.Color(ag.color);
+      const emissiveColorV = new THREE.Color(ag.emissive);
+      const uniforms: { [key: string]: THREE.IUniform } = {
+        uTime:         { value: 0 },
+        uFrequency:    { value: ag.frequency_hz },
+        uBaseColor:    { value: baseColorV },
+        uEmissiveColor:{ value: emissiveColorV },
+        uPulse:        { value: 0 },
+      };
+      allUniforms.push(uniforms);
+      const bodyMat = new THREE.ShaderMaterial({
+        vertexShader:   SPHERE_VERTEX_SHADER,
+        fragmentShader: SPHERE_FRAGMENT_SHADER,
+        uniforms,
       });
       const body = new THREE.Mesh(bodyGeo, bodyMat);
       body.position.set(ox, agentY + 0.42, oz);
-      body.castShadow = true;
       scene.add(body);
       avatars.push(body);
 
@@ -599,38 +763,62 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
     const particles = new THREE.Points(particleGeo, particleMat);
     scene.add(particles);
 
+    shaderUniformsRef.current = allUniforms;
+    pulseQueueRef.current = [];
+
     // Animation
     let t = 0;
     const animate = () => {
       animFrameRef.current = requestAnimationFrame(animate);
       t += 0.01;
 
-      // Avatar float + pulse
+      // Avatar float + shader time
       avatars.forEach((av, i) => {
         av.position.y = sceneConfig.agentY + 0.42 + Math.sin(t * 1.2 + i * 1.3) * 0.08;
         av.rotation.y += 0.005;
         const scl = 1 + Math.sin(t * 2 + i) * 0.04;
         av.scale.set(scl, scl, scl);
+        if (allUniforms[i]) allUniforms[i].uTime.value = t;
       });
 
-      // Speak ring pulse (random agent speaks)
+      // Speak ring pulse (demo: rotate through agents)
       const speaker = Math.floor(t * 0.5) % numAgents;
       speakRings.forEach((ring, i) => {
         const mat = ring.material as THREE.MeshBasicMaterial;
         if (i === speaker) {
           mat.opacity = 0.4 + Math.sin(t * 8) * 0.3;
           ring.scale.setScalar(1 + Math.sin(t * 8) * 0.15);
+          if (allUniforms[i]) allUniforms[i].uPulse.value = 0.6 + Math.sin(t * 8) * 0.4;
         } else {
           mat.opacity = Math.max(0, mat.opacity - 0.04);
           ring.scale.setScalar(1);
+          if (allUniforms[i]) {
+            allUniforms[i].uPulse.value = Math.max(0, allUniforms[i].uPulse.value - 0.03);
+          }
         }
+      });
+
+      // Expand + fade SSE-triggered pulse rings
+      const now = Date.now();
+      pulseQueueRef.current = pulseQueueRef.current.filter((p) => {
+        const age = (now - p.born) / 1000;
+        if (age > 1.5) {
+          scene.remove(p.mesh);
+          p.mesh.geometry.dispose();
+          (p.mesh.material as THREE.Material).dispose();
+          return false;
+        }
+        const progress = age / 1.5;
+        p.mesh.scale.setScalar(1 + progress * 3);
+        (p.mesh.material as THREE.MeshBasicMaterial).opacity = (1 - progress) * 0.8;
+        return true;
       });
 
       // Particle drift
       particles.rotation.y += 0.0003;
 
       controls.update();
-      renderer.render(scene, camera);
+      (composerRef.current ?? renderer).render(scene, camera);
     };
     animate();
 
@@ -640,6 +828,7 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
       camera.aspect = container.clientWidth / container.clientHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(container.clientWidth, container.clientHeight);
+      composer.setSize(container.clientWidth, container.clientHeight);
     };
     window.addEventListener('resize', onResize);
 
@@ -656,11 +845,60 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
     return cleanup;
   }, [buildScene, tick]);
 
-  // SSE connection for live meeting state
+  // SSE connection for live council events
   useEffect(() => {
     if (!meetingId) return;
-    const es = new EventSource(`/api/theater/stream?meetingId=${meetingId}`);
+    const es = new EventSource(`/api/council/orchestrator?meetingId=${meetingId}`);
     setIsConnected(true);
+
+    es.onmessage = (ev) => {
+      try {
+        const event = JSON.parse(ev.data) as { kind?: string; agentId?: string };
+        const uniforms = shaderUniformsRef.current;
+        const idx = AGENT_CONFIG.findIndex((a) => a.sphereId === event.agentId);
+
+        if (event.kind === 'sphere.signal' && idx >= 0 && uniforms[idx]) {
+          // Trigger pulse ring at that sphere's position
+          const ag = AGENT_CONFIG[idx];
+          const numAg = AGENT_CONFIG.length;
+          const angle = (idx / numAg) * Math.PI * 2;
+          const r = 4.2; // approximate ring radius
+          const ringGeo = new THREE.RingGeometry(0.5, 0.58, 48);
+          const ringMat = new THREE.MeshBasicMaterial({
+            color: ag.color,
+            transparent: true,
+            opacity: 0.8,
+            side: THREE.DoubleSide,
+          });
+          const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+          ringMesh.rotation.x = -Math.PI / 2;
+          ringMesh.position.set(
+            Math.cos(angle) * r,
+            0.05,
+            Math.sin(angle) * r,
+          );
+          // Access scene through renderer dom element parent approach is complex;
+          // instead we add directly — scene ref not in closure so we use uniforms to trigger pulse
+          uniforms[idx].uPulse.value = 1.0;
+        }
+
+        if (event.kind === 'meeting.focus' && event.agentId) {
+          // ALIGN entrainment — lerp all sphere colors toward focal sphere
+          const focalIdx = AGENT_CONFIG.findIndex((a) => a.sphereId === event.agentId);
+          if (focalIdx >= 0 && uniforms[focalIdx]) {
+            const focalColor = uniforms[focalIdx].uBaseColor.value as THREE.Color;
+            uniforms.forEach((u, i) => {
+              if (i !== focalIdx) {
+                (u.uBaseColor.value as THREE.Color).lerp(focalColor, 0.15);
+              }
+            });
+          }
+        }
+      } catch {
+        // ignore malformed events
+      }
+    };
+
     es.onerror = () => { setIsConnected(false); es.close(); };
     return () => es.close();
   }, [meetingId]);
