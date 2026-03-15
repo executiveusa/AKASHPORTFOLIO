@@ -3,6 +3,9 @@
   "installCommand": "npm install --legacy-peer-deps",
   "outputDirectory": "apps/control-room/.next",
   "framework": "nextjs",
+  "env": {
+    "NEXT_PUBLIC_SYNTHIA_BACKEND_URL": "@synthia_backend_url"
+  },
   "regions": ["sfo1"],
   "functions": {
     "apps/control-room/src/app/api/**/*.ts": {

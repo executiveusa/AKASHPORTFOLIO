@@ -1,9 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   typescript: {
-    // Allow production builds to succeed even with TypeScript errors
     ignoreBuildErrors: true,
   },
   eslint: {

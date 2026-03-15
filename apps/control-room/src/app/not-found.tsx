@@ -8,7 +8,7 @@ export default function NotFound() {
         <p className="text-2xl font-bold mb-2">Página no encontrada</p>
         <p className="text-slate-300 mb-6">La página que buscas no existe.</p>
         <Link
-          href="/landing-index"
+          href="/landing"
           className="inline-block px-6 py-3 bg-emerald-600 hover:bg-emerald-700 rounded-lg font-bold transition-colors"
         >
           Volver al inicio
