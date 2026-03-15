@@ -1,0 +1,143 @@
+/* Rube Aesthetic Overrides - Premium, Ethereal, Outcomes-First */
+
+:root {
+  --font-serif: 'Crimson Pro', serif;
+  --font-sans: 'Inter', sans-serif;
+  --rube-ethereal-blue: #D1E0FF;
+  --rube-card-radius: 24px;
+  --rube-shadow: 0 4px 20px rgba(209, 224, 255, 0.4);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+.font-serif {
+  font-family: var(--font-serif) !important;
+}
+
+/* High border-radius for cards and modals */
+.arco-card,
+.arco-modal,
+.arco-popover-content,
+.arco-select-popup,
+.aionui-modal .arco-modal-content {
+  border-radius: var(--rube-card-radius) !important;
+  border: 1px solid #F0F0F0 !important;
+  box-shadow: var(--rube-shadow) !important;
+}
+
+/* Clean, modern inputs */
+.arco-input,
+.arco-textarea,
+.arco-select-view,
+.arco-input-wrapper {
+  border-radius: 12px !important;
+  border: 1px solid #E5E6EB !important;
+  background-color: #FFFFFF !important;
+  transition: all 0.2s ease !important;
+}
+
+.arco-input:focus,
+.arco-select-view:focus-within {
+  border-color: var(--rube-ethereal-blue) !important;
+  box-shadow: 0 0 0 3px rgba(209, 224, 255, 0.5) !important;
+}
+
+/* Premium Buttons */
+.arco-btn {
+  border-radius: 10px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.2px;
+}
+
+.arco-btn-primary {
+  background-color: #000000 !important;
+  border-color: #000000 !important;
+  color: #FFFFFF !important;
+}
+
+.arco-btn-primary:hover {
+  background-color: #333333 !important;
+  border-color: #333333 !important;
+}
+
+/* Outcome Card Patterns */
+.outcome-card {
+  padding: 24px;
+  background: white;
+  border-radius: 24px;
+  border: 1px solid #F0F0F0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.outcome-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(209, 224, 255, 0.6);
+}
+
+/* Sidebar Styling - Minimalist & Integrated */
+.layout-sider {
+  border-right: 1px solid rgba(209, 224, 255, 0.3) !important;
+}
+
+.layout-sider-header {
+  border-bottom: 1px solid rgba(209, 224, 255, 0.2) !important;
+}
+
+/* Arco Tag - Clean Minimal */
+.arco-tag {
+  border-radius: 6px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Overriding original styles if any left */
+.arco-collapse {
+  border: none;
+  border-radius: var(--rube-card-radius);
+  background: transparent !important;
+}
+
+.arco-collapse-item {
+  border-bottom: 1px solid #F0F0F0 !important;
+}
+
+/* Message Styles - ethereal focus */
+.arco-message {
+  border-radius: 12px !important;
+  box-shadow: var(--rube-shadow) !important;
+  border: 1px solid rgba(209, 224, 255, 0.5) !important;
+}
+
+/* Premium Utilities */
+.shadow-premium {
+  box-shadow: 0 10px 40px -10px rgba(209, 224, 255, 0.5) !important;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.scale-102:hover {
+  transform: scale(1.02);
+}

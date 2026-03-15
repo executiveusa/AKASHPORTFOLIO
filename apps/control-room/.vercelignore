@@ -1,0 +1,4 @@
+# Exclude large directories that don't belong in the Vercel serverless bundle
+openclaw-logic/
+*.md.bak
+**/*.log

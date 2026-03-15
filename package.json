@@ -7,6 +7,30 @@
     ],
     "scripts": {
         "dev:web": "npm run dev --workspace=@kupuri-media/portfolio",
-        "build:web": "npm run build --workspace=@kupuri-media/portfolio"
+        "build:web": "npm run build --workspace=@kupuri-media/portfolio",
+        "deploy:check": "npx tsx tools/vercel-agent/check-deployment.ts",
+        "deploy:agent": "npx tsx tools/vercel-agent/agent.ts",
+        "test:e2e": "npx playwright test",
+        "test:smoke": "node C:\\Users\\execu\\.agents\\skills\\playwright\\run.js C:\\tmp\\playwright-test-kupuri.js"
+    },
+    "dependencies": {
+        "@electron-forge/maker-dmg": "^7.11.1",
+        "@electron-forge/maker-wix": "^7.11.1",
+        "@electron-forge/maker-zip": "^7.11.1",
+        "@electron-forge/plugin-auto-unpack-natives": "^7.11.1",
+        "@electron-forge/plugin-fuses": "^7.11.1",
+        "@electron-forge/plugin-webpack": "^7.11.1",
+        "@google/genai": "^1.44.0",
+        "@office-ai/platform": "^0.3.16",
+        "@types/webpack": "^5.28.5",
+        "@unocss/webpack": "^66.6.6",
+        "copy-webpack-plugin": "^14.0.0",
+        "dotenv": "^17.3.1",
+        "fork-ts-checker-webpack-plugin": "^9.1.0",
+        "mini-css-extract-plugin": "^2.10.0",
+        "webpack": "^5.105.4"
+    },
+    "devDependencies": {
+        "@types/electron": "^1.4.38"
     }
 }

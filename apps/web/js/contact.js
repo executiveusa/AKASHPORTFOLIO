@@ -113,43 +113,40 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // Start mouse trail animation
+  // Start ambient cursor glow (CSS-driven, no DOM churn)
   const startAnimation = () => {
-    if (!isDesktop) return; // Exit if not desktop
+    if (!isDesktop) return;
+    let glowEl = document.getElementById('cursor-glow');
+    if (!glowEl) {
+      glowEl = document.createElement('div');
+      glowEl.id = 'cursor-glow';
+      glowEl.style.cssText = [
+        'position:fixed', 'pointer-events:none', 'z-index:9999',
+        'width:300px', 'height:300px', 'border-radius:50%',
+        'background:radial-gradient(circle,rgba(255,255,255,0.06) 0%,transparent 70%)',
+        'transform:translate(-50%,-50%)', 'transition:opacity 0.3s ease',
+        'will-change:left,top', 'opacity:0',
+      ].join(';');
+      document.body.appendChild(glowEl);
+    }
     mouseMoveListener = (e) => {
-      mouseX = e.clientX; // Update mouse X
-      mouseY = e.clientY; // Update mouse Y
-      isCursorInContainer = isInContainer(mouseX, mouseY); // Check if in container
-      if (isCursorInContainer && hasMovedEnough()) {
-        lastMouseX = mouseX; // Update last mouse position
-        lastMouseY = mouseY;
-        createImage(); // Create new image
-      }
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      glowEl.style.left = mouseX + 'px';
+      glowEl.style.top = mouseY + 'px';
+      glowEl.style.opacity = '1';
     };
-    document.addEventListener("mousemove", mouseMoveListener); // Add mousemove listener
-    const animate = () => {
-      removeOldImages(); // Remove old images
-      animationId = requestAnimationFrame(animate); // Continue animation
-    };
-    animate(); // Start animation loop
+    document.addEventListener('mousemove', mouseMoveListener);
   };
 
-  // Stop mouse trail animation
+  // Stop ambient cursor glow
   const stopAnimation = () => {
     if (mouseMoveListener) {
-      document.removeEventListener("mousemove", mouseMoveListener); // Remove listener
+      document.removeEventListener('mousemove', mouseMoveListener);
       mouseMoveListener = null;
     }
-    if (animationId) {
-      cancelAnimationFrame(animationId); // Stop animation loop
-      animationId = null;
-    }
-    trail.forEach((item) => {
-      if (item.element.parentNode) {
-        item.element.parentNode.removeChild(item.element); // Clear all images
-      }
-    });
-    trail.length = 0; // Reset trail array
+    const glowEl = document.getElementById('cursor-glow');
+    if (glowEl) glowEl.style.opacity = '0';
   };
 
   // Handle window resize to toggle animation

@@ -1,48 +1,93 @@
 "use client";
 
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 
 export default function InviteGate({ children }: { children: React.ReactNode }) {
     const [code, setCode] = useState('');
     const [authorized, setAuthorized] = useState(false);
+    const [shake, setShake] = useState(false);
 
     const handleAccess = () => {
-        // Simple YOLO gate
         if (code === 'KUPURI2026') {
             setAuthorized(true);
         } else {
-            alert('Acceso Denegado: Código de Invitación Inválido.');
+            setShake(true);
+            setTimeout(() => setShake(false), 500);
+        }
+    };
+
+    const shakeVariants = {
+        shake: {
+            x: [0, -10, 10, -10, 10, 0],
+            transition: { duration: 0.5 }
         }
     };
 
     if (authorized) return <>{children}</>;
 
     return (
-        <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center p-8">
-            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-black font-bold italic text-3xl mb-12 animate-pulse">S</div>
+        <div className="fixed inset-0 z-[100] bg-charcoal-900 flex flex-col items-center justify-center p-8">
+            {/* Background gradient */}
+            <div className="absolute inset-0 bg-gradient-to-b from-charcoal-800 to-charcoal-900" />
 
-            <h1 className="text-3xl font-black uppercase italic tracking-tighter mb-2">SYNTHIA 3.0</h1>
-            <p className="text-[10px] uppercase tracking-[0.4em] text-zinc-600 mb-12">Acceso Exclusivo // Solo por Invitación</p>
+            {/* Content */}
+            <motion.div
+                variants={shakeVariants}
+                animate={shake ? 'shake' : 'normal'}
+                className="relative z-10 flex flex-col items-center"
+            >
+                {/* Logo */}
+                <div className="w-20 h-20 bg-gold-400 rounded-full flex items-center justify-center text-charcoal-900 font-display font-bold text-4xl mb-12">
+                    S
+                </div>
 
-            <div className="flex flex-col gap-4 w-full max-w-sm">
-                <input
-                    type="password"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    placeholder="INTRODUZCA CÓDIGO DE AGENCIA"
-                    className="bg-zinc-900 border border-zinc-800 p-4 rounded-xl text-center font-mono tracking-widest outline-none focus:border-white transition-colors"
-                />
-                <button
-                    onClick={handleAccess}
-                    className="bg-white text-black font-bold uppercase tracking-widest p-4 rounded-xl hover:bg-zinc-200 transition-transform active:scale-95"
-                >
-                    Entrar al Núcleo
-                </button>
-            </div>
+                {/* Title */}
+                <h1 className="text-5xl font-display font-bold tracking-tight text-gold-400 mb-2">
+                    SYNTHIA 3.0
+                </h1>
+                <p className="text-[10px] uppercase tracking-[0.5em] text-cream-400 mb-12">
+                    Acceso Exclusivo // Solo por Invitación
+                </p>
 
-            <p className="mt-12 text-[10px] text-zinc-800 uppercase tracking-widest text-center max-w-xs">
-                Este sistema está en fase alfa. Todas las operaciones son monitoreadas por el Protocolo de Seguridad ACIP v1.3.
-            </p>
+                {/* Input Section */}
+                <div className="flex flex-col gap-4 w-full max-w-sm">
+                    <motion.input
+                        type="password"
+                        value={code}
+                        onChange={(e) => setCode(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleAccess()}
+                        placeholder="INTRODUZCA CÓDIGO DE AGENCIA"
+                        className="bg-charcoal-800 border border-gold-600/30 p-4 rounded-xl text-center font-mono tracking-widest text-cream-100 outline-none focus:border-gold-400/60 transition-all focus:bg-charcoal-700"
+                        whileFocus={{ scale: 1.02 }}
+                    />
+                    <motion.button
+                        onClick={handleAccess}
+                        className="bg-gold-400 text-charcoal-900 font-bold uppercase tracking-widest p-4 rounded-xl hover:bg-gold-300 transition-all active:scale-95"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                    >
+                        Entrar al Núcleo
+                    </motion.button>
+                </div>
+
+                {/* Error Message */}
+                {shake && (
+                    <motion.p
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="mt-6 text-sm text-gold-600 uppercase tracking-widest font-bold text-center"
+                    >
+                        ⚠ Código Inválido
+                    </motion.p>
+                )}
+
+                {/* Footer */}
+                <p className="mt-12 text-[10px] text-cream-400 uppercase tracking-widest text-center max-w-xs">
+                    Este sistema está en fase alfa. Todas las operaciones son monitoreadas por el Protocolo de Seguridad ACIP v1.3.
+                </p>
+            </motion.div>
         </div>
     );
 }

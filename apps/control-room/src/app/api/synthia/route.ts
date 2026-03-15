@@ -1,106 +1,170 @@
 import { NextResponse } from 'next/server';
-import { callMiniMax } from '@/lib/minimax';
+import { Anthropic } from '@anthropic-ai/sdk';
 import { osTools } from '@/lib/os-tools';
-import { synthiaObservability } from '@/lib/observability';
+import { agentState, telemetry, memoryStore } from '@/lib/supabase-client';
+import { remotionSkill, handleRemotionCall } from '@/lib/remotion-skill';
+import { formatCompressedMessage, estimateTokens } from '@/lib/token-compression';
 import { OrgoManager } from '@/lib/orgo';
-import { synthiaPerplexity } from '@/lib/perplexity-logic';
 import fs from 'fs';
 import path from 'path';
 
+const anthropic = new Anthropic({
+    apiKey: process.env.ANTHROPIC_API_KEY,
+});
+
 const orgo = new OrgoManager(process.env.ORGO_TOKEN || '');
 
+interface ToolCall {
+    tool: string;
+    action?: string;
+    [key: string]: any;
+}
+
 export async function POST(req: Request) {
+    const sessionId = `session-${Date.now()}`;
+
     try {
-        const { message } = await req.json();
+        const { message, agentId = 'synthia-0' } = await req.json();
 
-        // Load sys prompt
+        // Update agent status
+        await agentState.updateStatus(agentId, 'working', 'Processing message');
+
+        // Load system prompt
         const promptPath = path.join(process.cwd(), '../../synthia_core.md');
-        let systemPrompt = "You are Synthia 3.0.";
-        try { systemPrompt = fs.readFileSync(promptPath, 'utf8'); } catch (e) { }
+        let systemPrompt = `You are Synthia 3.0 - an autonomous digital CEO operating in a Zero-Touch Engineering environment.
+You have access to tools: shell, write, remotion, memory.
+Respond with JSON tool calls in markdown code blocks when you need to take action.
+Format: {"tool": "...", "action": "...", ...params}`;
 
-        const messages = [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: message }
+        try {
+            systemPrompt = fs.readFileSync(promptPath, 'utf8');
+        } catch (e) {
+            /* use default */
+        }
+
+        // Log session start
+        await telemetry.logEvent(sessionId, 'session_start', `Synthia session initiated by ${agentId}`, {
+            message_preview: message.substring(0, 100),
+        });
+
+        const messages: Array<{ role: 'user' | 'assistant'; content: string }> = [
+            { role: 'user', content: message },
         ];
 
-        // 1. Get reasoning from Synthia
-        const result = await callMiniMax(messages as any);
-        const responseText = result.choices[0].message.content;
+        // 1. Call Claude with tool use
+        const response = await anthropic.messages.create({
+            model: 'claude-opus-4-6',
+            max_tokens: 4096,
+            system: systemPrompt,
+            messages,
+            temperature: 0.7,
+        });
 
-        // 2. Check for tool calls (simple JSON parsing from markdown)
+        const firstMessage = response.content[0];
+        let responseText =
+            firstMessage.type === 'text' ? firstMessage.text : 'No response generated';
+
+        // 2. Parse and execute tool calls
         const toolMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/);
-        let toolOutput = "";
+        let toolOutput = '';
+        let toolsUsed: string[] = [];
 
         if (toolMatch) {
             try {
-                const toolSpec = JSON.parse(toolMatch[1]);
+                const toolSpec: ToolCall = JSON.parse(toolMatch[1]);
+                toolsUsed.push(toolSpec.tool);
 
+                // Log tool call
+                await telemetry.logEvent(sessionId, 'tool_call', `Executing: ${toolSpec.tool}`, toolSpec);
+
+                // Execute based on tool type
                 if (toolSpec.tool === 'shell') {
-                    synthiaObservability.logEvent({
-                        sessionId: 'current',
-                        type: 'tool_call',
-                        summary: `Executing shell (Local+Cloud): ${toolSpec.command}`,
-                        data: toolSpec
-                    });
-
-                    // Local execution
                     const res = await osTools.executeCommand(toolSpec.command);
-
-                    // Cloud execution (Orgo)
                     const cloudRes = await orgo.executeOnCloud(toolSpec.command);
-
-                    toolOutput = `LOCAL STDOUT: ${res.stdout}\nLOCAL STDERR: ${res.stderr}\nCLOUD OUTPUT: ${JSON.stringify(cloudRes)}`;
+                    toolOutput = `LOCAL:\n${res.stdout}\n\nCLOUD:\n${JSON.stringify(cloudRes)}`;
                 } else if (toolSpec.tool === 'write') {
-                    synthiaObservability.logEvent({
-                        sessionId: 'current',
-                        type: 'tool_call',
-                        summary: `Writing file: ${toolSpec.path}`,
-                        data: toolSpec
-                    });
                     await osTools.writeFile(toolSpec.path, toolSpec.content);
-                    toolOutput = `File ${toolSpec.path} has been written successfully.`;
+                    toolOutput = `File written: ${toolSpec.path}`;
+                } else if (toolSpec.tool === 'remotion') {
+                    const remotionResult = await handleRemotionCall(
+                        toolSpec.action || 'render',
+                        toolSpec,
+                        agentId
+                    );
+                    toolOutput = JSON.stringify(remotionResult);
+                } else if (toolSpec.tool === 'memory') {
+                    // Store observation in vector DB
+                    const embedding = Array(384).fill(0); // Placeholder: use actual embedding
+                    const memResult = await memoryStore.storeMemory(
+                        toolSpec.title || 'Observation',
+                        toolSpec.content || '',
+                        embedding,
+                        agentId,
+                        toolSpec.metadata
+                    );
+                    toolOutput = `Memory stored: ${JSON.stringify(memResult.data?.[0]?.id)}`;
                 }
 
-                // Log success event
-                synthiaObservability.logEvent({
-                    sessionId: 'current',
-                    type: 'success',
-                    summary: `Tool output received.`,
-                    data: { output: toolOutput }
-                });
+                // Log success
+                await telemetry.logEvent(
+                    sessionId,
+                    'tool_success',
+                    `${toolSpec.tool} completed`,
+                    { toolOutput: toolOutput.substring(0, 500) }
+                );
 
-                // 3. Second pass to inform Synthia of output
-                const followUpMessages = [
+                // Second pass: inform Claude of result
+                const followUpMessages: Array<{ role: 'user' | 'assistant'; content: string }> = [
                     ...messages,
                     { role: 'assistant', content: responseText },
-                    { role: 'user', content: `Tool Output: ${toolOutput}\n\nPlease proceed with your summary.` }
+                    { role: 'user', content: `Tool executed. Output:\n${toolOutput}\n\nProceed with summary.` },
                 ];
-                const finalResult = await callMiniMax(followUpMessages as any);
 
-                return NextResponse.json({
-                    success: true,
-                    response: finalResult.choices[0].message.content,
-                    toolUsed: toolSpec.tool
+                const finalResponse = await anthropic.messages.create({
+                    model: 'claude-opus-4-6',
+                    max_tokens: 2048,
+                    system: systemPrompt,
+                    messages: followUpMessages,
+                    temperature: 0.7,
                 });
 
+                const finalMessage = finalResponse.content[0];
+                responseText = finalMessage.type === 'text' ? finalMessage.text : responseText;
             } catch (e: any) {
-                console.error("Tool execution failed:", e);
-                return NextResponse.json({
-                    success: true,
-                    response: `${responseText}\n\n[Kernel Error: ${e.message}]`
+                await telemetry.logEvent(sessionId, 'tool_error', `Tool failed: ${e.message}`, {
+                    error: e.message,
                 });
+                responseText += `\n\n[Tool Error: ${e.message}]`;
             }
         }
 
-        return NextResponse.json({
-            success: true,
-            response: responseText
+        // Update agent status to idle
+        await agentState.updateStatus(agentId, 'idle');
+
+        // Log completion
+        await telemetry.logEvent(sessionId, 'session_complete', 'Synthia session completed', {
+            tokens_used: estimateTokens(responseText),
+            tools_used: toolsUsed,
         });
 
-    } catch (error: any) {
         return NextResponse.json({
-            success: false,
-            error: error.message
-        }, { status: 500 });
+            success: true,
+            response: responseText,
+            sessionId,
+            toolsUsed,
+        });
+    } catch (error: any) {
+        await telemetry.logEvent(sessionId, 'session_error', `Error: ${error.message}`, {
+            error: error.message,
+        });
+
+        return NextResponse.json(
+            {
+                success: false,
+                error: error.message,
+                sessionId,
+            },
+            { status: 500 }
+        );
     }
 }
