@@ -140,6 +140,10 @@ const localized = i18n.translate('welcome_key', currentLanguage);
 # Recommended: Use npm (package-lock.json)
 npm install                    # Uses package-lock.json
 npm run dev:web              # Defined in root package.json
+
+# OR alternate: Use yarn (yarn.lock)
+yarn install
+yarn dev:web
 ```
 
 #### Monorepo Structure
@@ -420,7 +424,243 @@ npm run dev:web              # Defined in root package.json
 
 ---
 
+---
+
+## Skill 11: CLI-Anything — Creative Software Control
+
+**Skill Name**: `cli-anything`
+**Type**: Creative Execution / Tool Integration
+**Status**: Active — Hardwired to all Synthia 3.0 agents (2026-03-11)
+**Source**: https://github.com/HKUDS/CLI-Anything
+**Lib**: `apps/control-room/src/lib/cli-anything.ts`
+**API**: `apps/control-room/src/app/api/cli/route.ts`
+**Agent Skill**: `apps/control-room/agents/_cli-anything.md`
+
+### What It Does
+
+CLI-Anything gives agents direct control over professional desktop software through structured CLI interfaces. Instead of generating text descriptions of deliverables, agents produce the actual files:
+
+- **Before CLI-Anything**: "Here's how you should design the Instagram carousel..."
+- **After CLI-Anything**: `cli-anything-inkscape export render carousel.pdf --format pdf` → actual PDF file delivered
+
+### Pattern
+
+```
+Agent decision → POST /api/cli → child_process.execFile() → CLI tool → real software → real output file
+```
+
+### Tools Available
+
+```typescript
+type CLITool = 'gimp' | 'blender' | 'audacity' | 'inkscape' |
+               'kdenlive' | 'shotcut' | 'libreoffice' | 'obs-studio' |
+               'drawio' | 'anygen';
+```
+
+### API Interface
+
+```typescript
+// Simple command
+POST /api/cli
+{ tool: "gimp", command: ["canvas", "scale", "--width", "1080", "--height", "1920"] }
+
+// High-level social asset helper
+POST /api/cli
+{ mode: "social_asset", sourcePath: "/tmp/photo.jpg", outputPath: "/out/ig.jpg", platform: "instagram" }
+
+// Add captions to video
+POST /api/cli
+{ mode: "captions", inputVideo: "raw.mp4", outputVideo: "final.mp4",
+  captions: [{ text: "Hook aquí", startSec: 0, endSec: 3 }] }
+
+// Generate report (XLSX + PDF)
+POST /api/cli
+{ mode: "report", title: "Reporte Mensual", data: [...], outputDir: "/reports/2026-03" }
+
+// Multi-step workflow
+POST /api/cli
+{ mode: "workflow", steps: [
+  { tool: "kdenlive", command: ["project", "open", "video.mp4"] },
+  { tool: "kdenlive", command: ["export", "render", "final.mp4", "--format", "mp4"] }
+]}
+
+// Discovery
+GET /api/cli  →  { tools: [{tool, installed, description}], summary: {total, installed} }
+```
+
+### Training Rules
+
+1. **Always check installation first**: `GET /api/cli?tool=<tool>` before using
+2. **Use JSON output**: All commands return structured JSON — parse it, don't scrape text
+3. **Prefer high-level helpers**: `social_asset`, `captions`, `report` before raw commands
+4. **Batch into workflows**: One `mode: "workflow"` call > multiple sequential POST calls
+5. **Real output, real dependencies**: CLI-Anything calls real software. Blender must be installed for Blender CLI to work.
+6. **Error handling**: `CLIResult.success === false` → check `CLIResult.error`, don't retry blindly
+
+### Agent-to-Tool Mapping (Training Matrix)
+
+| Agent | Preferred Tools | Output Type |
+|-------|----------------|-------------|
+| Synthia Prime | libreoffice, anygen, drawio | Proposals, decks, org charts |
+| Merlina | gimp, blender, inkscape | Images, renders, vectors |
+| Lapina | kdenlive, inkscape | Videos, carousels |
+| Lapina TikTok | kdenlive, audacity | 9:16 videos, audio |
+| Lapina Instagram | gimp, inkscape | 1:1 images, carousels |
+| Lapina LinkedIn | inkscape, libreoffice | PDFs, infographics |
+| Indigo | obs-studio, kdenlive | Demo recordings, viral videos |
+| Morpho | libreoffice, drawio | Reports, diagrams |
+| Clandestino | libreoffice, anygen | Proposals, pitch decks |
+| Ralphy | drawio, libreoffice | Coaching flows, audit reports |
+| Ivette Voice | audacity | Audio polish |
+
+### Install Commands
+
+```bash
+# Python packages (the CLI interfaces)
+pip install cli-anything-gimp cli-anything-blender cli-anything-inkscape \
+            cli-anything-kdenlive cli-anything-audacity cli-anything-libreoffice \
+            cli-anything-obs-studio cli-anything-drawio cli-anything-anygen
+
+# System dependencies (the actual software)
+sudo apt install gimp blender inkscape kdenlive audacity libreoffice obs-studio
+# or: brew install gimp blender inkscape kdenlive audacity libreoffice obs
+```
+
+---
+
+## Skill 12: A/B Content Campaign Automation
+
+**Skill Name**: `ab-content-campaign`
+**Type**: Marketing Automation
+**Status**: Active (2026-03-11)
+**Lib**: `apps/control-room/src/lib/social-media.ts`
+**API**: `apps/control-room/src/app/api/social/route.ts`
+
+### Pattern
+
+```
+Brief → generateVariants() [MiniMax] → 3 variants (A/B/C) per platform → recordMetrics() → auto-winner
+```
+
+### Variants Structure
+
+- **A**: Educational hook ("¿Sabías que...")
+- **B**: Provocative hook ("La mayoría de X comete este error...")
+- **C**: Story/results hook ("En 30 días logramos...")
+
+### Winner Determination
+
+```typescript
+score = (leads × 10) + (engagementRate × 5) + clicks
+// Highest score = winner → scale across all active channels
+```
+
+### Persistence
+
+Campaigns stored to `.campaigns-store/campaigns.json` — survive server restarts.
+
+---
+
+## Skill 13: LLM Council Deliberation
+
+**Skill Name**: `council-deliberation`
+**Type**: Decision Making
+**Status**: Active (2026-03-08)
+**Lib**: `apps/control-room/src/lib/council.ts`
+**API**: `apps/control-room/src/app/api/council/route.ts`
+
+### Pattern (3 Phases)
+
+```
+Phase 1: perplexity + minimax + gemini → independent votes
+Phase 2: synthia + devil-advocate → informed votes (see Phase 1)
+Phase 3: synthesizeVotes() → final decision + action items
+```
+
+### Use Cases
+
+- Strategic decisions (pricing, hiring, pivots)
+- Campaign approvals for >$1k spend
+- Technical architecture choices
+- Client negotiation strategy
+
+---
+
+---
+
+### 14. OpenFang Agent OS
+
+**Skill Name**: `openfang-agent-os`
+**Type**: Autonomous Agent Infrastructure
+**Status**: Active
+**Integration**: `src/lib/openfang.ts` + `/api/openfang` + `agents/_openfang.md`
+**Source**: https://github.com/RightNow-AI/openfang
+
+#### What It Does
+
+OpenFang is a Rust-based Agent Operating System (32MB binary, 180ms cold start) that runs as a daemon and provides:
+- **7 pre-built Hands** — autonomous execution units for real-world tasks
+- **40 channel adapters** — deliver messages to WhatsApp, Telegram, Slack, Email, Discord, etc.
+- **53 built-in tools** — web browsing, file ops, video processing, OSINT, and more
+- **27 LLM providers** — Claude, Gemini, MiniMax, Groq, Ollama, and 22 more
+- **Vector memory** — SQLite-backed persistent memory with semantic search
+- **Autonomous scheduling** — Hands run on cron schedules without human prompts
+
+#### Hand → Synthia Agent Mapping
+
+| Hand | Synthia Agent | Real-World Capability Unlocked |
+|------|---------------|-------------------------------|
+| Clip | Lapina TikTok | YouTube → vertical short + auto-captions + voiceover |
+| Lead | Clandestino | Daily ICP prospect discovery + scoring |
+| Collector | Morpho | OSINT monitoring, change detection, knowledge graphs |
+| Predictor | Council + Morpho | Calibrated superforecasting for decisions |
+| Researcher | All agents | Source-credible deep research without hallucinations |
+| Twitter | Lapina sub-agents | Real social posting with Ivette approval gates |
+| Browser | Indigo | Web automation: competitor scraping, lead capture |
+
+#### Ivette Approval Loop Pattern
+
+```typescript
+// Agent sends WhatsApp to Ivette before taking irreversible action
+await fetch('/api/openfang', {
+  method: 'POST',
+  body: JSON.stringify({
+    mode: 'send_channel',
+    platform: 'whatsapp',
+    to: '+521XXXXXXXXXX',
+    message: 'Ivette, lead calificado: Acme Corp (ICP 92/100). ¿Iniciamos secuencia? SÍ/NO',
+  }),
+});
+```
+
+#### API Usage
+
+```bash
+GET  /api/openfang                           # Status + list of deployed Hands
+GET  /api/openfang?hand=<id>                 # Specific Hand details
+POST /api/openfang { mode: "deploy_hand" }   # Deploy a Hand with config + schedule
+POST /api/openfang { mode: "trigger" }       # Trigger Hand execution immediately
+POST /api/openfang { mode: "send_channel" }  # Send via WhatsApp/Telegram/Slack/…
+POST /api/openfang { mode: "query_memory" }  # Semantic search in agent memory
+```
+
+#### Training Points
+- Always call `GET /api/openfang` first to check daemon status before operations
+- Use `send_channel` for Ivette approval loop before any irreversible action
+- Hands run autonomously on schedule — agents don't need to trigger every run
+- Fallback is graceful: when daemon not running, all endpoints return helpful install instructions
+- In production: set `OPENFANG_BASE_URL=http://openfang:4200` for Docker internal networking
+
+---
+
 ## Revision History
+
+### 2026-03-11
+- Added Skill 11: CLI-Anything (hardwired to all agents)
+- Added Skill 12: A/B Content Campaign Automation
+- Added Skill 13: LLM Council Deliberation
+- Added Skill 14: OpenFang Agent OS (autonomous Hands + 40 channel adapters + Ivette approval loop)
+- Updated agent training matrix
 
 ### 2026-03-03
 - Created skills.md

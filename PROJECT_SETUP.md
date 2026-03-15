@@ -62,7 +62,7 @@ npm run build:web
 
 ## Project Structure
 
-```text
+```
 AKASHPORTFOLIO/
 ├── apps/
 │   ├── web/                    # Portfolio website
@@ -93,15 +93,19 @@ AKASHPORTFOLIO/
 │       │       └── sanitized-skills.json
 │       └── package.json
 │
-├── CLEANUP_PLAN.md            # Technical debt fixes
-├── agents.md                  # Agent systems documentation
-├── skills.md                  # Reusable skills and patterns
-├── synthia_core.md            # Core system architecture
-├── PROJECT_SETUP.md           # This file
-├── .env.example               # Environment variables template
-├── .gitignore                 # Git exclusions
-├── package.json               # Root workspace config
-└── package-lock.json          # Dependency lock file (NPM only)
+├── Documentation/
+│   ├── CLEANUP_PLAN.md        # Technical debt fixes
+│   ├── agents.md              # Agent systems documentation
+│   ├── skills.md              # Reusable skills and patterns
+│   ├── synthia_core.md        # Core system architecture
+│   └── PROJECT_SETUP.md       # This file
+│
+└── Configuration/
+    ├── .env.example           # Environment variables template
+    ├── .env.local            # Local dev variables (git-ignored)
+    ├── .gitignore            # Git exclusions
+    ├── package.json          # Root workspace config
+    └── package-lock.json     # Dependency lock file (NPM only)
 ```
 
 ## Bilingual Support (English/Spanish)
@@ -244,13 +248,22 @@ git pull origin <branch-name>
 
 ### Dependencies Not Installing
 ```bash
-# Install dependencies with locked versions (recommended)
-npm ci
-
-# Clear npm cache if needed
+# Clear npm cache
 npm cache clean --force
 
-# Full reinstall (only when intentionally refreshing the lockfile):
+# Remove lock file and reinstall
+rm package-lock.json
+npm install
+
+If dependencies are not installing properly, use the following command for reproducible installs:
+
+```bash
+npm ci
+```
+
+This approach maintains the existing lockfile without deleting it, ensuring consistent installs across environments. If you intentionally need to refresh the lockfile, use:
+
+```bash
 # npm install
 ```
 
