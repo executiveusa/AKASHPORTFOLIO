@@ -2,4 +2,5 @@
 # Other entries in .gitignore
 # ...
 .env.local
-# Removed redundant .env.local entry on line 20node_modules
+# Removed redundant .env.local entry on line 20
+node_modules
