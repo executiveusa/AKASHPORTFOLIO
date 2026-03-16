@@ -7,7 +7,7 @@ import { EventEmitter } from 'events';
 
 export interface TelemetryEvent {
     id: string;
-    sessionId: string;
+    sessionId?: string;
     type: 'tool_call' | 'reasoning' | 'state_change' | 'error' | 'success' | 'info';
     summary: string;
     data: any;

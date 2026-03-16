@@ -818,7 +818,7 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
       particles.rotation.y += 0.0003;
 
       controls.update();
-      (composerRef.current ?? renderer).render(scene, camera);
+      if (composerRef.current) { composerRef.current.render(); } else { renderer.render(scene, camera); }
     };
     animate();
 

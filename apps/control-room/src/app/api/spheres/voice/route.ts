@@ -45,11 +45,12 @@ export async function POST(req: NextRequest) {
 
   const result = await synthesizeSphereVoice(agentId as SphereAgentId, text.trim());
 
-  if (result.kind === 'audio') {
-    return new NextResponse(result.audioBuffer, {
+  if (result.ok) {
+    const audioBuffer = Buffer.from(result.audio, 'base64');
+    return new NextResponse(audioBuffer, {
       status: 200,
       headers: {
-        'Content-Type': result.mimeType,
+        'Content-Type': 'audio/mpeg',
         'X-Voice-Provider': result.provider,
         'X-Agent-Id': agentId,
         'Cache-Control': 'no-store',

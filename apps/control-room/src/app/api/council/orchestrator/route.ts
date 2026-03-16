@@ -134,9 +134,7 @@ async function runMeetingLoop(
       { maxTokens: 400, temperature: 0.7 },
     );
 
-    const text = result.kind === 'ok'
-      ? result.content
-      : `[${agentId.toUpperCase()} — sistema en pausa]`;
+    const text = result.content;
 
     turns.push({ agentId, text, timestamp: new Date().toISOString() });
 
@@ -229,7 +227,8 @@ INSTRUCCIONES:
 type EventListener = (event: CouncilEvent) => void;
 const listeners = new Map<string, Set<EventListener>>();
 
-function emitEvent(meetingId: string, event: CouncilEvent): void {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function emitEvent(meetingId: string, event: any): void {
   const subs = listeners.get(meetingId);
   if (subs) {
     for (const fn of subs) {

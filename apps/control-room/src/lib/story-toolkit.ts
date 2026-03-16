@@ -93,8 +93,8 @@ export async function synthesizeMeeting(transcript: MeetingTranscript): Promise<
     ], { maxTokens: 1200, temperature: 0.1 }),
   ]);
 
-  const narrative = narrativeResult.kind === 'ok' ? narrativeResult.content : transcript.topic;
-  const structured = parseStructuredOutput(structuredResult.kind === 'ok' ? structuredResult.content : '{}');
+  const narrative = narrativeResult.content || transcript.topic;
+  const structured = parseStructuredOutput(structuredResult.content || '{}');
 
   const summary: MeetingSummary = {
     meetingId: transcript.meetingId,

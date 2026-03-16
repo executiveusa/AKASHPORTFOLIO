@@ -37,7 +37,7 @@ export async function createStripeInvoice(
       name: customerName,
       metadata: metadata ?? {},
     });
-    const customerId: string = customerRes.id;
+    const customerId = customerRes.id as string;
 
     // Create invoice item
     await stripeRequest(secretKey, 'POST', '/v1/invoiceitems', {
@@ -62,8 +62,8 @@ export async function createStripeInvoice(
 
     return {
       success: true,
-      invoiceId: finalized.id,
-      invoiceUrl: finalized.hosted_invoice_url,
+      invoiceId: finalized.id as string,
+      invoiceUrl: finalized.hosted_invoice_url as string,
     };
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'Unknown Stripe error';
@@ -85,7 +85,7 @@ export async function listStripePayments(limit = 10): Promise<Array<{
 
   try {
     const data = await stripeRequest(secretKey, 'GET', `/v1/payment_intents?limit=${limit}`, null);
-    return (data.data ?? []).map((pi: {
+    return ((data.data as any[]) ?? []).map((pi: {
       id: string;
       amount: number;
       currency: string;

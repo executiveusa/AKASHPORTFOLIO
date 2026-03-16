@@ -52,7 +52,7 @@ async function getStatus(): Promise<NextResponse> {
 
   const warnings: string[] = [];
   if (budget.percentUsed > 80) {
-    warnings.push(`LLM budget at ${budget.percentUsed.toFixed(0)}% (${budget.todaySpend.toFixed(2)}/${budget.dailyBudget.toFixed(2)} USD)`);
+    warnings.push(`LLM budget at ${budget.percentUsed.toFixed(0)}% (${budget.spentTodayUsd.toFixed(2)}/${budget.dailyBudgetUsd.toFixed(2)} USD)`);
   }
 
   return NextResponse.json({

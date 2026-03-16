@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
   const agentId = searchParams.get('agentId');
   const sent = searchParams.get('sent') === 'true';
   const unreadOnly = searchParams.get('unreadOnly') === 'true';
-  const type = searchParams.get('type') as Parameters<typeof agentMail.getInbox>[1]['type'] | undefined;
+  const type = searchParams.get('type') as NonNullable<Parameters<typeof agentMail.getInbox>[1]>['type'] | undefined;
   const limit = parseInt(searchParams.get('limit') || '50');
 
   if (!agentId) {

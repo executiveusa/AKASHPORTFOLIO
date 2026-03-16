@@ -63,15 +63,15 @@ const MAX_ALERTS = 200;
 /** Inspect LLM budget and emit alert if thresholds exceeded. */
 async function inspectBudget(): Promise<WatcherAlert | null> {
   try {
-    const { totalSpent, dailyLimit } = await getBudgetStatus();
-    if (totalSpent >= THRESHOLDS.budgetCritical) {
+    const { spentTodayUsd, dailyBudgetUsd } = getBudgetStatus();
+    if (spentTodayUsd >= THRESHOLDS.budgetCritical) {
       return buildAlert('la-vigilante', 'budget',
-        `Presupuesto LLM CRÍTICO: $${totalSpent.toFixed(2)} de $${dailyLimit} usado hoy.`,
+        `Presupuesto LLM CRÍTICO: $${spentTodayUsd.toFixed(2)} de $${dailyBudgetUsd} usado hoy.`,
         'critical');
     }
-    if (totalSpent >= THRESHOLDS.budgetWarning) {
+    if (spentTodayUsd >= THRESHOLDS.budgetWarning) {
       return buildAlert('la-vigilante', 'budget',
-        `Presupuesto LLM advertencia: $${totalSpent.toFixed(2)} de $${dailyLimit}.`,
+        `Presupuesto LLM advertencia: $${spentTodayUsd.toFixed(2)} de $${dailyBudgetUsd}.`,
         'warning');
     }
     return null;
@@ -157,7 +157,8 @@ export async function runWatcherSweep(): Promise<WatcherAlert[]> {
 // Snapshot — aggregate system stats for the dashboard
 // ---------------------------------------------------------------------------
 export async function buildSnapshot(): Promise<SystemSnapshot> {
-  const budgetInfo = await getBudgetStatus().catch(() => ({ totalSpent: 0, dailyLimit: 5 }));
+  let budgetInfo: ReturnType<typeof getBudgetStatus>;
+  try { budgetInfo = getBudgetStatus(); } catch { budgetInfo = { spentTodayUsd: 0, dailyBudgetUsd: 5, date: '', percentUsed: 0, isOverBudget: false }; }
 
   let vibeConflicts = 0;
   let staleMemoryCount = 0;
@@ -190,8 +191,8 @@ export async function buildSnapshot(): Promise<SystemSnapshot> {
   }
 
   return {
-    budgetUsed:       budgetInfo.totalSpent,
-    budgetLimit:      budgetInfo.dailyLimit,
+    budgetUsed:       budgetInfo.spentTodayUsd,
+    budgetLimit:      budgetInfo.dailyBudgetUsd,
     vibeConflicts,
     avgCoherence,
     staleMemoryCount,
