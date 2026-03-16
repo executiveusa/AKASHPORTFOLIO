@@ -1,302 +1,248 @@
-# Agents & Automation Tracking
+# AGENTS.md — Kupuri Media™ / ALEX™ Agent Framework
 
-**Last Updated**: 2026-03-03
-**Status**: Initialization Phase
+> **Mandatory SOP** (2026-03-11): All agents must use the **agentic-sop** skill.
+> See: [agentic-sop skill](C:\Users\execu\.claude\skills\agentic-sop\SKILL.md)
 
-## Overview
-This document tracks all agent-based automation, LLM integrations, and workflow patterns used throughout the AKASHPORTFOLIO project.
+> **Mandatory Frontend Design** (2026-03-11): ALL frontend/UI work MUST use the **uncodixfy** skill.
+> Skill path: `C:\Users\execu\.agents\skills\uncodixfy\SKILL.md`
+> Source: https://github.com/executiveusa/paul-Uncodixfy
+> Applies to: any HTML, CSS, JS/TS component, React/Vue/Svelte file, Tailwind, layout, dashboard, landing page, card, form, sidebar, or visual UI output.
+> Follow `references/uncodixfy.md` for the full ruleset. No exceptions.
 
----
-
-## Active Agents & Systems
-
-### Synthia 3.0 Agentic OS
-**Location**: `apps/control-room/`
-**Status**: Integrated, Security Review Pending
-**Description**: Autonomous kernel with LLM Council support, Orgo Cloud bridging, and Perplexity Machine orchestration
-
-#### Components
-- **SynthiaTerminal** (`src/components/SynthiaTerminal.tsx`)
-  - Provides interactive terminal interface for system commands
-  - Real-time output streaming
-
-- **SkillMarket** (`src/components/SkillMarket.tsx`)
-  - Marketplace for agent skills and capabilities
-  - Tracks available skills and their parameters
-
-- **TelemetryLog** (`src/components/TelemetryLog.tsx`)
-  - Real-time system monitoring
-  - Performance metrics and health checks
-
-- **ViewingRoom** (`src/components/ViewingRoom.tsx`)
-  - 3D visualization of system state
-  - Agent activity monitoring
-
-#### Libraries & Tools
-- **Swarm Management** (`lib/swarm.ts`)
-  - Multi-agent coordination
-  - Parallel task execution
-
-- **Observability** (`lib/observability.ts`)
-  - System monitoring and logging
-  - Performance telemetry
-
-- **Git Manager** (`lib/git-manager.ts`)
-  - Automated git operations
-  - Repository state management
-  - **SECURITY NOTE**: Requires auth context verification
-
-- **OS Tools** (`lib/os-tools.ts`)
-  - System-level command execution
-  - Process management
-
-- **Perplexity Logic** (`lib/perplexity-logic.ts`)
-  - LLM reasoning patterns
-  - Query orchestration
-  - **SECURITY NOTE**: API key exposure audit required
-
-- **Orgo Cloud Integration** (`lib/orgo.ts`)
-  - Cloud backend connectivity
-  - Remote state management
-  - **SECURITY NOTE**: Sanitized version; audit for credential hardcoding
-
-- **MiniMax Algorithm** (`lib/minimax.ts`)
-  - Decision-making framework
-  - Optimization logic
-
-- **OpenFang Agent OS** (`lib/openfang.ts`)
-  - Autonomous agent daemon client (http://localhost:4200)
-  - 7 pre-built Hands: Clip, Lead, Collector, Predictor, Researcher, Twitter, Browser
-  - 40 channel adapters: WhatsApp, Telegram, Discord, Slack, Email, and 35+ more
-  - Ivette approval loop: agents send WhatsApp/Telegram to Ivette for human-in-the-loop decisions
-  - Route: `/api/openfang` — modes: `deploy_hand | trigger | send_channel | query_memory`
-  - Skill doc: `agents/_openfang.md`
-
-- **Remotion** (`lib/remotion.ts`)
-  - Video generation automation
-  - Asset creation pipelines
-
-#### API Routes
-- **Dashboard API** (`app/api/dashboard/route.ts`)
-  - System status endpoint
-  - Dashboard data aggregation
-
-- **Synthia API** (`app/api/synthia/route.ts`)
-  - Agent command processing
-  - LLM Council integration
-
-#### Configuration
-- **Skills Configuration** (`lib/sanitized-skills.json`)
-  - Available skills and their metadata
-  - **STATUS**: Marked as "sanitized" but requires audit
-  - Skills tracked:
-    - Code generation
-    - Data analysis
-    - File operations
-    - LLM interactions
+> **Zero-Touch Engineer Protocol v2.0.0** — All agents in this repository operate under ZTE.
+> Source: `apps/control-room/src/agents/alex/SOUL.md`
 
 ---
 
-## Localization & i18n Agent
+## Standard Operating Procedure (Mandatory)
 
-**Location**: `apps/web/js/i18n.js`
-**Status**: Active
-**Description**: Bilingual localization system (English/Spanish)
-
-### Features
-- Language toggle mechanism
-- Dynamic content switching
-- Localized copy for all user-facing text
-
-### Tracked Content Areas
-- Hero section
-- About section (recently updated: `e596c2c`)
-- Services section
-- Contact page
-- Footer
-- Navigation
-
-### Known Issues
-- **Hardcoded Copy**: Some text still in `index.html` instead of i18n system
-- **CSS Content**: Potential hardcoded strings in CSS `:before`/`:after`
-
----
-
-## Orgo Console Agent
-
-**Location**: `apps/control-room/src/components/OrgoConsole.tsx`
-**Status**: Recently Added (Feb 27, 2026)
-**Description**: Interface for Orgo Cloud orchestration
-
-### Features
-- Command dispatch
-- Result visualization
-- Real-time feedback
-
-### External Dependencies
-- Orgo Cloud API
-- Perplexity Machine
-- **SECURITY STATUS**: PENDING REVIEW
-
----
-
-## Workflow Patterns
-
-### Data Flow: User Input → Agent → LLM → Output
-1. User submits command/query
-2. System routes to appropriate agent
-3. Agent processes via LLM (Council or Perplexity)
-4. Results aggregated and returned
-5. UI updates with response
-
-### Integration Points
-- Dashboard displays agent status
-- Terminal provides direct access
-- Skill Market enables capability discovery
-- Telemetry tracks all operations
-
----
-
-## Security Audit Checklist
-
-### Critical Items
-- [ ] Verify no API keys in `sanitized-skills.json`
-- [ ] Verify no API keys in `perplexity-logic.ts`
-- [ ] Verify no API keys in `orgo.ts`
-- [ ] Check git-manager authentication context
-- [ ] Verify Orgo Cloud endpoints don't expose internal IPs
-- [ ] Confirm Perplexity API key is environment-injected, not hardcoded
-- [ ] Audit all `.env` usage across control-room
-
-### Configuration Review
-- [ ] Document all required environment variables
-- [ ] Create `.env.example` for control-room
-- [ ] Verify no secrets in git history
-
----
-
-## Future Integrations
-
-### Planned
-- [ ] Claude API integration for enhanced reasoning
-- [ ] Multi-LLM support (GPT, Claude, Perplexity)
-- [ ] Advanced persistence layer
-- [ ] Real-time collaboration features
-
-### Experimental
-- Deepseek integration
-- Minimax optimization improvements
-- 3D visualization enhancements
-
----
-
-## Related Documentation
-- `synthia_core.md` - Core system documentation
-- `CLEANUP_PLAN.md` - Ongoing cleanup initiatives
-- `skills.md` - Skill definitions and training data
-
----
-
----
-
-## CLI-Anything Integration
-
-**Source**: https://github.com/HKUDS/CLI-Anything
-**Added**: 2026-03-11
-**Status**: Hardwired skill — available to ALL Synthia 3.0 agents
-
-### What It Is
-
-CLI-Anything transforms professional desktop software into agent-controllable CLIs with structured JSON output. Every Synthia agent can now produce real professional files — not just text responses.
-
-### Available Tools
-
-| Tool | CLI Command | Primary Agents |
-|------|-------------|----------------|
-| GIMP | `cli-anything-gimp` | Merlina, Lapina Instagram |
-| Blender | `cli-anything-blender` | Merlina, Indigo |
-| Inkscape | `cli-anything-inkscape` | Merlina, Lapina LinkedIn |
-| Kdenlive | `cli-anything-kdenlive` | Lapina TikTok, Lapina Instagram, Indigo |
-| Audacity | `cli-anything-audacity` | Lapina TikTok, Ivette Voice |
-| LibreOffice | `cli-anything-libreoffice` | Synthia, Morpho, Clandestino, Ralphy |
-| OBS Studio | `cli-anything-obs-studio` | Indigo, Synthia |
-| Draw.io | `cli-anything-drawio` | Morpho, Ralphy |
-| AnyGen | `cli-anything-anygen` | Synthia, Indigo, Lapina |
-
-### Implementation Files
-
-- **Lib wrapper**: `apps/control-room/src/lib/cli-anything.ts`
-- **API route**: `apps/control-room/src/app/api/cli/route.ts`
-- **Agent skill**: `apps/control-room/agents/_cli-anything.md`
-
-### API Endpoints
+All agents working on complex/multi-step tasks **MUST** follow the **Agentic SOP**:
 
 ```
-GET  /api/cli               → discover installed tools
-GET  /api/cli?tool=gimp     → get tool capabilities
-POST /api/cli               → execute command or workflow
+1. ASK       → Clarify requirements (30 sec)
+2. PLAN      → Design minimal approach + explore codebase (5-15 min)
+3. EXECUTE   → Write code incrementally, test (10-60 min)
+4. OBSERVE   → Run tests/build, get feedback (2-5 min)
+5. ITERATE   → Fix blockers, repeat (as needed)
 ```
 
-### Install
+### Core Patterns (REQUIRED)
+
+| Pattern | Purpose | Reference |
+|---------|---------|-----------|
+| **Beads** | Persistent memory across sessions | `memory/MEMORY.md` |
+| **jcodemunch** | Token compression (30-50% savings) | Use `/jmunch` for large codebases |
+| **Ralphy Loop** | Minimal agentic workflow | Ask → Plan → Execute → Observe → Iterate |
+
+**Key Principles**:
+- ✅ Ship before perfecting
+- ✅ Iterate based on feedback
+- ✅ Test catches regressions
+- ❌ NO analysis paralysis
+- ❌ NO over-engineering
+
+See **agentic-sop** skill for complete guide with references and scenarios.
+
+---
+
+## Prime Directive
+
+```
+WRITE → TEST → FIX → COMMIT → DEPLOY → VERIFY → NOTIFY
+```
+
+Every autonomous action follows this 7-stage loop with no human intervention required unless a circuit breaker fires.
+
+---
+
+## Circuit Breakers
+
+| Trigger | Limit | Action |
+|---------|-------|--------|
+| Single task cost | $10 USD | PAUSE → notify Ivette |
+| Daily spend | $50 USD | HALT all agents |
+| API error rate | >3 consecutive | Fall back to cached/stub mode |
+| Production secret exposure | Any | ABORT immediately |
+
+---
+
+## Sphere OS™ — 9 Dolores Cannon Agents + La Vigilante
+
+Each Sphere is an autonomous LATAM Spanish AI agent with a unique voice, frequency, and soul file.
+Voice stack: **Mercury 2 Inception API → ElevenLabs `eleven_multilingual_v2` → text fallback**
+
+| SphereAgentId | Display Name | Locale | Role | Base Color | Hz | Voice ID (ElevenLabs default) |
+|---|---|---|---|---|---|---|
+| `synthia` | SYNTHIA™ | es-MX CDMX ♀ | Chief of Staff — Coordinadora General | `#8b5cf6` violet | 0.85 | `EXAVITQu4vr4xnSDxMaL` |
+| `alex` | ALEX™ | es-MX CDMX ♂ | Estratega Ejecutivo — Chief Advisor | `#d4af37` gold | 0.80 | `ErXwobaYiN019PkySvjV` |
+| `cazadora` | CAZADORA™ | es-CO Colombian ♀ | Cazadora de Oportunidades — Prospect Hunter | `#ef4444` red | 0.95 | `AZnzlk1XvdvUeBnXmlld` |
+| `forjadora` | FORJADORA™ | es-AR Rioplatense ♀ | Arquitecta de Sistemas — Systems Builder | `#22c55e` green | 0.45 | `MF3mGyEYCl7XYWbV9V6O` |
+| `seductora` | SEDUCTORA™ | es-CU Habanera ♀ | Closera Maestra — Sales & Persuasion | `#eab308` gold | 0.65 | `jsCqWAovK2LkecY7zXl4` |
+| `consejo` | CONSEJO™ | es-CL Chilean ♀ | Consejero Mayor — Council Facilitator | `#1d4ed8` blue | 0.25 | `TxGEqnHWrfWFTfGW9XjX` |
+| `dr-economia` | DR. ECONOMÍA | es-VE Venezuelan ♂ | Analista Financiero — Arbitrage & Finance | `#f97316` orange | 0.75 | `pNInz6obpgDQGcFmaJgB` |
+| `dra-cultura` | DRA. CULTURA | es-PE Peruvian ♀ | Estratega Cultural — Content & Community | `#f43f5e` rose | 0.55 | `XrExE9yKIg1WjnnlVkGX` |
+| `ing-teknos` | ING. TEKNOS | es-PR Puerto Rican ♂ | Ingeniero de Sistemas — Tech Architecture | `#06b6d4` cyan | 0.35 | `flq6f7yk4E4fJM5XTYuZ` |
+| `la-vigilante` | LA VIGILANTE™ | Español neutro | Guardian del Consejo — Lightning Agent | `#64748b` slate | — | *(no voice)* |
+
+Soul files: `apps/control-room/src/agents/spheres/{name}/{SOUL,HEART,MISSION,IDENTITY}.md`
+La Vigilante: `apps/control-room/src/agents/la-vigilante/{SOUL,MISSION,index.ts}`
+
+---
+
+## Ralphy Loop — Mandatory Execution Protocol
+
+```
+ASK → PLAN → EXECUTE → OBSERVE → ITERATE
+```
+
+**Enforcement rules (La Vigilante monitors compliance):**
+
+1. **ASK** — Clarify scope before touching code. Ambiguity = blocked task.
+2. **PLAN** — `GET /api/vibe?agent={id}` MUST be called before any execution step.
+3. **EXECUTE** — One atomic change per loop. Commit after each passing test.
+4. **OBSERVE** — Run `get_errors` or `pnpm build` after every file edit.
+5. **ITERATE** — Record results in `agent_memory` before starting the next loop.
+
+Violations trigger an automatic La Vigilante **warning alert** logged to `/api/watcher`.
+
+---
+
+## Vibe Graph Protocol
+
+The **Vibe Graph** is a shared context graph preventing agent collisions.
+
+**Every agent MUST:**
+```
+Before acting:   GET /api/vibe?agent={sphereId}
+After acting:    POST /api/vibe  { kind: 'ingest', agentId, nodeKind, label, content }
+On conflict:     PATCH /api/vibe { nodeId }  (invalidate stale node)
+```
+
+Vibe Graph tables: `vibe_nodes`, `vibe_edges` (Supabase)
+Decay function: `decay_vibe_confidence()` — run nightly via `POST /api/cron/nightly-summary`
+
+---
+
+## jcodemunch Protocol
+
+When any source file exceeds **500 lines**, La Vigilante auto-emits a directive:
+
+> "Apply jcodemunch: split `{filename}` into modules ≤200 lines before continuing."
+
+**Rule**: No new code added to files >500 lines until refactor is done.
+**Tool**: Use `/jmunch` in Copilot or Claude to get a compression plan.
+
+---
+
+---
+
+## API Endpoints
+
+| Route | Method | Purpose |
+|-------|--------|---------|
+| `/api/spheres/voice` | POST | Voice synthesis for any sphere → audio/mpeg |
+| `/api/vibe` | GET/POST/PATCH | Vibe Graph context ingest + retrieval |
+| `/api/council/orchestrator` | POST/GET | Start meeting / SSE stream |
+| `/api/watcher` | GET/POST | La Vigilante status + alert feed |
+| `/api/cron/sphere-hunt` | GET | Prospecting sweep (L–V 14:00 CST) |
+| `/api/cron/nightly-summary` | GET | Nightly synthesis + memory decay (02:00 CST) |
+| `/api/alex` | POST | Chat with ALEX™ directly |
+| `/api/arbitrage` | GET | LATAM forex brief |
+| `/api/income` | POST | Create invoice |
+
+---
+
+## Cron Schedule (Mexico City Time / CST = UTC−6)
+
+```
+09:00 Mon–Fri  → Daily Standup (POST /api/council/orchestrator)
+14:00 Mon–Fri  → Sphere Hunt — prospecting sweep (/api/cron/sphere-hunt)
+02:00 daily    → Nightly summary + memory decay (/api/cron/nightly-summary)
+```
+
+`vercel.json` crons:
+```json
+"crons": [
+  { "path": "/api/council/cron",        "schedule": "0 15 * * 1-5" },
+  { "path": "/api/cron/sphere-hunt",    "schedule": "0 20 * * 1-5" },
+  { "path": "/api/cron/nightly-summary","schedule": "0 8 * * *" }
+]
+```
+
+---
+
+## Delegation Rules
+
+1. **SYNTHIA™ always routes to specialist spheres** — never executes financial transactions directly.
+2. **CAZADORA™ drafts proposals; Ivette approves before send.**
+3. **DRA. CULTURA™ generates content; SYNTHIA™ reviews for tone.**
+4. **DR. ECONOMÍA™ flags arbitrage; >$500 requires Ivette confirmation.**
+5. **Council meetings are SSE-streamed** — viewable at `/spheres` in real-time.
+
+---
+
+## Circuit Breakers
+
+| Trigger | Limit | Action |
+|---------|-------|--------|
+| Single task LLM cost | $10 USD | PAUSE → notify Ivette |
+| Daily LLM budget | $5 USD (warn) / $10 USD (halt) | La Vigilante alert |
+| API error rate | >3 consecutive | Fall back to cached/stub mode |
+| Production secret exposure | Any | ABORT immediately |
+| Vibe Graph conflicts active | >7 | La Vigilante critical alert |
+
+---
+
+## Environment Variables Required
 
 ```bash
-pip install cli-anything-gimp cli-anything-blender cli-anything-inkscape \
-            cli-anything-kdenlive cli-anything-audacity cli-anything-libreoffice \
-            cli-anything-obs-studio cli-anything-drawio cli-anything-anygen
+# Core AI
+ANTHROPIC_API_KEY=
+LITELLM_BASE_URL=http://localhost:8000
+
+# Mercury 2 Inception API
+MERCURY_API_KEY=
+MERCURY_API_ENDPOINT=
+
+# PersonaPlex
+PERSONA_PLEX_API_KEY=
+
+# ElevenLabs (fallback voice)
+ELEVEN_LABS_API_KEY=
+
+# Per-sphere voice overrides (optional — defaults in mercury-voice.ts)
+SPHERE_SYNTHIA_VOICE_ID=
+SPHERE_ALEX_VOICE_ID=
+SPHERE_CAZADORA_VOICE_ID=
+SPHERE_FORJADORA_VOICE_ID=
+SPHERE_SEDUCTORA_VOICE_ID=
+SPHERE_CONSEJO_VOICE_ID=
+SPHERE_DR_ECONOMIA_VOICE_ID=
+SPHERE_DRA_CULTURA_VOICE_ID=
+SPHERE_ING_TEKNOS_VOICE_ID=
+
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# Cron security
+CRON_SECRET=
+
+# App
+NEXT_PUBLIC_APP_URL=
 ```
 
 ---
 
-## Synthia 3.0 Agent Roster
+## Security
 
-**Location**: `apps/control-room/agents/`
-**Added**: 2026-03-08 → 2026-03-11
-
-| Agent | File | Role |
-|-------|------|------|
-| Synthia Prime | `synthia-prime.md` | CEO Digital, orchestrator |
-| Ralphy | `ralphy.md` | Quality coach (Lightning Protocol) |
-| Indigo | `indigo.md` | Growth hacker, A/B testing |
-| Lapina | `lapina.md` | Content creator coordinator |
-| Lapina TikTok | `lapina-tiktok.md` | TikTok specialist |
-| Lapina Instagram | `lapina-instagram.md` | Instagram specialist |
-| Lapina LinkedIn | `lapina-linkedin.md` | LinkedIn/B2B specialist |
-| Clandestino | `clandestino.md` | Sales & BD |
-| Merlina | `merlina.md` | Creative director |
-| Morpho | `morpho.md` | Analytics |
-| Ivette Voice | `ivette-voice.md` | Brand guardian |
-| NEXUS | `_nexus.md` | Orchestration framework |
-| CLI-Anything | `_cli-anything.md` | Universal creative execution skill |
-
-### Supporting Systems
-
-| System | File | Purpose |
-|--------|------|---------|
-| Agent Mail | `src/lib/agent-mail.ts` | Inter-agent messaging |
-| LLM Council | `src/lib/council.ts` | 5-member deliberation system |
-| Meeting Room | `src/lib/meeting-room.ts` | 3x daily cron meetings |
-| Social Media | `src/lib/social-media.ts` | A/B campaign automation |
-| CLI-Anything | `src/lib/cli-anything.ts` | Creative software control |
-| Swarm | `src/lib/swarm.ts` | 8-agent roster + goal tracking |
+- No secrets in git. All keys via environment variables only.
+- `CRON_SECRET` header required for all cron endpoints.
+- All income operations logged to Supabase `agent_tasks` table.
+- Financial circuit breakers enforced at middleware level.
+- La Vigilante audits all POST actions to `/api/watcher`.
 
 ---
 
-## Change Log
-
-### 2026-03-11
-- Added CLI-Anything universal skill to all agents
-- Created `cli-anything.ts` lib + `/api/cli` route
-- Added Lapina platform sub-agents (TikTok, Instagram, LinkedIn)
-- Added campaign disk persistence to `social-media.ts`
-
-### 2026-03-08
-- Full Synthia 3.0 agent roster (8 agents + NEXUS framework)
-- LLM Council, Meeting Room, Agent Mail, Social Media A/B systems
-- Vercel cron jobs for 3x daily meetings
-- Security fix: MiniMax API key moved to env vars
-
-### 2026-03-03
-- Created agents.md
-- Documented Synthia 3.0 components
-- Added security audit checklist
-- Flagged critical review items
+_Kupuri Media™ — Sphere OS™ v2.0 · Powered by 9+1 Dolores Cannon Agents · Santa María la Ribera, CDMX_

@@ -10,3 +10,18 @@ __pycache__/
 *.pyc
 .pytest_cache/
 scripts/*.log
+
+# Secrets & credentials — never commit
+secrets.md
+master.env
+*.env
+GH_PAT_ADMIN*
+test_*.ps1
+test_*.py
+check_*.py
+rustup-init.exe
+backend/rustup-init.exe
+.git-temp/
+.yarn/
+DEPLOYMENT_SUMMARY.md
+VERCEL_DEPLOYMENT_COMPLETE.md
