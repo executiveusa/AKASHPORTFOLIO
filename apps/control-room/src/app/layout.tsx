@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
-import { Playfair_Display } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Playfair_Display, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
 const playfairDisplay = Playfair_Display({
@@ -8,9 +8,24 @@ const playfairDisplay = Playfair_Display({
   weight: ["400", "600", "700", "900"],
 });
 
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+});
+
 export const metadata: Metadata = {
-  title: "Synthia™ 3.0 - Sistema Operativo Agentico",
-  description: "Synthia™ es tu CEO invisible para automatizar tareas y controlar equipos de agentes de IA",
+  title: "Synthia™ 3.0 — Sistema Operativo Agéntico",
+  description: "Tu CEO invisible. Automatiza operaciones, coordina agentes de IA y genera ingresos en toda Latinoamérica.",
+  manifest: "/manifest.json",
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "Synthia 3.0" },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: "#1a1208",
 };
 
 export default function RootLayout({
@@ -19,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={playfairDisplay.variable}>
+    <html lang="es" className={`${playfairDisplay.variable} ${spaceGrotesk.variable}`}>
       <body className="antialiased">
         {children}
       </body>

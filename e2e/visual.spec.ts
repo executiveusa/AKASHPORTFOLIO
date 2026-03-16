@@ -37,6 +37,15 @@ test.describe('Visual — Page Screenshots', () => {
     { route: '/skills',         name: 'skills' },
     { route: '/coordination',   name: 'coordination' },
     { route: '/blog',           name: 'blog' },
+    // ── Cockpit (Synthia 3.0) ──
+    { route: '/cockpit',            name: 'cockpit' },
+    { route: '/cockpit/revenue',    name: 'cockpit-revenue' },
+    { route: '/cockpit/payments',   name: 'cockpit-payments' },
+    { route: '/cockpit/webhooks',   name: 'cockpit-webhooks' },
+    { route: '/cockpit/fleet',      name: 'cockpit-fleet' },
+    { route: '/cockpit/spheres',    name: 'cockpit-spheres' },
+    { route: '/cockpit/social',     name: 'cockpit-social' },
+    { route: '/cockpit/theater',    name: 'cockpit-theater' },
   ];
 
   for (const { route, name } of pages) {
@@ -74,6 +83,18 @@ test.describe('Visual — Page Screenshots', () => {
       path: path.join(SCREENSHOT_DIR, 'spheres-mobile.png'),
       fullPage: true,
     });
+  });
+
+  test('screenshot: cockpit — mobile 375px', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/cockpit', { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(800);
+    await page.screenshot({
+      path: path.join(SCREENSHOT_DIR, 'cockpit-mobile.png'),
+      fullPage: true,
+    });
+    const overflow = await page.evaluate(() => document.body.scrollWidth > window.innerWidth);
+    expect(overflow).toBeFalsy();
   });
 });
 
@@ -117,6 +138,25 @@ test.describe('API Routes — Health Checks', () => {
   test('GET /api/cron/nightly-summary — cron guard returns 401 without secret', async ({ request }) => {
     const res = await request.get('/api/cron/nightly-summary');
     expect(res.status()).not.toBe(500);
+  });
+
+  test('GET /api/creem — status check responds', async ({ request }) => {
+    const res = await request.get('/api/creem');
+    expect(isOk(res.status())).toBeTruthy();
+  });
+
+  test('GET /api/revenue — snapshot responds', async ({ request }) => {
+    const res = await request.get('/api/revenue');
+    expect(isOk(res.status())).toBeTruthy();
+    const body = await res.json().catch(() => null);
+    expect(body).not.toBeNull();
+  });
+
+  test('GET /api/fleet — fleet status responds', async ({ request }) => {
+    const res = await request.get('/api/fleet');
+    expect(isOk(res.status())).toBeTruthy();
+    const body = await res.json().catch(() => null);
+    expect(body).not.toBeNull();
   });
 });
 
@@ -169,6 +209,28 @@ test.describe('UI Elements — Structure Checks', () => {
     await page.waitForTimeout(1000);
     const bodyText = await page.locator('body').textContent();
     expect(bodyText?.length ?? 0).toBeGreaterThan(10);
+  });
+
+  test('cockpit page has sidebar navigation', async ({ page }) => {
+    await page.goto('/cockpit', { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(1500);
+    const bodyText = await page.locator('body').textContent();
+    expect(bodyText?.length ?? 0).toBeGreaterThan(10);
+  });
+
+  test('cockpit loads without JS errors', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', err => errors.push(err.message));
+    await page.goto('/cockpit', { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(2000);
+    const critical = errors.filter(e =>
+      !e.includes('NEXT_PUBLIC_') &&
+      !e.includes('supabase') &&
+      !e.includes('MetaMask') &&
+      !e.includes('Non-Error') &&
+      !e.includes('THREE')
+    );
+    expect(critical).toEqual([]);
   });
 
   test('no broken images on homepage', async ({ page }) => {

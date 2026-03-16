@@ -25,3 +25,11 @@ backend/rustup-init.exe
 .yarn/
 DEPLOYMENT_SUMMARY.md
 VERCEL_DEPLOYMENT_COMPLETE.md
+
+# Build & test artifacts
+build-output.txt
+visual-results.txt
+dev-server*.log
+playwright-screenshots/
+test-results/
+playwright-report/
