@@ -12,6 +12,22 @@
 > **Zero-Touch Engineer Protocol v2.0.0** — All agents in this repository operate under ZTE.
 > Source: `apps/control-room/src/agents/alex/SOUL.md`
 
+> **Ralphy Loop (2026-03-16)** — Minimal agentic workflow. All agents MUST follow.
+> Source: https://github.com/michaelshimeles/ralphy.git  
+> Protocol: `ASK → PLAN → EXECUTE → OBSERVE → ITERATE` — one atomic change per loop iteration.
+
+> **E2E Test Skill (2026-03-16)** — ALL new features require e2e Playwright tests.
+> Reference skill: https://github.com/coleam00/link-in-bio-page-builder/blob/main/.claude/skills/e2e-test/SKILL.md
+
+> **jcodemunch MCP (2026-03-16)** — Token compression for large files. Install once, use always.
+> Source: https://github.com/jgravelle/jcodemunch-mcp.git  
+> Rule: files > 500 lines → run `/jmunch` BEFORE adding new code. La Vigilante enforces this.
+
+> **LLM Provider (2026-03-16)** — OpenRouter is the PRIMARY gateway. ANTHROPIC as fallback.
+> Env var: `OPEN_ROUTER_API` → `https://openrouter.ai/api/v1/chat/completions`
+> Default model: `anthropic/claude-3.5-sonnet` via OpenRouter
+> Fallback: `ANTHROPIC_API_KEY` → direct Anthropic SDK → `claude-3-haiku-20240307`
+
 ---
 
 ## Standard Operating Procedure (Mandatory)
@@ -91,9 +107,22 @@ La Vigilante: `apps/control-room/src/agents/la-vigilante/{SOUL,MISSION,index.ts}
 
 ## Ralphy Loop — Mandatory Execution Protocol
 
+> Source: https://github.com/michaelshimeles/ralphy.git  
+> This is the mandatory agentic workflow for ALL tasks in this ecosystem.
+
 ```
 ASK → PLAN → EXECUTE → OBSERVE → ITERATE
 ```
+
+**Step definitions:**
+
+| Step | Action | Time Limit | Gate |
+|------|--------|-----------|------|
+| **ASK** | Clarify scope — check memory, read AGENTS.md, load context | 30s | Ambiguity = blocked |
+| **PLAN** | Write explicit file list + validation criteria before touching code | 5-15 min | `GET /api/vibe` MUST be called |
+| **EXECUTE** | One atomic change per iteration. Commit after each green test | 10-60 min | Lint must pass after each file |
+| **OBSERVE** | `pnpm build` or `get_errors` after every file edit | 2-5 min | Build errors = stop, fix now |
+| **ITERATE** | Record outcome in `agent_memory` → start next loop | — | Never batch >3 files without checking |
 
 **Enforcement rules (La Vigilante monitors compliance):**
 
@@ -125,12 +154,17 @@ Decay function: `decay_vibe_confidence()` — run nightly via `POST /api/cron/ni
 
 ## jcodemunch Protocol
 
+> Source: https://github.com/jgravelle/jcodemunch-mcp.git  
+> Install: `npx jcodemunch-mcp install` (adds to MCP server list)
+
 When any source file exceeds **500 lines**, La Vigilante auto-emits a directive:
 
 > "Apply jcodemunch: split `{filename}` into modules ≤200 lines before continuing."
 
-**Rule**: No new code added to files >500 lines until refactor is done.
-**Tool**: Use `/jmunch` in Copilot or Claude to get a compression plan.
+**Rule**: No new code added to files >500 lines until refactor is done.  
+**Tool**: Use `/jmunch` in Copilot or Claude to get a compression/split plan.  
+**Why**: Keeps context window efficient — 30-50% token savings on large files.  
+**MCP command**: `jcodemunch --input src/large-file.ts --max-tokens 2000`
 
 ---
 

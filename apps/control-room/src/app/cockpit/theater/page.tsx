@@ -16,9 +16,21 @@ export default function TheaterCockpitPage() {
   const [meetingId, setMeetingId] = useState<string | undefined>(undefined);
   const [showControls, setShowControls] = useState(true);
 
-  function startMeeting() {
-    const id = `cockpit-meeting-${Date.now()}`;
-    setMeetingId(id);
+  async function startMeeting() {
+    try {
+      const res = await fetch("/api/council/orchestrator", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic: `Reunión en ${selectedLocation.nameEs} — ${selectedLocation.neighborhood}`,
+          agentIds: selectedLocation.defaultParticipants,
+        }),
+      });
+      const json = res.ok ? await res.json() as { meetingId: string } : null;
+      setMeetingId(json?.meetingId ?? `cockpit-meeting-${Date.now()}`);
+    } catch {
+      setMeetingId(`cockpit-meeting-${Date.now()}`);
+    }
     setMeetingActive(true);
   }
 

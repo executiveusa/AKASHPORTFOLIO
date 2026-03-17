@@ -221,14 +221,31 @@ INSTRUCCIONES:
 }
 
 // ---------------------------------------------------------------------------
-// Simple in-memory pub/sub for SSE
+// Simple in-memory pub/sub + event buffer for SSE (fixes race condition)
+// Buffer replays recent events to late-connecting SSE subscribers.
 // ---------------------------------------------------------------------------
 
 type EventListener = (event: CouncilEvent) => void;
 const listeners = new Map<string, Set<EventListener>>();
 
+// Per-meeting event buffer — holds up to 200 events for 15 min after meeting ends
+const eventBuffer = new Map<string, Array<{ event: CouncilEvent; ts: number }>>();
+const BUFFER_MAX = 200;
+const BUFFER_TTL_MS = 15 * 60 * 1000;
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function emitEvent(meetingId: string, event: any): void {
+  // Buffer the event
+  if (!eventBuffer.has(meetingId)) eventBuffer.set(meetingId, []);
+  const buf = eventBuffer.get(meetingId)!;
+  buf.push({ event, ts: Date.now() });
+  if (buf.length > BUFFER_MAX) buf.shift();
+
+  // Schedule cleanup after meeting ends
+  if (event.type === 'meeting.end') {
+    setTimeout(() => eventBuffer.delete(meetingId), BUFFER_TTL_MS);
+  }
+
   const subs = listeners.get(meetingId);
   if (subs) {
     for (const fn of subs) {
@@ -242,6 +259,15 @@ function subscribeMeeting(meetingId: string, listener: EventListener): () => voi
     listeners.set(meetingId, new Set());
   }
   listeners.get(meetingId)!.add(listener);
+
+  // Replay buffered events so late subscribers don't miss meeting.begin etc.
+  const buf = eventBuffer.get(meetingId) ?? [];
+  Promise.resolve().then(() => {
+    for (const { event } of buf) {
+      try { listener(event); } catch { /* ignore */ }
+    }
+  });
+
   return () => {
     listeners.get(meetingId)?.delete(listener);
     if (listeners.get(meetingId)?.size === 0) {

@@ -1,14 +1,30 @@
 /**
- * LiteLLM Gateway — Synthia™ Sphere OS
- * 
+ * LLM Gateway — Synthia™ Sphere OS
+ *
  * Provider-agnostic LLM routing with budget guard and fallback chain.
- * Primary:  LiteLLM proxy (if LITELLM_BASE_URL configured) → claude-opus-4-5
- * Fallback: Direct Anthropic SDK → claude-3-haiku-20240307
+ * Primary:  OpenRouter (OPEN_ROUTER_API) → anthropic/claude-3.5-sonnet
+ * Fallback: Direct Anthropic SDK (ANTHROPIC_API_KEY) → claude-3-haiku-20240307
+ * Legacy:   LiteLLM proxy (LITELLM_BASE_URL) — kept for compatibility
  * Guard:    LITELLM_DAILY_BUDGET_USD (default $20) circuit breaker
  */
 
 import Anthropic from '@anthropic-ai/sdk';
 import type { SphereAgentId } from '@/shared/council-events';
+
+// ---------------------------------------------------------------------------
+// OpenRouter model name mapping
+// ---------------------------------------------------------------------------
+function toOpenRouterModel(model: string): string {
+  const map: Record<string, string> = {
+    'claude-opus-4-5': 'anthropic/claude-3.5-sonnet',
+    'claude-3-opus-20240229': 'anthropic/claude-3-opus',
+    'claude-3-5-sonnet-20241022': 'anthropic/claude-3.5-sonnet',
+    'claude-3-5-haiku-20241022': 'anthropic/claude-3.5-haiku',
+    'claude-haiku-3-20240307': 'anthropic/claude-3-haiku',
+    'claude-3-haiku-20240307': 'anthropic/claude-3-haiku',
+  };
+  return map[model] ?? model;
+}
 
 // ---------------------------------------------------------------------------
 // Types
@@ -91,23 +107,88 @@ export async function callLLM(
     return stub(messages, 'COST_GUARD_TRIGGERED');
   }
 
-  // Route 1: LiteLLM proxy
-  if (process.env.LITELLM_BASE_URL && process.env.LITELLM_MASTER_KEY && 
+  // Route 1: OpenRouter (primary — OPEN_ROUTER_API)
+  const openRouterKey = process.env.OPEN_ROUTER_API;
+  if (openRouterKey) {
+    const orModel = toOpenRouterModel(model);
+    const result = await tryOpenRouter(messages, { model: orModel, maxTokens, temperature, sphereId }, openRouterKey);
+    if (result) return result;
+  }
+
+  // Route 2: LiteLLM proxy (legacy compatibility)
+  if (process.env.LITELLM_BASE_URL && process.env.LITELLM_MASTER_KEY &&
       process.env.LITELLM_MASTER_KEY !== 'your-litellm-master-key') {
     const result = await tryLiteLLM(messages, { model, maxTokens, temperature, sphereId });
     if (result) return result;
   }
 
-  // Route 2: Direct Anthropic
+  // Route 3: Direct Anthropic SDK (fallback)
   const anthropicKey = process.env.ANTHROPIC_API_KEY;
   if (anthropicKey) {
-    // Downgrade to haiku on fallback to save cost
-    const fallbackModel = model.includes('opus') ? 'claude-haiku-3-20240307' : model;
+    const fallbackModel = model.includes('opus') ? 'claude-3-haiku-20240307' : model;
     const result = await tryAnthropic(messages, { model: fallbackModel, maxTokens, temperature, sphereId });
     if (result) return result;
   }
 
   return stub(messages, 'no-providers-configured');
+}
+
+// ---------------------------------------------------------------------------
+// OpenRouter (primary)
+// ---------------------------------------------------------------------------
+
+async function tryOpenRouter(
+  messages: LLMMessage[],
+  opts: { model: string; maxTokens: number; temperature: number; sphereId?: SphereAgentId },
+  apiKey: string,
+): Promise<LLMResult | null> {
+  try {
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'https://dashboard-agent-swarm-eight.vercel.app',
+        'X-Title': 'Synthia Sphere OS',
+      },
+      body: JSON.stringify({
+        model: opts.model,
+        messages,
+        max_tokens: opts.maxTokens,
+        temperature: opts.temperature,
+      }),
+      signal: AbortSignal.timeout(30000),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      throw new Error(`OpenRouter HTTP ${res.status}: ${errText.slice(0, 120)}`);
+    }
+
+    const data = await res.json() as {
+      choices: Array<{ message: { content: string } }>;
+      usage?: { prompt_tokens: number; completion_tokens: number };
+      model?: string;
+    };
+
+    const content = data.choices[0]?.message?.content ?? '';
+    const inputTokens = data.usage?.prompt_tokens ?? 0;
+    const outputTokens = data.usage?.completion_tokens ?? 0;
+    const costEstimateUsd = estimateCost(inputTokens, outputTokens, opts.model);
+    recordSpend(costEstimateUsd);
+
+    return {
+      content,
+      model: data.model ?? opts.model,
+      provider: 'litellm', // reuse litellm discriminant to avoid breaking callers
+      inputTokens,
+      outputTokens,
+      costEstimateUsd,
+    };
+  } catch (err) {
+    console.warn('[llm-gateway] OpenRouter unreachable:', (err as Error).message);
+    return null;
+  }
 }
 
 // ---------------------------------------------------------------------------

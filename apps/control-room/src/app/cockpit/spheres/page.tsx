@@ -22,47 +22,75 @@ interface MeetingMessage {
   type: "statement" | "proposal" | "vote" | "decision";
 }
 
-function SphereNode({ sphere, active, speaking }: { sphere: typeof SPHERES[0]; active: boolean; speaking: boolean }) {
+// Short display label: strip trademark + long prefixes
+function sphereLabel(name: string) {
+  return name.replace("™", "").replace("DR. ", "").replace("DRA. ", "").replace("ING. ", "");
+}
+
+function SphereNode({
+  sphere, active, speaking, onClick,
+}: { sphere: typeof SPHERES[0]; active: boolean; speaking: boolean; onClick: () => void }) {
   return (
-    <div style={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      gap: 6,
-      opacity: active ? 1 : 0.4,
-      transition: "opacity 200ms ease",
-    }}>
+    <div
+      onClick={onClick}
+      title={`${sphere.name} — ${sphere.role}\n${sphere.locale}`}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 5,
+        opacity: active ? 1 : 0.3,
+        transition: "opacity 300ms ease",
+        cursor: "pointer",
+        userSelect: "none",
+        zIndex: speaking ? 10 : 1,
+      }}
+    >
       <div style={{
-        width: 48,
-        height: 48,
-        borderRadius: 8,
-        background: active ? sphere.color + "22" : "var(--color-charcoal-700)",
-        border: `2px solid ${speaking ? sphere.color : active ? sphere.color + "66" : "var(--color-charcoal-600)"}`,
+        width: 52,
+        height: 52,
+        borderRadius: "50%",
+        background: active ? `${sphere.color}1a` : "var(--color-charcoal-800)",
+        border: `2px solid ${speaking ? sphere.color : active ? `${sphere.color}88` : "var(--color-charcoal-600)"}`,
+        boxShadow: speaking
+          ? `0 0 18px ${sphere.color}, 0 0 36px ${sphere.color}66, inset 0 0 12px ${sphere.color}22`
+          : active ? `0 0 8px ${sphere.color}33` : "none",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontSize: 16,
-        fontWeight: 600,
+        fontSize: 17,
+        fontWeight: 700,
         color: active ? sphere.color : "var(--color-cream-600)",
-        transition: "border-color 200ms ease, background 200ms ease",
+        transition: "all 350ms ease",
+        animation: speaking ? "sphere-pulse 1.5s ease-in-out infinite" : "none",
         position: "relative",
       }}>
         {sphere.name.charAt(0)}
         {speaking && (
           <div style={{
             position: "absolute",
-            bottom: -3,
-            right: -3,
-            width: 10,
-            height: 10,
+            bottom: -1,
+            right: -1,
+            width: 11,
+            height: 11,
             borderRadius: "50%",
-            background: "var(--status-ok)",
-            border: "2px solid var(--color-charcoal-800)",
+            background: "#22c55e",
+            border: "2px solid var(--color-charcoal-900)",
+            boxShadow: "0 0 8px #22c55e",
           }} />
         )}
       </div>
-      <span style={{ fontSize: 10, color: active ? "var(--color-cream-200)" : "var(--color-cream-600)", textAlign: "center", maxWidth: 64 }}>
-        {sphere.name.replace("™", "")}
+      <span style={{
+        fontSize: 9,
+        fontWeight: 600,
+        letterSpacing: "0.04em",
+        color: active ? "var(--color-cream-300)" : "var(--color-cream-600)",
+        textAlign: "center",
+        maxWidth: 52,
+        textTransform: "uppercase",
+        lineHeight: 1.2,
+      }}>
+        {sphereLabel(sphere.name)}
       </span>
     </div>
   );
@@ -79,42 +107,60 @@ export default function CockpitSpheres() {
   const startMeeting = useCallback(async () => {
     setMeetingActive(true);
     setMessages([]);
+    setSpeakingSphere(null);
 
     try {
-      const res = await fetch("/api/council/orchestrator", {
+      // Step 1: POST → receive meetingId (fire-and-forget on server side)
+      const postRes = await fetch("/api/council/orchestrator", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic, agents: activeSpheres }),
+        body: JSON.stringify({ topic, agentIds: activeSpheres }),
       });
 
-      if (!res.ok || !res.body) {
-        // Simulate meeting for demo if API not available
+      if (!postRes.ok) {
         simulateMeeting();
         return;
       }
 
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
+      const { meetingId } = await postRes.json() as { meetingId: string };
 
-      while (true) {
+      // Step 2: Open SSE stream via GET with meetingId param
+      const sseRes = await fetch(`/api/council/orchestrator?meetingId=${encodeURIComponent(meetingId)}`);
+      if (!sseRes.ok || !sseRes.body) {
+        simulateMeeting();
+        return;
+      }
+
+      const reader = sseRes.body.getReader();
+      const decoder = new TextDecoder();
+      let keepReading = true;
+
+      while (keepReading) {
         const { done, value } = await reader.read();
         if (done) break;
         const chunk = decoder.decode(value, { stream: true });
         const lines = chunk.split("\n").filter((l) => l.startsWith("data: "));
         for (const line of lines) {
           try {
-            const data = JSON.parse(line.slice(6));
-            if (data.agentId) {
-              setSpeakingSphere(data.agentId);
+            const data = JSON.parse(line.slice(6)) as Record<string, unknown>;
+            if (data.type === "sphere.signal" && data.agentId) {
+              const agId = data.agentId as string;
+              setSpeakingSphere(agId);
+              const meta = SPHERES.find(s => s.id === agId);
               setMessages((prev) => [...prev, {
-                agentId: data.agentId,
-                agentName: data.agentName || data.agentId,
-                content: data.content || data.message,
+                agentId: agId,
+                agentName: meta?.name ?? agId,
+                content: (data.text as string) || "",
                 timestamp: new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" }),
-                type: data.type || "statement",
+                type: "statement",
               }]);
             }
-          } catch { /* skip malformed */ }
+            if (data.type === "meeting.end") {
+              setSpeakingSphere(null);
+              setMeetingActive(false);
+              keepReading = false;
+            }
+          } catch { /* skip malformed SSE line */ }
         }
       }
     } catch {
@@ -158,6 +204,14 @@ export default function CockpitSpheres() {
 
   return (
     <div>
+      {/* Keyframe injection */}
+      <style>{`
+        @keyframes sphere-pulse {
+          0%, 100% { transform: scale(1); filter: brightness(1); }
+          50% { transform: scale(1.12); filter: brightness(1.5); }
+        }
+      `}</style>
+
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 22, fontWeight: 600, color: "var(--color-cream-100)", margin: 0 }}>Consejo de Esferas</h1>
         <p style={{ fontSize: 13, color: "var(--color-cream-400)", margin: "4px 0 0" }}>
@@ -165,17 +219,46 @@ export default function CockpitSpheres() {
         </p>
       </div>
 
-      {/* Sphere circle visualization */}
+      {/* Sphere ring visualization */}
       <div className="panel" style={{ padding: 20, marginBottom: 16 }}>
-        <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 16, marginBottom: 16 }}>
-          {SPHERES.map((s) => (
-            <SphereNode
-              key={s.id}
-              sphere={s}
-              active={activeSpheres.includes(s.id)}
-              speaking={speakingSphere === s.id}
-            />
-          ))}
+        <div style={{ position: "relative", width: 340, height: 340, margin: "0 auto 16px" }}>
+          {/* Center hub */}
+          <div style={{
+            position: "absolute",
+            top: "50%", left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 56, height: 56,
+            borderRadius: "50%",
+            background: "var(--color-charcoal-700)",
+            border: "2px solid rgba(245,215,140,0.25)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 11, fontWeight: 700, color: "var(--color-gold-500, #f5d78c)",
+            letterSpacing: "0.05em",
+          }}>9·1</div>
+
+          {SPHERES.map((s, i) => {
+            const angleRad = ((i / SPHERES.length) * 360 - 90) * (Math.PI / 180);
+            const r = 136;
+            const cx = 170 + r * Math.cos(angleRad);
+            const cy = 170 + r * Math.sin(angleRad);
+            return (
+              <div key={s.id} style={{
+                position: "absolute",
+                left: cx,
+                top: cy,
+                transform: "translate(-50%, -50%)",
+              }}>
+                <SphereNode
+                  sphere={s}
+                  active={activeSpheres.includes(s.id)}
+                  speaking={speakingSphere === s.id}
+                  onClick={() => setActiveSpheres(prev =>
+                    prev.includes(s.id) ? prev.filter(id => id !== s.id) : [...prev, s.id]
+                  )}
+                />
+              </div>
+            );
+          })}
         </div>
 
         {/* Topic + controls */}
