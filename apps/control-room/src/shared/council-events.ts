@@ -4,7 +4,7 @@
  * Source of truth for Theater3D pulse visuals + orchestrator routing.
  */
 
-// Signal kinds map to Dolores Cannon communication archetypes
+// Signal kinds map to La Maestra communication archetypes
 export type SignalKind = 'ASSERT' | 'INQUIRE' | 'ALIGN' | 'REFLECT';
 
 export type CouncilEvent =

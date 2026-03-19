@@ -85,6 +85,29 @@ export const MEETING_LOCATIONS: MeetingLocation[] = [
     lng: -99.1055,
     defaultParticipants: ['Synthia Prime', 'Agent-Coder', 'Agent-Creative'],
   },
+  {
+    id: 'la-panorama-vallarta',
+    name: 'La Panorama – Bahía de Banderas',
+    nameEs: 'La Panorama – Bahía de Banderas, Puerto Vallarta',
+    neighborhood: 'Puerto Vallarta, Jalisco',
+    description:
+      "Rooftop panoramic venue above Puerto Vallarta's marina, commanding a sweeping view of Bahía de Banderas and the Sierra Madre Occidental. Pacific sunsets ignite the horizon in amber and rose, while the warm ocean breeze carries the scent of salt and jungle. The ideal world for bold LATAM strategy and Pacific expansion.",
+    descriptionEs:
+      'Terraza panorámica sobre la marina de Puerto Vallarta, con vista completa a la Bahía de Banderas y la Sierra Madre. Los atardeceres del Pacífico iluminan el horizonte en ámbar y rosa — el escenario ideal para estrategia LATAM y expansión al Pacífico.',
+    bgColor: 0x003666,
+    ambientColor: 0xFF8C42,
+    fogColor: '#001833',
+    accentHex: '#FF8C42',
+    referenceImageUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Puerto_Vallarta_-_Bahia_de_Banderas.jpg/1280px-Puerto_Vallarta_-_Bahia_de_Banderas.jpg',
+    referenceImageCaption: 'Bahía de Banderas, Puerto Vallarta – Wikimedia Commons',
+    lat: 20.6534,
+    lng: -105.2253,
+    defaultParticipants: [
+      'synthia', 'alex', 'cazadora', 'forjadora', 'seductora',
+      'consejo', 'dr-economia', 'dra-cultura', 'ing-teknos', 'la-vigilante',
+    ],
+  },
 ];
 
 /** Weekly meeting schedule – agents rotate through locations */

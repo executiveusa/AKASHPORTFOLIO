@@ -1,0 +1,46 @@
+{
+  "servers": {
+    "higgsfield": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["tsx", "tools/mcp-higgsfield/src/index.ts"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "HIGGSFIELD_API_KEY_ID": "${env:HIGGSFIELD_API_KEY_ID}",
+        "HIGGSFIELD_API_KEY_SECRET": "${env:HIGGSFIELD_API_KEY_SECRET}"
+      }
+    },
+    "kling": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["tsx", "tools/mcp-kling/src/index.ts"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "KLING_API_KEY": "${env:KLING_API_KEY}"
+      }
+    },
+    "blender": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["tsx", "tools/mcp-blender/src/index.ts"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "BLENDER_BIN": "${env:BLENDER_BIN}"
+      }
+    },
+    "worlds": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["tsx", "tools/mcp-worlds/src/index.ts"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "OPEN_ROUTER_API": "${env:OPEN_ROUTER_API}",
+        "ELEVEN_LABS_API_KEY": "${env:ELEVEN_LABS_API_KEY}",
+        "COOLIFY_URL": "${env:COOLIFY_URL}",
+        "COOLIFY_API_TOKEN": "${env:COOLIFY_API_TOKEN}",
+        "HIGGSFIELD_API_KEY_ID": "${env:HIGGSFIELD_API_KEY_ID}",
+        "HIGGSFIELD_API_KEY_SECRET": "${env:HIGGSFIELD_API_KEY_SECRET}"
+      }
+    }
+  }
+}

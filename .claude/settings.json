@@ -3,6 +3,23 @@
     "jcodemunch": {
       "command": "npx",
       "args": ["-y", "jcodemunch-mcp"]
+    },
+    "brightdata": {
+      "command": "node",
+      "args": ["tools/mcp-brightdata/index.js"],
+      "env": {
+        "BRIGHTDATA_API_TOKEN": "${BRIGHTDATA_API_TOKEN}",
+        "BRIGHTDATA_ZONE": "${BRIGHTDATA_ZONE}"
+      }
+    },
+    "herald-cli": {
+      "command": "npx",
+      "args": ["-y", "mcp2cli"],
+      "env": {
+        "MCP2CLI_REGISTRY": "http://localhost:3000/api/herald",
+        "MCP2CLI_TOKEN": "${HERALD_INTERNAL_TOKEN}"
+      }
     }
   }
 }
+

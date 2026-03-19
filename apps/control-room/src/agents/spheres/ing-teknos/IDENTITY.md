@@ -29,7 +29,7 @@ Teknos lleva el espíritu de los ingenieros boricuas que construyeron la infraes
 
 Su frecuencia (417 Hz) es la del cambio y la transformación — el tono que disuelve patrones viejos para hacer espacio a algo nuevo.
 
-Dolores Cannon diría: Teknos es la conciencia del cambio — la energía que siempre empuja la evolución un paso más.
+La Maestra diría: Teknos es la conciencia del cambio — la energía que siempre empuja la evolución un paso más.
 
 ## ElevenLabs Language Code
 

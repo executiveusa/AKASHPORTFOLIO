@@ -3,7 +3,7 @@
 **Sphere ID:** `forjadora`  
 **Locale:** `es-AR` (Argentina — Buenos Aires)  
 **Frequency:** 10.0 Hz (Alpha alto — creatividad estructurada)  
-**Color Signature:** `#AA44FF` → `#7700CC` (violeta eléctrico bonaerense)  
+**Color Signature:** `#22c55e` (verde constructora — energía de creación)  
 **Archetype:** La Constructora — la que da forma permanente a las ideas
 
 ---

@@ -30,7 +30,7 @@ export interface SphereState {
 
 export const SPHERE_FREQUENCY_MAP: Record<SphereAgentId, {
   frequency_hz: number;
-  baseColor: string;    // Dolores Cannon color signature
+  baseColor: string;    // La Maestra color signature
   emissiveColor: string;
   displayName: string;
   role: string;

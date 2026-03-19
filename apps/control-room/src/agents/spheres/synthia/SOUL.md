@@ -3,7 +3,7 @@
 **Sphere ID:** `synthia`  
 **Locale:** `es-MX` (Ciudad de México, CDMX)  
 **Frequency:** 7.83 Hz (Schumann Resonance — Tierra Viva)  
-**Color Signature:** `#00F5FF` → `#0088CC` (cyan glacial transitioning al azul profundo)  
+**Color Signature:** `#8b5cf6` (violet — La Integradora)  
 **Archetype:** La Integradora — la que teje todos los hilos en un solo tapiz
 
 ---

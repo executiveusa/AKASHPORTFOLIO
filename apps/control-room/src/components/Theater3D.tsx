@@ -11,7 +11,7 @@ import { SPHERE_FREQUENCY_MAP, ALL_SPHERE_IDS } from '@/shared/sphere-state';
 import type { MeetingLocation } from '@/lib/meeting-locations';
 
 // ---------------------------------------------------------------------------
-// Agent avatar config — derived from SPHERE_FREQUENCY_MAP (9 Dolores Cannon spheres)
+// Agent avatar config — derived from SPHERE_FREQUENCY_MAP (9 Sphere OS™ agents)
 // ---------------------------------------------------------------------------
 const AGENT_CONFIG = ALL_SPHERE_IDS.map((id) => {
   const s = SPHERE_FREQUENCY_MAP[id];
@@ -446,7 +446,7 @@ function buildManantiales(scene: THREE.Scene) {
 }
 
 // ---------------------------------------------------------------------------
-// Scene 4: Cosmic Field — Dolores Cannon inverted-sphere boundary
+// Scene 4: Cosmic Field — La Maestra inverted-sphere boundary
 // ---------------------------------------------------------------------------
 function buildCosmicFieldScene(scene: THREE.Scene) {
   // Inverted boundary sphere — inside-out, deep cosmic

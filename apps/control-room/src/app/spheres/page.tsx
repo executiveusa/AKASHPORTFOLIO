@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * /spheres — Ivette's Dolores Cannon Council Dashboard
+ * /spheres — Ivette's Sphere OS™ Council Dashboard
  * Full-screen cosmic sphere field + meeting launcher.
  */
 

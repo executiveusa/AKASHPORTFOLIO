@@ -33,3 +33,14 @@ dev-server*.log
 playwright-screenshots/
 test-results/
 playwright-report/
+
+# MCP server build outputs
+tools/*/dist/
+tools/*/node_modules/
+tools/*/.env
+
+# Blender render outputs (large files)
+tools/mcp-blender/renders/
+tools/mcp-worlds/renders/
+*.blend1
+*.glb.tmp

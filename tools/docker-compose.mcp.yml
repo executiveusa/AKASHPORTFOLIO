@@ -1,0 +1,109 @@
+version: '3.9'
+
+# Synthia Studio — MCP Server Stack
+# Deployed to Coolify @ VPS 31.220.58.212
+# All 4 MCP servers + Voice Gateway + Blender
+
+services:
+  # ── Higgsfield Video Generation MCP ──────────────────────────────────
+  mcp-higgsfield:
+    build:
+      context: ./mcp-higgsfield
+      dockerfile: Dockerfile
+    container_name: synthia-mcp-higgsfield
+    restart: unless-stopped
+    ports:
+      - "3101:3101"
+    environment:
+      - HIGGSFIELD_API_KEY_ID=${HIGGSFIELD_API_KEY_ID}
+      - HIGGSFIELD_API_KEY_SECRET=${HIGGSFIELD_API_KEY_SECRET}
+      - NODE_ENV=production
+    networks:
+      - synthia-mcp
+
+  # ── Kling Video Generation MCP ───────────────────────────────────────
+  mcp-kling:
+    build:
+      context: ./mcp-kling
+      dockerfile: Dockerfile
+    container_name: synthia-mcp-kling
+    restart: unless-stopped
+    ports:
+      - "3102:3102"
+    environment:
+      - KLING_API_KEY=${KLING_API_KEY}
+      - NODE_ENV=production
+    networks:
+      - synthia-mcp
+
+  # ── Blender World Builder MCP ─────────────────────────────────────────
+  mcp-blender:
+    build:
+      context: ./mcp-blender
+      dockerfile: Dockerfile
+    container_name: synthia-mcp-blender
+    restart: unless-stopped
+    ports:
+      - "3103:3103"
+    environment:
+      - BLENDER_BIN=/usr/bin/blender
+      - NODE_ENV=production
+    volumes:
+      - blender-worlds:/app/worlds
+      - blender-renders:/app/renders
+    networks:
+      - synthia-mcp
+
+  # ── Worlds Orchestrator MCP + Voice Gateway ──────────────────────────
+  mcp-worlds:
+    build:
+      context: ./mcp-worlds
+      dockerfile: Dockerfile
+    container_name: synthia-mcp-worlds
+    restart: unless-stopped
+    ports:
+      - "3100:3100"  # MCP stdio (tunneled)
+      - "3104:3104"  # Voice Gateway WebSocket
+    environment:
+      - OPEN_ROUTER_API=${OPEN_ROUTER_API}
+      - ELEVEN_LABS_API_KEY=${ELEVEN_LABS_API_KEY}
+      - COOLIFY_URL=${COOLIFY_URL}
+      - COOLIFY_API_TOKEN=${COOLIFY_API_TOKEN}
+      - HIGGSFIELD_API_KEY_ID=${HIGGSFIELD_API_KEY_ID}
+      - HIGGSFIELD_API_KEY_SECRET=${HIGGSFIELD_API_KEY_SECRET}
+      - KLING_API_KEY=${KLING_API_KEY}
+      - NODE_ENV=production
+    depends_on:
+      - mcp-higgsfield
+      - mcp-kling
+      - mcp-blender
+    networks:
+      - synthia-mcp
+
+  # ── Nginx reverse proxy (HTTPS via Let's Encrypt via Coolify) ─────────
+  nginx:
+    image: nginx:alpine
+    container_name: synthia-mcp-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - nginx-certs:/etc/nginx/certs
+    depends_on:
+      - mcp-worlds
+      - mcp-higgsfield
+      - mcp-kling
+      - mcp-blender
+    networks:
+      - synthia-mcp
+
+volumes:
+  blender-worlds:
+  blender-renders:
+  nginx-certs:
+
+networks:
+  synthia-mcp:
+    driver: bridge

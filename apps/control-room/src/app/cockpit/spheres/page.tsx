@@ -215,7 +215,7 @@ export default function CockpitSpheres() {
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 22, fontWeight: 600, color: "var(--color-cream-100)", margin: 0 }}>Consejo de Esferas</h1>
         <p style={{ fontSize: 13, color: "var(--color-cream-400)", margin: "4px 0 0" }}>
-          9 agentes Dolores Cannon + La Vigilante — Reuniones en vivo con SSE streaming
+          9 Esferas™ + La Vigilante — Reuniones en vivo con SSE streaming
         </p>
       </div>
 

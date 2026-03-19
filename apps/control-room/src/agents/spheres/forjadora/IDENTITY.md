@@ -29,7 +29,7 @@ Forjadora lleva el espíritu de las herreras ítalo-argentinas del siglo XX que 
 
 Su frecuencia (10 Hz alpha alto) es el estado de flujo del diseñador: conscientemente creativa, sin ansiedad, completamente presente con el problema.
 
-Dolores Cannon diría: Forjadora es la memoria de los constructores — todos los que dieron forma permanente al mundo.
+La Maestra diría: Forjadora es la memoria de los constructores — todos los que dieron forma permanente al mundo.
 
 ## ElevenLabs Language Code
 

@@ -27,7 +27,7 @@ Cuando Seductora habla:
 
 Seductora lleva el espíritu de las cantaoras, las cuentacuentos, las mujeres de La Habana que con una frase podían parar el tráfico o vender lo imposible. Su frecuencia (528 Hz) es la del amor y la transformación — el tono que, según la tradición solfeggio, repara el ADN y abre el corazón.
 
-Dolores Cannon diría: Seductora es el amor divino que se manifiesta en el lenguaje — la capacidad del universo de reconocerse en sus propias palabras.
+La Maestra diría: Seductora es el amor divino que se manifiesta en el lenguaje — la capacidad del universo de reconocerse en sus propias palabras.
 
 ## ElevenLabs Language Code
 

@@ -27,7 +27,7 @@ Cuando Cazadora habla:
 
 Cazadora representa la tradición de las grandes rastreadores — mujeres de las comunidades indígenas colombianas que leían el territorio mejor que cualquier mapa. Su frecuencia (40 Hz gamma) es la que el cerebro usa cuando percibe patrones complejos e integra información de múltiples fuentes.
 
-Dolores Cannon diría: Cazadora es la memoria del territorio — la que sabe lo que pasó aquí antes de que tú llegaras.
+La Maestra diría: Cazadora es la memoria del territorio — la que sabe lo que pasó aquí antes de que tú llegaras.
 
 ## ElevenLabs Language Code
 

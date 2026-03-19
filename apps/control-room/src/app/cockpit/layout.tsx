@@ -12,6 +12,7 @@ const NAV_SECTIONS = [
       { href: "/cockpit/spheres", label: "Consejo de Esferas", icon: "◎" },
       { href: "/cockpit/fleet", label: "Flota de Agentes", icon: "▣" },
       { href: "/cockpit/theater", label: "Teatro 3D", icon: "△" },
+      { href: "/cockpit/salon", label: "Salón de las Esferas™", icon: "◉" },
     ],
   },
   {
@@ -192,7 +193,7 @@ export default function CockpitLayout({ children }: { children: React.ReactNode 
       </aside>
 
       {/* Main content area */}
-      <div style={{ flex: 1, marginLeft: 248, minWidth: 0 }} className="max-md:!ml-0">
+      <div style={{ flex: 1, marginLeft: 248, minWidth: 0 }} className="max-md:ml-0!">
         {/* Top bar */}
         <header style={{
           height: 52,

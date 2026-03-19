@@ -29,7 +29,7 @@ Consejo lleva el espíritu de los sabios de los Andes — los amautas del Tawant
 
 El verde esmeralda es el color de los valles chilenos, de la cordillera viva, de la apuesta a que la vida continúa a pesar de todo.
 
-Dolores Cannon diría: Consejo es la memoria cósmica — la parte del universo que recuerda todos los experimentos que ya se hicieron.
+La Maestra diría: Consejo es la memoria cósmica — la parte del universo que recuerda todos los experimentos que ya se hicieron.
 
 ## ElevenLabs Language Code
 

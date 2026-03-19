@@ -19,7 +19,8 @@ import { getVibeContext } from '@/lib/vibe-graph';
 import { buildAgentContext } from '@/lib/agent-memory';
 import { synthesizeMeeting } from '@/lib/story-toolkit';
 import { SPHERE_FREQUENCY_MAP } from '@/shared/sphere-state';
-import type { SphereAgentId, CouncilEvent } from '@/shared/council-events';
+import type { SphereAgentId, CouncilEvent, SignalKind } from '@/shared/council-events';
+import { getToolMenuForAgent } from '@/lib/herald/router';
 
 // ---------------------------------------------------------------------------
 // POST — start a new meeting (async, returns meetingId immediately)
@@ -105,7 +106,9 @@ async function runMeetingLoop(
   maxTurns: number,
 ): Promise<void> {
   const startedAt = new Date().toISOString();
-  const turns: Array<{ agentId: SphereAgentId | 'ivette'; text: string; timestamp: string }> = [];
+
+  type TurnRecord = { agentId: SphereAgentId | 'ivette'; text: string; round: number; timestamp: string };
+  const turns: TurnRecord[] = [];
 
   // Opening
   emitEvent(meetingId, {
@@ -116,39 +119,66 @@ async function runMeetingLoop(
     timestamp: new Date().toISOString(),
   });
 
-  // Each agent speaks once (one round-trip)
-  for (const agentId of agentIds.slice(0, maxTurns)) {
-    const [vibeCtx, memCtx] = await Promise.all([
-      getVibeContext(agentId),
-      buildAgentContext(agentId),
-    ]);
+  // karpathy 3-round protocol: position → rebuttal → synthesis
+  const roundPhases = [
+    { phase: 'position',  label: 'Ronda 1 — Posición',    kind: 'ASSERT'  as SignalKind, instruction: 'Declara tu posición inicial sobre el tema. Sé directo y específico. Máximo 3 oraciones.' },
+    { phase: 'rebuttal',  label: 'Ronda 2 — Refutación',  kind: 'REFLECT' as SignalKind, instruction: 'Has leído las posiciones de los demás. Responde a lo más importante: acuerda, refuta, o complementa con nueva evidencia. Máximo 3 oraciones.' },
+    { phase: 'synthesis', label: 'Ronda 3 — Síntesis',    kind: 'ALIGN'   as SignalKind, instruction: 'Ronda final. Integra todo lo escuchado y da tu contribución más valiosa para Ivette. Máximo 3 oraciones.' },
+  ] as const;
 
-    const sphereInfo = SPHERE_FREQUENCY_MAP[agentId];
-    const systemPrompt = buildSphereSystemPrompt(agentId, sphereInfo, vibeCtx.ecosystemSummary, memCtx, topic, turns);
+  for (let roundIdx = 0; roundIdx < roundPhases.length; roundIdx++) {
+    const { phase, label, kind, instruction } = roundPhases[roundIdx];
+    const roundNum = roundIdx + 1;
 
-    const result = await callLLM(
-      [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: `Tema de la reunión: "${topic}". Es tu turno de hablar.` },
-      ],
-      { maxTokens: 400, temperature: 0.7 },
-    );
-
-    const text = result.content;
-
-    turns.push({ agentId, text, timestamp: new Date().toISOString() });
-
+    // Announce round start
     emitEvent(meetingId, {
-      type: 'sphere.signal',
+      type: 'round.begin',
       meetingId,
-      agentId,
-      kind: 'ASSERT',
-      text,
+      round: roundNum,
+      phase,
+      label,
       timestamp: new Date().toISOString(),
     });
 
-    // Brief pause between speakers
-    await new Promise(r => setTimeout(r, 200));
+    // Each agent speaks once per round (synthesis round always completes)
+    const speakersThisRound = agentIds.slice(0, maxTurns);
+    const priorTurns = turns.filter(t => t.round < roundNum);
+
+    for (const agentId of speakersThisRound) {
+      const [vibeCtx, memCtx, toolMenu] = await Promise.all([
+        getVibeContext(agentId),
+        buildAgentContext(agentId),
+        getToolMenuForAgent(agentId).catch(() => ''),
+      ]);
+
+      const sphereInfo = SPHERE_FREQUENCY_MAP[agentId];
+      const systemPrompt = buildSphereSystemPrompt(
+        agentId, sphereInfo, vibeCtx.ecosystemSummary, memCtx, topic, priorTurns, instruction, toolMenu,
+      );
+
+      const result = await callLLM(
+        [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: `${label}. Tema: "${topic}". Tu turno.` },
+        ],
+        { maxTokens: 400, temperature: 0.7 },
+      );
+
+      const text = result.content;
+      turns.push({ agentId, text, round: roundNum, timestamp: new Date().toISOString() });
+
+      emitEvent(meetingId, {
+        type: 'sphere.signal',
+        meetingId,
+        agentId,
+        kind,
+        text,
+        timestamp: new Date().toISOString(),
+      });
+
+      // Brief pause between speakers
+      await new Promise(r => setTimeout(r, 200));
+    }
   }
 
   const closedAt = new Date().toISOString();
@@ -156,7 +186,7 @@ async function runMeetingLoop(
   emitEvent(meetingId, {
     type: 'meeting.closing',
     meetingId,
-    closingStatement: 'El consejo ha completado su ronda. Synthia preparará la síntesis.',
+    closingStatement: 'Tres rondas completadas — posición, refutación y síntesis. Synthia preparará el resumen.',
     timestamp: closedAt,
   });
 
@@ -195,11 +225,17 @@ function buildSphereSystemPrompt(
   vibeContext: string,
   memoryContext: string,
   topic: string,
-  turns: Array<{ agentId: SphereAgentId | 'ivette'; text: string }>,
+  turns: Array<{ agentId: SphereAgentId | 'ivette'; text: string; round?: number }>,
+  roundInstruction: string,
+  toolMenu?: string,
 ): string {
   const conversation = turns.length > 0
-    ? turns.map(t => `${t.agentId.toUpperCase()}: ${t.text}`).join('\n')
-    : '(Ningún agente ha hablado aún)';
+    ? turns.map(t => `[R${(t as { round?: number }).round ?? 1}] ${t.agentId.toUpperCase()}: ${t.text}`).join('\n')
+    : '(Ninguna ronda previa)';
+
+  const toolSection = toolMenu && toolMenu.trim()
+    ? `\n${toolMenu}\n`
+    : '';
 
   return `Eres ${sphereInfo.displayName}, de Synthia™ Sphere OS.
 Tu rol: ${sphereInfo.role}
@@ -208,16 +244,15 @@ Tu idioma: español con acento ${sphereInfo.locale}
 ${memoryContext}
 
 ${vibeContext}
-
+${toolSection}
 CONVERSACIÓN HASTA AHORA:
 ${conversation}
 
-INSTRUCCIONES:
-- Responde en español con tu acento característico de ${sphereInfo.locale}
-- Máximo 3 oraciones. Sé concreto y útil para Ivette.
-- Aplica tu especialidad al tema: "${topic}"
-- No repitas lo que ya dijeron otros agentes
-- Si otro agente dijo algo que necesita corrección o complemento, dilo directamente`.trim();
+INSTRUCCIÓN DE ESTA RONDA:
+${roundInstruction}
+
+Aplica tu especialidad al tema: "${topic}"
+No repitas lo que ya dijiste en rondas anteriores.`.trim();
 }
 
 // ---------------------------------------------------------------------------

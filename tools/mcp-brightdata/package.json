@@ -1,0 +1,17 @@
+{
+  "name": "@kupuri/mcp-brightdata",
+  "version": "1.0.0",
+  "description": "BrightData MCP server for Synthia™ — web scraping, proxy network, and structured data extraction",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

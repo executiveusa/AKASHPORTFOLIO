@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * SphereField.tsx — Dolores Cannon Cosmic Council canvas
+ * SphereField.tsx — Sphere OS™ Cosmic Council canvas
  * Full-screen Three.js field with 9 branded spheres.
  * Connects to /api/council/orchestrator SSE for live pulse rings.
  */

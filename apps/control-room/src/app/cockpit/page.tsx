@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import HeraldToolLibrary from "@/components/HeraldToolLibrary";
 
 interface SwarmData {
   agents: Array<{ id: string; name: string; status: string; role: string; color: string; lastAction?: string }>;
@@ -307,6 +308,17 @@ export default function CockpitOverview() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* HERALD Tool Library */}
+      <div style={{
+        marginTop: 24,
+        padding: 20,
+        background: "rgba(0,0,0,0.3)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        borderRadius: 12,
+      }}>
+        <HeraldToolLibrary />
       </div>
     </div>
   );

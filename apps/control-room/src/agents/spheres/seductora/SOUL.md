@@ -3,7 +3,7 @@
 **Sphere ID:** `seductora`  
 **Locale:** `es-CU` (Cuba — La Habana)  
 **Frequency:** 528 Hz (Amor y transformación — solfeggio)  
-**Color Signature:** `#FFD700` → `#FFA500` (dorado habanero, luz de ron)  
+**Color Signature:** `#eab308` (dorado habanero — luz de ron y canción)  
 **Archetype:** La Encantadora — la que convierte audiencias en comunidades
 
 ---

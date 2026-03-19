@@ -29,7 +29,7 @@ Dr. Economía lleva el conocimiento de generaciones de economistas, comerciantes
 
 El ámbar y el naranja son los colores del petróleo venezolano — la riqueza que también enseñó las trampas del monocultivo.
 
-Dolores Cannon diría: Dr. Economía es la memoria de todos los que aprendieron el precio real de las cosas.
+La Maestra diría: Dr. Economía es la memoria de todos los que aprendieron el precio real de las cosas.
 
 ## ElevenLabs Language Code
 
