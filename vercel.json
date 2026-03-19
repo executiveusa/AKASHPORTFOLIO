@@ -29,5 +29,39 @@
         }
       ]
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/morning",
+      "schedule": "0 15 * * 1-5"
+    },
+    {
+      "path": "/api/cron/midday",
+      "schedule": "0 19 * * 1-5"
+    },
+    {
+      "path": "/api/cron/evening",
+      "schedule": "0 23 * * 1-5"
+    },
+    {
+      "path": "/api/council/cron",
+      "schedule": "0 16 * * 1"
+    },
+    {
+      "path": "/api/council/cron",
+      "schedule": "0 21 1 * *"
+    },
+    {
+      "path": "/api/cron/sphere-hunt",
+      "schedule": "0 20 * * 1-5"
+    },
+    {
+      "path": "/api/cron/nightly-summary",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/research-cycle",
+      "schedule": "0 13 * * *"
+    }
   ]
 }
