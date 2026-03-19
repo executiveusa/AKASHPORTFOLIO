@@ -26,6 +26,9 @@ backend/rustup-init.exe
 DEPLOYMENT_SUMMARY.md
 VERCEL_DEPLOYMENT_COMPLETE.md
 
+# Claude Code settings (contain local MCP paths, not for git)
+.claude/settings.local.json
+
 # Build & test artifacts
 build-output.txt
 visual-results.txt

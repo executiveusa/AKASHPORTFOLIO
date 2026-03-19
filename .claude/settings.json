@@ -19,6 +19,20 @@
         "MCP2CLI_REGISTRY": "http://localhost:3000/api/herald",
         "MCP2CLI_TOKEN": "${HERALD_INTERNAL_TOKEN}"
       }
+    },
+    "supabase-kupuri": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-postgrest@latest",
+        "--apiUrl", "${NEXT_PUBLIC_SUPABASE_URL}/rest/v1",
+        "--apiKey", "${SUPABASE_SERVICE_ROLE_KEY}",
+        "--schema", "public"
+      ]
+    },
+    "supabase-kupuri-mcp": {
+      "type": "http",
+      "url": "http://localhost:8080/mcp"
     }
   }
 }

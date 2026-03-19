@@ -41,6 +41,22 @@
         "HIGGSFIELD_API_KEY_ID": "${env:HIGGSFIELD_API_KEY_ID}",
         "HIGGSFIELD_API_KEY_SECRET": "${env:HIGGSFIELD_API_KEY_SECRET}"
       }
+    },
+    "supabase-kupuri": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-postgrest@latest",
+        "--apiUrl", "http://31.220.58.212:8001/rest/v1",
+        "--apiKey", "${env:SUPABASE_SERVICE_ROLE_KEY}",
+        "--schema", "public"
+      ],
+      "cwd": "${workspaceFolder}"
+    },
+    "supabase-kupuri-mcp": {
+      "type": "http",
+      "url": "http://localhost:8080/mcp"
     }
   }
 }
