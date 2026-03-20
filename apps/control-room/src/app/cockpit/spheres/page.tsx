@@ -96,6 +96,13 @@ function SphereNode({
   );
 }
 
+interface ChatMessage {
+  role: "user" | "sphere";
+  sphereId: string;
+  text: string;
+  timestamp: string;
+}
+
 export default function CockpitSpheres() {
   const [meetingActive, setMeetingActive] = useState(false);
   const [messages, setMessages] = useState<MeetingMessage[]>([]);
@@ -103,6 +110,13 @@ export default function CockpitSpheres() {
   const [speakingSphere, setSpeakingSphere] = useState<string | null>(null);
   const [topic, setTopic] = useState("Estrategia de ingresos Q2 2026 — Expansión LATAM");
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Direct chat state
+  const [selectedSphere, setSelectedSphere] = useState<string>("synthia");
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const chatScrollRef = useRef<HTMLDivElement>(null);
 
   const startMeeting = useCallback(async () => {
     setMeetingActive(true);
@@ -196,6 +210,68 @@ export default function CockpitSpheres() {
     }, 2500);
   }
 
+  // Direct chat send
+  const sendChat = useCallback(async () => {
+    const msg = chatInput.trim();
+    if (!msg || chatLoading) return;
+    setChatInput("");
+    setChatLoading(true);
+
+    const userMsg: ChatMessage = {
+      role: "user",
+      sphereId: selectedSphere,
+      text: msg,
+      timestamp: new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" }),
+    };
+    setChatHistory(prev => [...prev, userMsg]);
+
+    try {
+      const res = await fetch("/api/spheres/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sphereId: selectedSphere,
+          message: msg,
+          history: chatHistory.slice(-6).map(m => ({
+            role: m.role === "user" ? "user" : "assistant",
+            content: m.text,
+          })),
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json() as { response: string };
+        setChatHistory(prev => [...prev, {
+          role: "sphere",
+          sphereId: selectedSphere,
+          text: data.response,
+          timestamp: new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" }),
+        }]);
+      } else {
+        setChatHistory(prev => [...prev, {
+          role: "sphere",
+          sphereId: selectedSphere,
+          text: "Error conectando con la esfera. Verifica ANTHROPIC_API_KEY en Vercel.",
+          timestamp: new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" }),
+        }]);
+      }
+    } catch {
+      setChatHistory(prev => [...prev, {
+        role: "sphere",
+        sphereId: selectedSphere,
+        text: "Sin conexión al backend.",
+        timestamp: new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" }),
+      }]);
+    } finally {
+      setChatLoading(false);
+    }
+  }, [chatInput, chatLoading, selectedSphere, chatHistory]);
+
+  useEffect(() => {
+    if (chatScrollRef.current) {
+      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+    }
+  }, [chatHistory]);
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -217,6 +293,124 @@ export default function CockpitSpheres() {
         <p style={{ fontSize: 13, color: "var(--color-cream-400)", margin: "4px 0 0" }}>
           9 Esferas™ + La Vigilante — Reuniones en vivo con SSE streaming
         </p>
+      </div>
+
+      {/* Direct Chat Panel */}
+      <div className="panel" style={{ padding: 0, overflow: "hidden", marginBottom: 16 }}>
+        <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--color-charcoal-600)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <h3 style={{ fontSize: 14, fontWeight: 500, color: "var(--color-cream-100)", margin: 0 }}>Chat Directo</h3>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {SPHERES.map(s => (
+              <button
+                key={s.id}
+                onClick={() => { setSelectedSphere(s.id); setChatHistory([]); }}
+                style={{
+                  padding: "3px 10px",
+                  fontSize: 10,
+                  fontWeight: 600,
+                  borderRadius: 4,
+                  border: `1px solid ${selectedSphere === s.id ? s.color : "var(--color-charcoal-600)"}`,
+                  background: selectedSphere === s.id ? `${s.color}22` : "transparent",
+                  color: selectedSphere === s.id ? s.color : "var(--color-cream-500)",
+                  cursor: "pointer",
+                  letterSpacing: "0.04em",
+                  textTransform: "uppercase",
+                  transition: "all 150ms",
+                }}
+              >
+                {sphereLabel(s.name)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Chat messages */}
+        <div ref={chatScrollRef} style={{ height: 240, overflowY: "auto", padding: 0 }}>
+          {chatHistory.length === 0 ? (
+            <div style={{ padding: 40, textAlign: "center", color: "var(--color-cream-600)", fontSize: 13 }}>
+              {(() => { const s = SPHERES.find(x => x.id === selectedSphere); return `Habla directamente con ${s?.name ?? selectedSphere}`; })()}
+            </div>
+          ) : chatHistory.map((m, i) => {
+            const sphere = SPHERES.find(s => s.id === m.sphereId);
+            const isUser = m.role === "user";
+            return (
+              <div key={i} style={{
+                padding: "10px 16px",
+                borderBottom: "1px solid var(--color-charcoal-700)",
+                display: "flex", gap: 10,
+                justifyContent: isUser ? "flex-end" : "flex-start",
+              }}>
+                {!isUser && (
+                  <div style={{
+                    width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
+                    background: `${sphere?.color ?? "#888"}22`,
+                    border: `1.5px solid ${sphere?.color ?? "#888"}`,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 11, fontWeight: 700, color: sphere?.color ?? "#888",
+                  }}>{sphere?.name.charAt(0) ?? "?"}</div>
+                )}
+                <div style={{ maxWidth: "75%" }}>
+                  <div style={{ fontSize: 11, color: isUser ? "var(--color-cream-500)" : sphere?.color ?? "var(--color-cream-400)", marginBottom: 3, fontWeight: 600 }}>
+                    {isUser ? "Tú" : sphere?.name} <span style={{ fontWeight: 400, color: "var(--color-cream-600)" }}>{m.timestamp}</span>
+                  </div>
+                  <div style={{
+                    fontSize: 13, lineHeight: 1.5,
+                    color: isUser ? "var(--color-cream-300)" : "var(--color-cream-100)",
+                    background: isUser ? "var(--color-charcoal-700)" : `${sphere?.color ?? "#888"}11`,
+                    border: `1px solid ${isUser ? "var(--color-charcoal-600)" : `${sphere?.color ?? "#888"}33`}`,
+                    borderRadius: isUser ? "8px 8px 0 8px" : "8px 8px 8px 0",
+                    padding: "8px 12px",
+                  }}>{m.text}</div>
+                </div>
+                {isUser && (
+                  <div style={{
+                    width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
+                    background: "var(--color-charcoal-700)",
+                    border: "1.5px solid var(--color-charcoal-500)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 11, fontWeight: 700, color: "var(--color-cream-400)",
+                  }}>I</div>
+                )}
+              </div>
+            );
+          })}
+          {chatLoading && (
+            <div style={{ padding: "10px 16px", display: "flex", gap: 6, alignItems: "center" }}>
+              <div style={{ width: 28, height: 28, borderRadius: "50%", background: `${SPHERES.find(s => s.id === selectedSphere)?.color ?? "#888"}22`, border: `1.5px solid ${SPHERES.find(s => s.id === selectedSphere)?.color ?? "#888"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: SPHERES.find(s => s.id === selectedSphere)?.color ?? "#888" }}>{SPHERES.find(s => s.id === selectedSphere)?.name.charAt(0)}</div>
+              <div style={{ fontSize: 13, color: "var(--color-cream-600)" }}>pensando...</div>
+            </div>
+          )}
+        </div>
+
+        {/* Chat input */}
+        <div style={{ padding: "10px 16px", borderTop: "1px solid var(--color-charcoal-600)", display: "flex", gap: 8 }}>
+          <input
+            value={chatInput}
+            onChange={e => setChatInput(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); } }}
+            placeholder={`Mensaje para ${SPHERES.find(s => s.id === selectedSphere)?.name ?? selectedSphere}...`}
+            disabled={chatLoading}
+            style={{
+              flex: 1, padding: "8px 12px", fontSize: 13,
+              background: "var(--color-charcoal-700)",
+              border: `1px solid ${chatLoading ? "var(--color-charcoal-600)" : `${SPHERES.find(s => s.id === selectedSphere)?.color ?? "var(--color-charcoal-500)"}55`}`,
+              borderRadius: 6, color: "var(--color-cream-100)", outline: "none",
+            }}
+          />
+          <button
+            onClick={sendChat}
+            disabled={chatLoading || !chatInput.trim()}
+            style={{
+              padding: "8px 16px", fontSize: 13, fontWeight: 500,
+              background: chatLoading || !chatInput.trim() ? "var(--color-charcoal-700)" : (SPHERES.find(s => s.id === selectedSphere)?.color ?? "var(--color-gold-600)"),
+              color: chatLoading || !chatInput.trim() ? "var(--color-cream-600)" : "#fff",
+              border: "none", borderRadius: 6, cursor: chatLoading || !chatInput.trim() ? "not-allowed" : "pointer",
+              transition: "all 150ms",
+            }}
+          >
+            {chatLoading ? "..." : "Enviar"}
+          </button>
+        </div>
       </div>
 
       {/* Sphere ring visualization */}
@@ -251,10 +445,14 @@ export default function CockpitSpheres() {
                 <SphereNode
                   sphere={s}
                   active={activeSpheres.includes(s.id)}
-                  speaking={speakingSphere === s.id}
-                  onClick={() => setActiveSpheres(prev =>
-                    prev.includes(s.id) ? prev.filter(id => id !== s.id) : [...prev, s.id]
-                  )}
+                  speaking={speakingSphere === s.id || selectedSphere === s.id}
+                  onClick={() => {
+                    setSelectedSphere(s.id);
+                    setChatHistory([]);
+                    setActiveSpheres(prev =>
+                      prev.includes(s.id) ? prev.filter(id => id !== s.id) : [...prev, s.id]
+                    );
+                  }}
                 />
               </div>
             );
