@@ -5,6 +5,38 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import { useState } from 'react';
 
+// ─── Sphere Ring SVG ─────────────────────────────────────────────────────────
+
+function SphereRing() {
+  const spheres = [
+    { id: 'synthia',   color: '#8b5cf6', angle: 0   },
+    { id: 'alex',      color: '#d4af37', angle: 40  },
+    { id: 'cazadora',  color: '#ef4444', angle: 80  },
+    { id: 'forjadora', color: '#22c55e', angle: 120 },
+    { id: 'seductora', color: '#eab308', angle: 160 },
+    { id: 'consejo',   color: '#1d4ed8', angle: 200 },
+    { id: 'economia',  color: '#f97316', angle: 240 },
+    { id: 'cultura',   color: '#f43f5e', angle: 280 },
+    { id: 'teknos',    color: '#06b6d4', angle: 320 },
+  ];
+  const r = 52;
+  return (
+    <svg width="140" height="140" viewBox="0 0 140 140" aria-hidden="true">
+      <circle cx="70" cy="70" r={r} fill="none" stroke="#2e2210" strokeWidth="1" />
+      {spheres.map(s => {
+        const rad = (s.angle - 90) * (Math.PI / 180);
+        const x = 70 + r * Math.cos(rad);
+        const y = 70 + r * Math.sin(rad);
+        return (
+          <circle key={s.id} cx={x} cy={y} r="6" fill={s.color} opacity="0.85" />
+        );
+      })}
+      <circle cx="70" cy="70" r="14" fill="#1a1208" stroke="#2e2210" strokeWidth="1" />
+      <text x="70" y="75" textAnchor="middle" fontSize="11" fontWeight="700" fill="#f5d78c">S</text>
+    </svg>
+  );
+}
+
 export default function SynthiaLandingPage() {
   const [language, setLanguage] = useState<'es' | 'en'>('es');
 
@@ -335,151 +367,306 @@ export default function SynthiaLandingPage() {
 
   const t = content[language];
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 text-white">
+  // ─── Shared style tokens ───────────────────────────────────────────────────
+  const BG        = 'var(--color-charcoal-900)';   // #0f0d08
+  const BG2       = 'var(--color-charcoal-800)';   // #1a1208
+  const BG3       = 'var(--color-charcoal-700)';   // #231a0c
+  const BORDER    = 'var(--color-charcoal-600)';   // #2e2210
+  const GOLD      = 'var(--color-gold-400)';        // #f5d78c
+  const GOLD5     = 'var(--color-gold-500)';        // #dfc36a
+  const GOLD6     = 'var(--color-gold-600)';        // #c9a84c
+  const CREAM1    = 'var(--color-cream-100)';       // #f5efe4
+  const CREAM2    = 'var(--color-cream-200)';       // #e8dcc8
+  const CREAM4    = 'var(--color-cream-400)';       // #b8a485
 
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 border-b border-slate-800/50 bg-slate-950/80 backdrop-blur">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-lg flex items-center justify-center font-bold text-slate-900">
-              S
-            </div>
-            <div>
-              <h1 className="text-xl font-black tracking-tight">SYNTHIA™</h1>
-              <p className="text-[10px] text-slate-400">3.0</p>
+  return (
+    <div style={{ minHeight: '100vh', background: BG, color: CREAM1, fontFamily: 'var(--font-sans)' }}>
+
+      {/* ── Navigation ─────────────────────────────────────────────────────── */}
+      <nav style={{
+        position: 'fixed', top: 0, width: '100%', zIndex: 50,
+        borderBottom: `1px solid ${BORDER}`,
+        background: BG,
+      }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <SphereRing />
+            <div style={{ lineHeight: 1.1 }}>
+              <span style={{ fontSize: 17, fontWeight: 800, letterSpacing: '-0.02em', color: CREAM1 }}>SYNTHIA™</span>
+              <span style={{ display: 'block', fontSize: 10, color: CREAM4, letterSpacing: '0.12em', textTransform: 'uppercase' }}>3.0 Sistema Operativo</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <button
               onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
-              className="px-3 py-1 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors"
+              style={{
+                padding: '5px 12px', fontSize: 12, fontWeight: 600,
+                background: 'transparent', border: `1px solid ${BORDER}`,
+                borderRadius: 6, color: CREAM4, cursor: 'pointer',
+              }}
             >
-              {language === 'es' ? 'English' : 'Español'}
+              {language === 'es' ? 'EN' : 'ES'}
             </button>
-            <Link href="/dashboard" className="px-4 py-2 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors">
-              Dashboard
+            <Link
+              href="/cockpit"
+              style={{
+                padding: '7px 18px', fontSize: 13, fontWeight: 700,
+                background: GOLD6, color: BG, borderRadius: 8,
+                textDecoration: 'none', letterSpacing: '-0.01em',
+              }}
+            >
+              Entrar al Cockpit →
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tighter mb-6 bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
-            {t.hero.title}
-          </h2>
-          <p className="text-xl sm:text-2xl text-slate-300 mb-8 max-w-2xl mx-auto">
+      {/* ── Hero ───────────────────────────────────────────────────────────── */}
+      <section style={{ paddingTop: 120, paddingBottom: 96, paddingLeft: 24, paddingRight: 24 }}>
+        <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
+            <SphereRing />
+          </div>
+          <h1 style={{
+            fontSize: 'clamp(48px, 8vw, 88px)', fontWeight: 900,
+            letterSpacing: '-0.04em', lineHeight: 0.95,
+            color: GOLD, fontFamily: 'var(--font-display, var(--font-sans))',
+            marginBottom: 24,
+          }}>
+            SYNTHIA™ 3.0
+          </h1>
+          <p style={{ fontSize: 'clamp(18px, 2.5vw, 24px)', color: CREAM2, maxWidth: 600, margin: '0 auto 16px', lineHeight: 1.4 }}>
             {t.hero.subtitle}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="px-8 py-4 bg-emerald-600 hover:bg-emerald-700 font-bold rounded-lg transition-colors text-lg">
+          <p style={{ fontSize: 14, color: CREAM4, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 40 }}>
+            9 Agentes Especializados · Una Sola Interfaz · Tu Negocio, Automatizado
+          </p>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link
+              href="/cockpit"
+              style={{
+                padding: '14px 32px', fontSize: 15, fontWeight: 700,
+                background: GOLD6, color: BG, borderRadius: 8,
+                textDecoration: 'none', letterSpacing: '-0.01em',
+              }}
+            >
               {t.hero.cta}
-            </button>
-            <button className="px-8 py-4 bg-slate-800 hover:bg-slate-700 font-bold rounded-lg transition-colors text-lg border border-slate-700">
+            </Link>
+            <Link
+              href="/cockpit/spheres"
+              style={{
+                padding: '14px 32px', fontSize: 15, fontWeight: 600,
+                background: 'transparent', border: `1px solid ${BORDER}`,
+                color: CREAM2, borderRadius: 8, textDecoration: 'none',
+              }}
+            >
               {t.hero.secondaryCta}
-            </button>
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Pain Points Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-900/50">
-        <div className="max-w-6xl mx-auto">
-          <h3 className="text-4xl font-black text-center mb-16">{t.pain_points.title}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* ── Pain Points ────────────────────────────────────────────────────── */}
+      <section style={{ padding: '80px 24px', borderTop: `1px solid ${BORDER}` }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <h2 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, letterSpacing: '-0.03em', color: CREAM1, marginBottom: 48, textAlign: 'center' }}>
+            {t.pain_points.title}
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 1, border: `1px solid ${BORDER}`, borderRadius: 8, overflow: 'hidden' }}>
             {t.pain_points.problems.map((problem, idx) => (
-              <div key={idx} className="p-6 bg-slate-800/50 border border-slate-700 rounded-xl hover:border-emerald-500/50 transition-colors">
-                <h4 className="text-xl font-bold mb-3">{problem.title}</h4>
-                <p className="text-slate-300">{problem.desc}</p>
+              <div key={idx} style={{
+                padding: '28px 24px',
+                background: BG2,
+                borderRight: idx % 2 === 0 ? `1px solid ${BORDER}` : 'none',
+              }}>
+                <div style={{ width: 28, height: 2, background: GOLD6, marginBottom: 14 }} />
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: CREAM1, marginBottom: 8 }}>{problem.title}</h3>
+                <p style={{ fontSize: 14, color: CREAM4, lineHeight: 1.6 }}>{problem.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Solution Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <h3 className="text-4xl font-black text-center mb-6">{t.solution.title}</h3>
-          <p className="text-center text-lg text-slate-300 mb-16 max-w-3xl mx-auto">{t.solution.description}</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {/* ── Solution / Features ────────────────────────────────────────────── */}
+      <section style={{ padding: '80px 24px', borderTop: `1px solid ${BORDER}` }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ maxWidth: 640, marginBottom: 56 }}>
+            <h2 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, letterSpacing: '-0.03em', color: CREAM1, marginBottom: 16 }}>
+              {t.solution.title}
+            </h2>
+            <p style={{ fontSize: 16, color: CREAM4, lineHeight: 1.7 }}>{t.solution.description}</p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
             {t.solution.features.map((feature, idx) => (
-              <div key={idx} className="p-6 bg-slate-800/30 border border-slate-700 rounded-xl">
-                <h4 className="text-lg font-bold mb-3 text-emerald-400">{feature.title}</h4>
-                <p className="text-slate-300">{feature.desc}</p>
+              <div key={idx} className="panel" style={{ padding: '24px' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: GOLD5, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 10 }}>
+                  {String(idx + 1).padStart(2, '0')}
+                </div>
+                <h3 style={{ fontSize: 15, fontWeight: 700, color: CREAM1, marginBottom: 8 }}>{feature.title}</h3>
+                <p style={{ fontSize: 14, color: CREAM4, lineHeight: 1.6 }}>{feature.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-900/50">
-        <div className="max-w-6xl mx-auto">
-          <h3 className="text-4xl font-black text-center mb-16">{t.stats.title}</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+      {/* ── Stats ──────────────────────────────────────────────────────────── */}
+      <section style={{ padding: '80px 24px', borderTop: `1px solid ${BORDER}`, background: BG2 }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <h2 style={{ fontSize: 'clamp(24px, 3vw, 32px)', fontWeight: 800, letterSpacing: '-0.03em', color: CREAM1, marginBottom: 48, textAlign: 'center' }}>
+            {t.stats.title}
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 0, border: `1px solid ${BORDER}`, borderRadius: 8, overflow: 'hidden' }}>
             {t.stats.stats.map((stat, idx) => (
-              <div key={idx} className="text-center">
-                <p className="text-4xl font-black text-emerald-400 mb-2">{stat.number}</p>
-                <p className="text-slate-400">{stat.label}</p>
+              <div key={idx} style={{
+                padding: '32px 24px', textAlign: 'center',
+                borderRight: idx < t.stats.stats.length - 1 ? `1px solid ${BORDER}` : 'none',
+                background: BG2,
+              }}>
+                <div style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 900, color: GOLD, letterSpacing: '-0.03em', marginBottom: 8 }}>
+                  {stat.number}
+                </div>
+                <div style={{ fontSize: 13, color: CREAM4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <h3 className="text-4xl font-black text-center mb-16">{t.pricing.title}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* ── Sphere Roster ──────────────────────────────────────────────────── */}
+      <section style={{ padding: '80px 24px', borderTop: `1px solid ${BORDER}` }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 48 }}>
+            <h2 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, letterSpacing: '-0.03em', color: CREAM1 }}>
+              {language === 'es' ? 'Las 9 Esferas™' : 'The 9 Spheres™'}
+            </h2>
+            <span style={{ fontSize: 13, color: CREAM4 }}>
+              {language === 'es' ? 'Tu consejo de inteligencia' : 'Your intelligence council'}
+            </span>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
+            {[
+              { name: 'SYNTHIA',   role: language === 'es' ? 'Directora de Orquestación' : 'Orchestration Director', color: '#8b5cf6' },
+              { name: 'ALEX',      role: language === 'es' ? 'Estrategia y Crecimiento'  : 'Strategy & Growth',      color: '#d4af37' },
+              { name: 'CAZADORA', role: language === 'es' ? 'Ventas y Prospectos'        : 'Sales & Prospects',       color: '#ef4444' },
+              { name: 'FORJADORA',role: language === 'es' ? 'Construcción de Sistemas'  : 'Systems Builder',         color: '#22c55e' },
+              { name: 'SEDUCTORA',role: language === 'es' ? 'Contenido y Marca'         : 'Content & Brand',         color: '#eab308' },
+              { name: 'CONSEJO',  role: language === 'es' ? 'Decisiones Multi-IA'       : 'Multi-AI Decisions',      color: '#1d4ed8' },
+              { name: 'ECONOMÍA', role: language === 'es' ? 'Finanzas y Revenue'        : 'Finance & Revenue',       color: '#f97316' },
+              { name: 'CULTURA',  role: language === 'es' ? 'Comunidad y Relaciones'    : 'Community & Relations',   color: '#f43f5e' },
+              { name: 'TEKNOS',   role: language === 'es' ? 'Infraestructura Técnica'   : 'Technical Infrastructure',color: '#06b6d4' },
+            ].map(sphere => (
+              <div key={sphere.name} className="panel" style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: sphere.color, flexShrink: 0 }} />
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: CREAM1, letterSpacing: '0.06em' }}>{sphere.name}</div>
+                  <div style={{ fontSize: 12, color: CREAM4, marginTop: 2 }}>{sphere.role}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 24, textAlign: 'center' }}>
+            <Link
+              href="/cockpit/spheres"
+              style={{
+                fontSize: 13, color: GOLD5, textDecoration: 'none', fontWeight: 600,
+                borderBottom: `1px solid ${GOLD6}`, paddingBottom: 2,
+              }}
+            >
+              {language === 'es' ? 'Acceder al Consejo de Esferas →' : 'Enter the Spheres Council →'}
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Pricing ────────────────────────────────────────────────────────── */}
+      <section style={{ padding: '80px 24px', borderTop: `1px solid ${BORDER}`, background: BG2 }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <h2 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, letterSpacing: '-0.03em', color: CREAM1, marginBottom: 12, textAlign: 'center' }}>
+            {t.pricing.title}
+          </h2>
+          <p style={{ textAlign: 'center', color: CREAM4, fontSize: 14, marginBottom: 48 }}>
+            {language === 'es' ? 'Facturación anual. Cancela cuando quieras.' : 'Annual billing. Cancel anytime.'}
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
             {t.pricing.plans.map((plan, idx) => (
               <div
                 key={idx}
-                className={`p-8 rounded-xl border transition-all ${
-                  plan.highlighted
-                    ? 'bg-gradient-to-br from-emerald-900/50 to-cyan-900/50 border-emerald-500/50 transform scale-105'
-                    : 'bg-slate-800/50 border-slate-700'
-                }`}
+                style={{
+                  padding: '32px 28px',
+                  background: plan.highlighted ? BG3 : BG,
+                  border: plan.highlighted ? `1px solid ${GOLD6}` : `1px solid ${BORDER}`,
+                  borderRadius: 8,
+                  position: 'relative',
+                }}
               >
-                <h4 className="text-2xl font-bold mb-2">{plan.name}</h4>
-                <p className="text-slate-400 mb-6">{plan.description}</p>
-                <div className="mb-6">
-                  <span className="text-4xl font-black text-emerald-400">{plan.price}</span>
-                  <span className="text-slate-400">{plan.period}</span>
+                {plan.highlighted && (
+                  <div style={{
+                    position: 'absolute', top: -1, left: 28,
+                    background: GOLD6, color: BG,
+                    fontSize: 10, fontWeight: 800, letterSpacing: '0.1em',
+                    padding: '3px 10px', borderRadius: '0 0 6px 6px',
+                    textTransform: 'uppercase',
+                  }}>
+                    {language === 'es' ? 'Más popular' : 'Most popular'}
+                  </div>
+                )}
+                <h3 style={{ fontSize: 20, fontWeight: 800, color: CREAM1, marginBottom: 4 }}>{plan.name}</h3>
+                <p style={{ fontSize: 13, color: CREAM4, marginBottom: 20 }}>{plan.description}</p>
+                <div style={{ marginBottom: 24 }}>
+                  <span style={{ fontSize: 42, fontWeight: 900, color: plan.highlighted ? GOLD : CREAM1, letterSpacing: '-0.04em' }}>{plan.price}</span>
+                  <span style={{ fontSize: 14, color: CREAM4, marginLeft: 4 }}>{plan.period}</span>
                 </div>
-                <ul className="space-y-3 mb-8">
+                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {plan.features.map((feature, fidx) => (
-                    <li key={fidx} className="flex items-start gap-3">
-                      <span className="text-emerald-400 mt-1">✓</span>
-                      <span className="text-slate-300">{feature}</span>
+                    <li key={fidx} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14, color: CREAM2 }}>
+                      <span style={{ color: GOLD5, fontSize: 12, marginTop: 2, flexShrink: 0 }}>✓</span>
+                      {feature}
                     </li>
                   ))}
                 </ul>
-                <button className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 font-bold rounded-lg transition-colors">
+                <Link
+                  href="/cockpit"
+                  style={{
+                    display: 'block', textAlign: 'center',
+                    padding: '11px 24px', fontSize: 14, fontWeight: 700,
+                    background: plan.highlighted ? GOLD6 : 'transparent',
+                    color: plan.highlighted ? BG : CREAM2,
+                    border: plan.highlighted ? 'none' : `1px solid ${BORDER}`,
+                    borderRadius: 8, textDecoration: 'none',
+                  }}
+                >
                   {t.hero.cta}
-                </button>
+                </Link>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-900/50">
-        <div className="max-w-6xl mx-auto">
-          <h3 className="text-4xl font-black text-center mb-16">{t.testimonials.title}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* ── Testimonials ───────────────────────────────────────────────────── */}
+      <section style={{ padding: '80px 24px', borderTop: `1px solid ${BORDER}` }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <h2 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, letterSpacing: '-0.03em', color: CREAM1, marginBottom: 48, textAlign: 'center' }}>
+            {t.testimonials.title}
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
             {t.testimonials.testimonials.map((testimonial, idx) => (
-              <div key={idx} className="p-8 bg-slate-800/50 border border-slate-700 rounded-xl">
-                <p className="text-slate-300 mb-6 italic">"{testimonial.quote}"</p>
-                <div>
-                  <p className="font-bold">{testimonial.name}</p>
-                  <p className="text-sm text-slate-400">{testimonial.role}</p>
-                  <p className="text-xs text-slate-500">{testimonial.location}</p>
+              <div key={idx} style={{
+                padding: '28px 24px',
+                background: BG2, border: `1px solid ${BORDER}`,
+                borderRadius: 8,
+              }}>
+                <div style={{ width: 28, height: 2, background: GOLD6, marginBottom: 16 }} />
+                <p style={{ fontSize: 15, color: CREAM2, lineHeight: 1.7, marginBottom: 20 }}>
+                  "{testimonial.quote}"
+                </p>
+                <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: 14 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: CREAM1 }}>{testimonial.name}</div>
+                  <div style={{ fontSize: 12, color: CREAM4, marginTop: 2 }}>{testimonial.role}</div>
+                  <div style={{ fontSize: 11, color: 'var(--color-cream-600)', marginTop: 2 }}>{testimonial.location}</div>
                 </div>
               </div>
             ))}
@@ -487,29 +674,47 @@ export default function SynthiaLandingPage() {
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto text-center bg-gradient-to-r from-emerald-900/30 to-cyan-900/30 border border-emerald-500/30 rounded-2xl p-12">
-          <h3 className="text-3xl font-black mb-4">{t.cta_section.title}</h3>
-          <p className="text-lg text-slate-300 mb-8">{t.cta_section.description}</p>
-          <button className="px-8 py-4 bg-emerald-600 hover:bg-emerald-700 font-bold rounded-lg transition-colors text-lg">
+      {/* ── Final CTA ──────────────────────────────────────────────────────── */}
+      <section style={{ padding: '96px 24px', borderTop: `1px solid ${BORDER}`, background: BG2 }}>
+        <div style={{ maxWidth: 640, margin: '0 auto', textAlign: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}>
+            <SphereRing />
+          </div>
+          <h2 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, letterSpacing: '-0.03em', color: CREAM1, marginBottom: 16 }}>
+            {t.cta_section.title}
+          </h2>
+          <p style={{ fontSize: 16, color: CREAM4, lineHeight: 1.7, marginBottom: 36 }}>{t.cta_section.description}</p>
+          <Link
+            href="/cockpit"
+            style={{
+              display: 'inline-block',
+              padding: '16px 40px', fontSize: 16, fontWeight: 800,
+              background: GOLD6, color: BG,
+              borderRadius: 8, textDecoration: 'none',
+              letterSpacing: '-0.02em',
+            }}
+          >
             {t.cta_section.button}
-          </button>
+          </Link>
+          <p style={{ fontSize: 12, color: CREAM4, marginTop: 16 }}>
+            {language === 'es' ? 'Sin tarjeta de crédito · Sin compromisos · Cancela cuando quieras' : 'No credit card · No commitments · Cancel anytime'}
+          </p>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-800 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <p className="text-center text-slate-400 mb-8">{t.footer.tagline}</p>
-          <div className="flex justify-center gap-8 text-sm">
-            <a href="#" className="text-slate-400 hover:text-slate-300">{t.footer.links.docs}</a>
-            <a href="#" className="text-slate-400 hover:text-slate-300">{t.footer.links.contact}</a>
-            <a href="#" className="text-slate-400 hover:text-slate-300">{t.footer.links.privacy}</a>
-            <a href="#" className="text-slate-400 hover:text-slate-300">{t.footer.links.terms}</a>
+      {/* ── Footer ─────────────────────────────────────────────────────────── */}
+      <footer style={{ borderTop: `1px solid ${BORDER}`, padding: '40px 24px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 20, alignItems: 'center' }}>
+          <p style={{ fontSize: 12, color: CREAM4, textAlign: 'center' }}>{t.footer.tagline}</p>
+          <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', justifyContent: 'center' }}>
+            {Object.entries(t.footer.links).map(([key, label]) => (
+              <a key={key} href="#" style={{ fontSize: 13, color: CREAM4, textDecoration: 'none' }}>
+                {label}
+              </a>
+            ))}
           </div>
-          <div className="text-center text-xs text-slate-500 mt-8">
-            © 2026 KUPURI MEDIA™ | Synthia™ 3.0 - Sistema Operativo para Empresarias
+          <div style={{ fontSize: 11, color: 'var(--color-cream-600)' }}>
+            © 2026 KUPURI MEDIA™ · Synthia™ 3.0 · Sistema Operativo para Empresarias de Latinoamérica
           </div>
         </div>
       </footer>

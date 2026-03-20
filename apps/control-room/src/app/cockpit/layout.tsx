@@ -16,6 +16,13 @@ const NAV_SECTIONS = [
     ],
   },
   {
+    label: "Agentes",
+    items: [
+      { href: "/cockpit/cazadora", label: "CAZADORA™ — Ventas", icon: "◉" },
+      { href: "/cockpit/gastown", label: "Gastown™ — Orquestación", icon: "⬡" },
+    ],
+  },
+  {
     label: "Ingresos",
     items: [
       { href: "/cockpit/revenue", label: "Revenue Agent", icon: "◈" },

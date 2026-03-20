@@ -29,6 +29,86 @@ interface ContentMetric {
   conversions: number;
 }
 
+function ComposePanel({ onClose }: { onClose: () => void }) {
+  const [platform, setPlatform] = useState("linkedin");
+  const [content, setContent] = useState("");
+  const [market, setMarket] = useState("México");
+  const [agent, setAgent] = useState("FORJADORA™");
+  const [submitState, setSubmitState] = useState<"idle" | "loading" | "done">("idle");
+
+  async function handleSchedule() {
+    if (!content.trim()) return;
+    setSubmitState("loading");
+    // POST to /api/social — creates campaign
+    try {
+      await fetch("/api/social", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: `${platform} — ${market} — ${new Date().toLocaleDateString("es-MX")}`,
+          objective: "Awareness",
+          keyMessage: content.slice(0, 200),
+          targetAudience: market,
+          platforms: [platform],
+        }),
+      });
+    } catch { /* non-critical */ }
+    setSubmitState("done");
+    setTimeout(onClose, 1200);
+  }
+
+  return (
+    <div style={{ background: "var(--color-charcoal-700)", border: "1px solid var(--color-charcoal-600)", borderRadius: 8, padding: 20 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+        <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--color-cream-100)", margin: 0 }}>Nuevo Post</h3>
+        <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--color-cream-400)", cursor: "pointer", fontSize: 18, lineHeight: 1 }}>×</button>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
+        <select value={platform} onChange={e => setPlatform(e.target.value)} style={{ padding: "7px 10px", fontSize: 13, background: "var(--color-charcoal-800)", border: "1px solid var(--color-charcoal-600)", borderRadius: 6, color: "var(--color-cream-100)", cursor: "pointer" }}>
+          {["linkedin", "instagram", "x", "tiktok"].map(p => <option key={p} value={p}>{p}</option>)}
+        </select>
+        <select value={market} onChange={e => setMarket(e.target.value)} style={{ padding: "7px 10px", fontSize: 13, background: "var(--color-charcoal-800)", border: "1px solid var(--color-charcoal-600)", borderRadius: 6, color: "var(--color-cream-100)", cursor: "pointer" }}>
+          {["México", "LATAM", "España", "Global"].map(m => <option key={m} value={m}>{m}</option>)}
+        </select>
+        <select value={agent} onChange={e => setAgent(e.target.value)} style={{ padding: "7px 10px", fontSize: 13, background: "var(--color-charcoal-800)", border: "1px solid var(--color-charcoal-600)", borderRadius: 6, color: "var(--color-cream-100)", cursor: "pointer" }}>
+          {["FORJADORA™", "DRA. CULTURA™", "SEDUCTORA™", "ALEX™", "CAZADORA™"].map(a => <option key={a} value={a}>{a}</option>)}
+        </select>
+      </div>
+
+      <textarea
+        value={content}
+        onChange={e => setContent(e.target.value)}
+        placeholder="Escribe el contenido del post..."
+        rows={4}
+        style={{
+          width: "100%", padding: "10px 12px", fontSize: 14,
+          background: "var(--color-charcoal-800)", border: "1px solid var(--color-charcoal-600)",
+          borderRadius: 6, color: "var(--color-cream-100)", resize: "vertical",
+          outline: "none", fontFamily: "inherit", boxSizing: "border-box",
+        }}
+      />
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 10 }}>
+        <span style={{ fontSize: 12, color: content.length > 280 ? "var(--color-status-warn)" : "var(--color-cream-600)" }}>
+          {content.length} caracteres
+        </span>
+        <button
+          onClick={handleSchedule}
+          disabled={!content.trim() || submitState !== "idle"}
+          style={{
+            padding: "8px 20px", fontSize: 13, fontWeight: 700,
+            background: submitState === "done" ? "var(--color-status-ok)" : !content.trim() ? "var(--color-charcoal-600)" : "var(--color-gold-600)",
+            color: !content.trim() ? "var(--color-cream-600)" : "var(--color-charcoal-900)",
+            border: "none", borderRadius: 8, cursor: !content.trim() ? "not-allowed" : "pointer",
+          }}
+        >
+          {submitState === "loading" ? "Programando..." : submitState === "done" ? "✓ Programado" : "Programar Post"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 const demoAccounts: SocialAccount[] = [
   { id: "li_001", platform: "linkedin", handle: "@kupuri-media", followers: 1247, status: "connected", lastPost: "2h ago" },
   { id: "ig_001", platform: "instagram", handle: "@kupuri.cdmx", followers: 3891, status: "connected", lastPost: "6h ago" },
@@ -85,6 +165,7 @@ export default function SocialPage() {
   const [metrics] = useState<ContentMetric[]>(demoMetrics);
   const [filter, setFilter] = useState<"all" | "scheduled" | "published" | "draft">("all");
   const [now, setNow] = useState("");
+  const [composing, setComposing] = useState(false);
 
   useEffect(() => { setNow(new Date().toLocaleDateString("es-MX")); }, []);
 
@@ -94,12 +175,27 @@ export default function SocialPage() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
       {/* Header */}
-      <div>
-        <h1 style={{ fontSize: 22, fontWeight: 600, color: "var(--color-cream-100)", margin: 0 }}>Social Media</h1>
-        <p style={{ fontSize: 13, color: "var(--color-cream-400)", marginTop: 4 }}>
-          Gestión de contenido multi-plataforma — {now}
-        </p>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+        <div>
+          <h1 style={{ fontSize: 22, fontWeight: 600, color: "var(--color-cream-100)", margin: 0 }}>Social Media</h1>
+          <p style={{ fontSize: 13, color: "var(--color-cream-400)", marginTop: 4 }}>
+            Gestión de contenido multi-plataforma — {now}
+          </p>
+        </div>
+        <button
+          onClick={() => setComposing(prev => !prev)}
+          style={{
+            padding: "8px 20px", fontSize: 13, fontWeight: 700,
+            background: "var(--color-gold-600)", color: "var(--color-charcoal-900)",
+            border: "none", borderRadius: 8, cursor: "pointer",
+          }}
+        >
+          + Nuevo Post
+        </button>
       </div>
+
+      {/* Compose Panel */}
+      {composing && <ComposePanel onClose={() => setComposing(false)} />}
 
       {/* Content Metrics */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
