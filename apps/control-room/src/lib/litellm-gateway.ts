@@ -74,10 +74,80 @@ function recordSpend(usd: number) {
     dailySpend.totalUsd = 0;
   }
   dailySpend.totalUsd += usd;
+  persistBudgetAsync(today, dailySpend.totalUsd); // STK: survive cold-start resets
 }
 
 function isOverBudget(): boolean {
   return dailySpend.totalUsd >= getDailyBudget();
+}
+
+// ---------------------------------------------------------------------------
+// STK: Supabase budget persistence — fire-and-forget
+// ---------------------------------------------------------------------------
+
+function persistBudgetAsync(date: string, totalUsd: number): void {
+  (async () => {
+    try {
+      const { supabaseAdmin } = await import('@/lib/supabase-client');
+      await supabaseAdmin
+        .from('budget_daily')
+        .upsert({ date, total_usd: totalUsd, updated_at: new Date().toISOString() }, { onConflict: 'date' });
+    } catch { /* non-critical — in-memory value accurate for this invocation */ }
+  })();
+}
+
+export async function getBudgetStatusAsync() {
+  const today = new Date().toISOString().split('T')[0];
+  let dbSpend = 0;
+  try {
+    const { supabaseAdmin } = await import('@/lib/supabase-client');
+    const { data } = await supabaseAdmin
+      .from('budget_daily')
+      .select('total_usd')
+      .eq('date', today)
+      .single();
+    dbSpend = (data as { total_usd?: number } | null)?.total_usd ?? 0;
+  } catch { /* non-critical */ }
+  const effectiveSpend = Math.max(dailySpend.totalUsd, dbSpend);
+  const budget = getDailyBudget();
+  return {
+    dailyBudgetUsd: budget,
+    spentTodayUsd: effectiveSpend,
+    date: today,
+    percentUsed: Math.round((effectiveSpend / budget) * 100),
+    isOverBudget: effectiveSpend >= budget,
+    perTaskMaxUsd: PER_TASK_MAX_USD,
+    loopGuard: getLoopGuardStatus(),
+    byAgent: { ...agentDailySpend },
+    source: 'db' as const,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// FLW: Per-agent cost tracking — in-memory + Supabase persistence
+// ---------------------------------------------------------------------------
+
+const agentDailySpend: Record<string, number> = {};
+
+export function getAgentCosts(): Record<string, number> {
+  return { ...agentDailySpend };
+}
+
+function trackAgentCost(agentId: string | undefined, usd: number): void {
+  if (!agentId || usd <= 0) return;
+  agentDailySpend[agentId] = (agentDailySpend[agentId] ?? 0) + usd;
+  const today = new Date().toISOString().split('T')[0];
+  (async () => {
+    try {
+      const { supabaseAdmin } = await import('@/lib/supabase-client');
+      await supabaseAdmin
+        .from('budget_agent_daily')
+        .upsert(
+          { agent_id: agentId, date: today, total_usd: agentDailySpend[agentId], updated_at: new Date().toISOString() },
+          { onConflict: 'agent_id,date' }
+        );
+    } catch { /* non-critical */ }
+  })();
 }
 
 // ---------------------------------------------------------------------------
@@ -182,6 +252,7 @@ export async function callLLM(
         console.error(`[litellm-gateway] PER_TASK COST_GUARD: $${taskCostAccumulator.toFixed(4)} > $${PER_TASK_MAX_USD} limit`);
         return stub(messages, `PER_TASK_COST_GUARD: $${taskCostAccumulator.toFixed(4)}`);
       }
+      trackAgentCost(sphereId, result.costEstimateUsd ?? 0); // FLW: per-agent cost tracking
       clearProviderError('openrouter');
       return result;
     }
@@ -193,6 +264,7 @@ export async function callLLM(
       process.env.LITELLM_MASTER_KEY !== 'your-litellm-master-key') {
     const result = await tryLiteLLM(messages, { model, maxTokens, temperature, sphereId });
     if (result) {
+      trackAgentCost(sphereId, result.costEstimateUsd ?? 0); // FLW: per-agent cost tracking
       clearProviderError('litellm');
       return result;
     }
@@ -205,6 +277,7 @@ export async function callLLM(
     const fallbackModel = model.includes('opus') ? 'claude-3-haiku-20240307' : model;
     const result = await tryAnthropic(messages, { model: fallbackModel, maxTokens, temperature, sphereId });
     if (result) {
+      trackAgentCost(sphereId, result.costEstimateUsd ?? 0); // FLW: per-agent cost tracking
       clearProviderError('anthropic');
       return result;
     }
@@ -418,5 +491,6 @@ export function getBudgetStatus() {
     isOverBudget: isOverBudget(),
     perTaskMaxUsd: PER_TASK_MAX_USD,
     loopGuard: getLoopGuardStatus(),
+    byAgent: { ...agentDailySpend }, // FLW: per-agent breakdown
   };
 }

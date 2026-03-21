@@ -9,6 +9,33 @@ import type { SphereAgentId } from '@/shared/council-events';
 
 export const runtime = 'nodejs';
 
+// ---------------------------------------------------------------------------
+// LRN: Fetch high-confidence learned patterns for this sphere from Supabase
+// so agents self-improve across sessions (Meadows feedback loop)
+// ---------------------------------------------------------------------------
+
+async function fetchSphereMemory(sphereId: string): Promise<string> {
+  try {
+    const { supabaseClient } = await import('@/lib/supabase-client');
+    const { data } = await supabaseClient
+      .from('vibe_nodes')
+      .select('content, confidence')
+      .eq('owner_agent_id', sphereId)
+      .is('superseded_by', null)
+      .gte('confidence', 0.7)
+      .order('confidence', { ascending: false })
+      .limit(3);
+
+    if (!data || data.length === 0) return '';
+    const patterns = (data as Array<{ content: string; confidence: number }>)
+      .map(n => `- ${n.content}`)
+      .join('\n');
+    return `\n\nPatrones aprendidos (alta confianza):\n${patterns}`;
+  } catch {
+    return '';
+  }
+}
+
 const SPHERE_PERSONAS: Record<string, { name: string; locale: string; systemPrompt: string }> = {
   synthia: {
     name: 'SYNTHIA™',
@@ -76,9 +103,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Unknown sphere: ${sphereId}` }, { status: 400 });
   }
 
+  // LRN: inject learned patterns into system prompt for self-improvement
+  const memoryContext = await fetchSphereMemory(sphereId);
+
   // Build messages: system + conversation history + new user message
   const messages = [
-    { role: 'system' as const, content: persona.systemPrompt },
+    { role: 'system' as const, content: persona.systemPrompt + memoryContext },
     ...history.slice(-6).map(m => ({
       role: m.role as 'user' | 'assistant',
       content: m.content,

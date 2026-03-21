@@ -101,6 +101,33 @@ export function writeReport(report: OpsReport): string {
     console.log(`[ops-reports] REPORT_JSON: ${content}`);
   }
 
+  // DOC: also persist to Supabase so reports survive Vercel ephemeral /tmp
+  void (async () => {
+    try {
+      const { writeOpsReport } = await import('@/lib/ops-report');
+      const statusMap: Record<ZTEStatus, 'success' | 'failure' | 'partial' | 'halted'> = {
+        COMPLETE: 'success',
+        FAILED: 'failure',
+        HALTED: 'halted',
+        IN_PROGRESS: 'partial',
+      };
+      await writeOpsReport({
+        bead_id: report.bead_id,
+        agent_id: 'system',
+        task_summary: report.task_name,
+        status: statusMap[report.status] ?? 'partial',
+        risk_tier: 'LOW',
+        files_modified: report.files_changed,
+        tests_passed: report.tests_run > 0 && report.tests_passed === report.tests_run,
+        cost_usd: report.cost_used_usd,
+        duration_ms: report.elapsed_seconds ? report.elapsed_seconds * 1000 : 0,
+        errors: report.blockers,
+        circuit_breakers_hit: [],
+        metadata: { stage: report.stage, next_action: report.next_action },
+      });
+    } catch { /* non-critical */ }
+  })();
+
   return filepath;
 }
 

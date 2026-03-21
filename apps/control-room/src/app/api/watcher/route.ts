@@ -9,7 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseClient } from '@/lib/supabase-client';
-import { getBudgetStatus } from '@/lib/litellm-gateway';
+import { getBudgetStatus, getBudgetStatusAsync, getAgentCosts } from '@/lib/litellm-gateway';
 
 // ---------------------------------------------------------------------------
 // GET /api/watcher — route based on ?view= param
@@ -28,7 +28,8 @@ export async function GET(req: NextRequest) {
 // ---------------------------------------------------------------------------
 
 async function getStatus(): Promise<NextResponse> {
-  const budget = getBudgetStatus();
+  // STK: use async version to get DB-persisted spend (survives cold starts)
+  const budget = await getBudgetStatusAsync();
 
   // Agent heartbeats
   let agentHeartbeats: Array<{ agent_id: string; status: string; last_seen: string }> = [];
@@ -116,6 +117,7 @@ async function getMetrics(): Promise<NextResponse> {
     vibeGraph: nodeStats,
     agentMemory: memoryStats,
     budget: getBudgetStatus(),
+    agentCosts: getAgentCosts(), // FLW: per-agent cost breakdown
   });
 }
 
