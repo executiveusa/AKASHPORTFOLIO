@@ -175,3 +175,8 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to delete message' }, { status: 500 });
   }
 }
+  } catch (error) {
+    console.error('Agent mail DELETE error:', error);
+    return NextResponse.json({ error: 'Failed to delete message' }, { status: 500 });
+  }
+}

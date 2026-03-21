@@ -43,6 +43,9 @@ class ObservabilityManager extends EventEmitter {
         this.events.push(fullEvent);
         this.emit('new_event', fullEvent);
 
+        // Persist to Supabase for cross-restart durability (fire-and-forget)
+        this.persistToSupabase(fullEvent).catch(() => {});
+
         // Keep logs manageable (last 1000 events)
         if (this.events.length > 1000) {
             this.events.shift();
@@ -74,6 +77,27 @@ class ObservabilityManager extends EventEmitter {
 
     getRecentEvents(limit: number = 50) {
         return this.events.slice(-limit);
+    }
+
+    /**
+     * Persist event to Supabase telemetry_events table (fire-and-forget).
+     * In-memory ring buffer is always written first so local reads are instant.
+     */
+    private async persistToSupabase(event: TelemetryEvent): Promise<void> {
+        try {
+            // Dynamic import avoids circular dep at module load time
+            const { supabaseAdmin } = await import('@/lib/supabase-client');
+            await supabaseAdmin.from('telemetry_events').insert({
+                event_type: event.type,
+                agent_id: event.sessionId ?? 'system',
+                severity: event.type === 'error' ? 'error' : event.type === 'success' ? 'info' : 'info',
+                message: event.summary,
+                metadata: typeof event.data === 'object' ? JSON.stringify(event.data) : null,
+                created_at: event.timestamp,
+            });
+        } catch {
+            // Never block the main path — telemetry is best-effort
+        }
     }
 }
 

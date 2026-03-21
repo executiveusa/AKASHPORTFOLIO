@@ -4,6 +4,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    if (!localStorage.getItem('has_seen_onboarding')) {
+      localStorage.setItem('has_seen_onboarding', 'true');
+      window.location.href = '/onboarding/';
+    }
+  </script>
   <title>KUPURI MEDIA™ | Portfolio</title>
   <link rel="icon" href="/images/global/site-icon.png" />
 

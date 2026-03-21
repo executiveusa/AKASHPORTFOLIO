@@ -20,6 +20,12 @@ AKASHPORTFOLIO/
 │       ├── dist/
 │       └── package.json
 │
+│   └── onboarding-flipbook/   # 3D Interactive Onboarding (Rust/WASM)
+│       ├── src/              # Bevy 3D source code
+│       ├── e2e/              # Playwright E2E tests
+│       ├── Cargo.toml
+│       └── index.html        # Immersive UI wrapper
+│
 ├── backend/                   # Synthia 3.0 Backend (Hostinger VPS)
 │   ├── src/                   # Rust source
 │   ├── Cargo.toml            # Rust dependencies
@@ -80,9 +86,12 @@ curl http://localhost:42617/health
 ### Frontend (apps/)
 
 - **Vite-powered portfolio** with smooth animations
+- **Sphere OS™ Control Room** Next.js 15 dashboard
+- **3D Interactive Onboarding Flipbook** (Rust/Bevy WebAssembly Sidecar)
+  - Gaming-style immersive UX with vibrant colors (No pixel trash)
+  - Inline video explainers & full 3D plane mechanics
 - Responsive design for all devices
 - Integrated with Anthropic Claude SDK
-- Google Generative AI support
 - GSAP animations and Lenis scroll effects
 
 ### Backend (backend/)
@@ -100,6 +109,7 @@ curl http://localhost:42617/health
 | Feature | Status | Location |
 |---------|--------|----------|
 | Portfolio Website | ✅ Live | https://akashportfolio.vercel.app |
+| 3D Onboarding Sidecar | ✅ Ready | apps/onboarding-flipbook/ |
 | Synthia Backend API | ✅ Ready | backend/ |
 | mem0 Memory Integration | ✅ Configured | backend/src/providers/mem0.rs |
 | Hostinger Deployment | ✅ Automated | backend/deploy-hostinger.sh |

@@ -36,6 +36,12 @@ const NAV_SECTIONS = [
       { href: "/cockpit/social", label: "Social Media", icon: "◇" },
     ],
   },
+  {
+    label: "Sistema",
+    items: [
+      { href: "/cockpit/watcher", label: "La Vigilante™", icon: "◈" },
+    ],
+  },
 ];
 
 function BudgetIndicator() {
