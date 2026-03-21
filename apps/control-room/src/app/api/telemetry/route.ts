@@ -10,7 +10,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { synthiaObservability } from '@/lib/observability';
-import { getBudgetStatus, getLoopGuardStatus } from '@/lib/litellm-gateway';
+import { getBudgetStatusAsync, getLoopGuardStatus } from '@/lib/litellm-gateway';
 import { listReports } from '@/lib/ops-reports';
 
 export const runtime = 'nodejs';
@@ -25,10 +25,11 @@ export async function GET(req: NextRequest) {
   const typeFilter = req.nextUrl.searchParams.get('type');
 
   if (view === 'budget') {
+    const budget = await getBudgetStatusAsync(); // STK: DB-backed spend survives cold starts
     return NextResponse.json({
       ok: true,
       timestamp: new Date().toISOString(),
-      budget: getBudgetStatus(),
+      budget,
       loopGuard: getLoopGuardStatus(),
     });
   }
