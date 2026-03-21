@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Synthia 3.0 — AI Council Theater</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    :root {
+      --gold:    #d4af37;
+      --pink:    #ff6b9d;
+      --cyan:    #00c9ff;
+      --green:   #7fff7f;
+      --purple:  #c084fc;
+      --bg:      #080b10;
+      --panel:   #0d1117;
+      --border:  #1e2738;
+      --text:    #e8eaf0;
+      --muted:   #6b7a99;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      height: 100dvh;
+      display: grid;
+      grid-template-rows: 56px 1fr;
+      overflow: hidden;
+    }
+
+    /* ── TOP BAR ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+      z-index: 10;
+    }
+    .logo {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--gold);
+    }
+    .logo span { color: var(--text); font-weight: 300; }
+    .header-actions { display: flex; gap: 10px; align-items: center; }
+    .lang-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 4px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+    .lang-btn.active { border-color: var(--gold); color: var(--gold); }
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 6px #22c55e;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* ── MAIN LAYOUT ── */
+    .main {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      overflow: hidden;
+    }
+
+    /* ── THEATER ── */
+    #canvas-wrap {
+      position: relative;
+      overflow: hidden;
+      background: var(--bg);
+    }
+    #theater-canvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+    .theater-overlay {
+      position: absolute;
+      top: 16px; left: 16px;
+      pointer-events: none;
+    }
+    .location-badge {
+      background: rgba(13,17,23,0.85);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 12px;
+      color: var(--muted);
+      backdrop-filter: blur(8px);
+    }
+    .location-badge strong { color: var(--gold); display: block; font-size: 13px; }
+
+    /* ── AGENT AVATARS STRIP ── */
+    .agents-strip {
+      position: absolute;
+      bottom: 16px; left: 0; right: 0;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      padding: 0 16px;
+      pointer-events: none;
+    }
+    .agent-chip {
+      background: rgba(13,17,23,0.9);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 6px 14px 6px 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      backdrop-filter: blur(8px);
+      transition: border-color 0.3s, box-shadow 0.3s;
+      pointer-events: all;
+      cursor: pointer;
+    }
+    .agent-chip.speaking {
+      border-color: var(--agent-color, var(--gold));
+      box-shadow: 0 0 12px var(--agent-color, var(--gold));
+    }
+    .agent-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--agent-color, var(--gold));
+      flex-shrink: 0;
+    }
+    .agent-chip.speaking .agent-dot {
+      animation: pulse 0.8s infinite;
+    }
+
+    /* ── SIDE PANEL ── */
+    .side-panel {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      border-left: 1px solid var(--border);
+      background: var(--panel);
+      overflow: hidden;
+    }
+
+    /* Council controls */
+    .panel-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .panel-title { font-size: 13px; font-weight: 600; color: var(--gold); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+    .topic-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 13px;
+      padding: 10px 12px;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+    }
+    .topic-input:focus { border-color: var(--gold); }
+    .topic-input::placeholder { color: var(--muted); }
+
+    .convene-btn {
+      margin-top: 10px;
+      width: 100%;
+      background: var(--gold);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      letter-spacing: 0.04em;
+    }
+    .convene-btn:hover { opacity: 0.9; }
+    .convene-btn:active { transform: scale(0.98); }
+    .convene-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Chat transcript */
+    .transcript {
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      scroll-behavior: smooth;
+    }
+    .transcript::-webkit-scrollbar { width: 4px; }
+    .transcript::-webkit-scrollbar-track { background: transparent; }
+    .transcript::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 8px;
+      color: var(--muted);
+      text-align: center;
+    }
+    .empty-state .icon { font-size: 32px; }
+    .empty-state p { font-size: 13px; line-height: 1.5; max-width: 220px; }
+
+    .msg {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      animation: fadeSlide 0.3s ease;
+      border-left: 3px solid var(--agent-color, var(--gold));
+    }
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .msg-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .msg-agent {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--agent-color, var(--gold));
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .msg-role { font-size: 10px; color: var(--muted); }
+    .msg-text { font-size: 13px; line-height: 1.55; color: var(--text); }
+    .voice-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 3px 8px;
+      font-size: 11px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      margin-top: 8px;
+    }
+    .voice-btn:hover { border-color: var(--agent-color, var(--gold)); color: var(--agent-color, var(--gold)); }
+    .voice-btn.loading { opacity: 0.6; cursor: not-allowed; }
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .typing-dots { display: flex; gap: 3px; }
+    .typing-dots span {
+      width: 5px; height: 5px;
+      background: var(--muted);
+      border-radius: 50%;
+      animation: bounce 1.2s infinite;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%,60%,100% { transform: translateY(0); }
+      30% { transform: translateY(-6px); }
+    }
+
+    /* Bottom CTA */
+    .panel-footer {
+      padding: 14px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .plan-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+    .plan-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .plan-card:hover { border-color: var(--gold); }
+    .plan-card.selected { border-color: var(--gold); box-shadow: 0 0 10px rgba(212,175,55,0.2); }
+    .plan-name { font-size: 10px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.05em; }
+    .plan-price { font-size: 13px; font-weight: 700; color: var(--text); margin-top: 2px; }
+    .plan-sub { font-size: 9px; color: var(--muted); }
+
+    .checkout-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--gold) 0%, #b8962e 100%);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      padding: 11px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      letter-spacing: 0.04em;
+    }
+    .checkout-btn:hover { opacity: 0.9; }
+    .checkout-btn:active { transform: scale(0.98); }
+    .checkout-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .powered-by { text-align: center; font-size: 10px; color: var(--muted); }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(60px);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 13px;
+      transition: transform 0.3s ease;
+      z-index: 999;
+      white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .main { grid-template-columns: 1fr; grid-template-rows: 40vh 1fr; }
+      .agents-strip { gap: 6px; }
+      .agent-chip { padding: 4px 10px 4px 6px; font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header>
+  <div class="logo">Synthia<span> 3.0</span></div>
+  <div class="header-actions">
+    <div class="status-dot" title="Council online"></div>
+    <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn"        id="btn-es" onclick="setLang('es')">ES</button>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- 3D THEATER -->
+  <div id="canvas-wrap">
+    <canvas id="theater-canvas"></canvas>
+
+    <div class="theater-overlay">
+      <div class="location-badge">
+        <strong id="loc-name">Kiosco Morisco</strong>
+        <span id="loc-sub">Santa María la Ribera · CDMX</span>
+      </div>
+    </div>
+
+    <!-- Agent chips -->
+    <div class="agents-strip" id="agents-strip">
+      <!-- injected by JS -->
+    </div>
+  </div>
+
+  <!-- SIDE PANEL -->
+  <div class="side-panel">
+
+    <!-- Council controls -->
+    <div class="panel-header">
+      <div class="panel-title" id="panel-title">Council Topic</div>
+      <textarea
+        id="topic-input"
+        class="topic-input"
+        rows="3"
+        placeholder="What should the council debate? e.g. 'Should we launch on TikTok this month?'"
+      ></textarea>
+      <button class="convene-btn" id="convene-btn" onclick="conveneCouncil()">
+        ⚡ Convene Council
+      </button>
+    </div>
+
+    <!-- Transcript -->
+    <div class="transcript" id="transcript">
+      <div class="empty-state" id="empty-state">
+        <div class="icon">🏛️</div>
+        <p id="empty-text">Enter a topic and convene the council. Five AI agents will deliberate in real-time.</p>
+      </div>
+    </div>
+
+    <!-- Payment footer -->
+    <div class="panel-footer">
+      <div class="plan-row">
+        <div class="plan-card" id="plan-starter" onclick="selectPlan('starter')">
+          <div class="plan-name">Starter</div>
+          <div class="plan-price">$29</div>
+          <div class="plan-sub">/mo</div>
+        </div>
+        <div class="plan-card selected" id="plan-pro" onclick="selectPlan('pro')">
+          <div class="plan-name">Pro</div>
+          <div class="plan-price">$99</div>
+          <div class="plan-sub">/mo</div>
+        </div>
+        <div class="plan-card" id="plan-agency" onclick="selectPlan('agency')">
+          <div class="plan-name">Agency</div>
+          <div class="plan-price">$299</div>
+          <div class="plan-sub">/mo</div>
+        </div>
+      </div>
+      <button class="checkout-btn" id="checkout-btn" onclick="startCheckout()">
+        🚀 Get Synthia Pro
+      </button>
+      <div class="powered-by">Powered by <strong>Creem.io</strong> · Secure checkout</div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────
+let lang = 'en';
+let selectedPlan = 'pro';
+let isConvening = false;
+let audioQueue = Promise.resolve();
+
+const AGENTS = [
+  { id: 'synthia-prime',   name: 'Synthia Prime',   nameEs: 'Synthia Prime',   color: '#d4af37', label: 'S',  voiceId: 'pNInz6obpgDQGcFmaJgB' },
+  { id: 'agent-marketing', name: 'Agent-Marketing', nameEs: 'Agente-Marketing',color: '#ff6b9d', label: 'M',  voiceId: 'EXAVITQu4vr4xnSDxMaL' },
+  { id: 'agent-coder',     name: 'Agent-Coder',     nameEs: 'Agente-Coder',    color: '#00c9ff', label: 'C',  voiceId: 'VR6AewLTigWG4xSOukaG' },
+  { id: 'agent-sales',     name: 'Agent-Sales',     nameEs: 'Agente-Ventas',   color: '#7fff7f', label: 'Sa', voiceId: 'ErXwobaYiN019PkySvjV' },
+  { id: 'agent-legal',     name: 'Agent-Legal',     nameEs: 'Agente-Legal',    color: '#c084fc', label: 'L',  voiceId: 'MF3mGyEYCl7XYWbV9V6O' },
+];
+
+// ─────────────────────────────────────────────────────────────────
+// LANG
+// ─────────────────────────────────────────────────────────────────
+const UI = {
+  en: {
+    panelTitle:   'Council Topic',
+    placeholder:  "What should the council debate? e.g. 'Should we launch on TikTok this month?'",
+    conveneBtn:   '⚡ Convene Council',
+    emptyText:    'Enter a topic and convene the council. Five AI agents will deliberate in real-time.',
+    checkoutBtn:  '🚀 Get Synthia Pro',
+    locName:      'Kiosco Morisco',
+    locSub:       'Santa María la Ribera · CDMX',
+    typing:       'thinking…',
+    voiceBtn:     '🔊 Play',
+    voicePlaying: '⏸ Playing…',
+    voiceLoading: '⌛ Loading…',
+  },
+  es: {
+    panelTitle:   'Tema del Consejo',
+    placeholder:  '¿Qué debe debatir el consejo? Ej: "¿Lanzamos en TikTok este mes?"',
+    conveneBtn:   '⚡ Convocar Consejo',
+    emptyText:    'Escribe un tema y convoca al consejo. Cinco agentes de IA deliberarán en tiempo real.',
+    checkoutBtn:  '🚀 Obtener Synthia Pro',
+    locName:      'Kiosco Morisco',
+    locSub:       'Santa María la Ribera · CDMX',
+    typing:       'pensando…',
+    voiceBtn:     '🔊 Escuchar',
+    voicePlaying: '⏸ Reproduciendo…',
+    voiceLoading: '⌛ Cargando…',
+  },
+};
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('btn-en').classList.toggle('active', l === 'en');
+  document.getElementById('btn-es').classList.toggle('active', l === 'es');
+  const t = UI[l];
+  document.getElementById('panel-title').textContent = t.panelTitle;
+  document.getElementById('topic-input').placeholder = t.placeholder;
+  document.getElementById('convene-btn').textContent = t.conveneBtn;
+  document.getElementById('empty-text').textContent  = t.emptyText;
+  document.getElementById('checkout-btn').textContent = t.checkoutBtn;
+  document.getElementById('loc-name').textContent = t.locName;
+  document.getElementById('loc-sub').textContent  = t.locSub;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// AGENT CHIPS
+// ─────────────────────────────────────────────────────────────────
+function renderAgentChips() {
+  const strip = document.getElementById('agents-strip');
+  strip.innerHTML = AGENTS.map(a => `
+    <div class="agent-chip" id="chip-${a.id}" style="--agent-color:${a.color}"
+         onclick="highlightSphere('${a.id}')">
+      <div class="agent-dot"></div>
+      <span>${lang === 'es' ? a.nameEs : a.name}</span>
+    </div>
+  `).join('');
+}
+
+function setSpeaking(agentId) {
+  AGENTS.forEach(a => {
+    const chip = document.getElementById(`chip-${a.id}`);
+    if (chip) chip.classList.toggle('speaking', a.id === agentId);
+  });
+  if (agentId) highlightSphere(agentId);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// THREE.JS THEATER — KIOSCO MORISCO
+// ─────────────────────────────────────────────────────────────────
+let scene, camera, renderer, animFrameId;
+const sphereMeshes = {};
+const sphereTargets = {};
+
+function initTheater() {
+  const canvas = document.getElementById('theater-canvas');
+  const wrap   = document.getElementById('canvas-wrap');
+
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
+  renderer.setClearColor(0x080b10);
+
+  scene  = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x0a1a0a, 0.03);
+
+  camera = new THREE.PerspectiveCamera(50, wrap.clientWidth / wrap.clientHeight, 0.1, 200);
+  camera.position.set(0, 8, 18);
+  camera.lookAt(0, 1, 0);
+
+  // Lights
+  const ambient = new THREE.AmbientLight(0x223322, 0.6);
+  scene.add(ambient);
+
+  const sun = new THREE.DirectionalLight(0xffdd88, 1.2);
+  sun.position.set(8, 14, 6);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(1024, 1024);
+  scene.add(sun);
+
+  const fillLight = new THREE.PointLight(0x1a3a8a, 0.8, 30);
+  fillLight.position.set(-6, 4, -4);
+  scene.add(fillLight);
+
+  // Ground
+  const groundGeo = new THREE.PlaneGeometry(80, 80);
+  const groundMat = new THREE.MeshLambertMaterial({ color: 0x1a3a10 });
+  const ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.rotation.x = -Math.PI / 2;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  // Cobblestone ring
+  const ringGeo = new THREE.RingGeometry(4.5, 7.5, 48);
+  const ringMat = new THREE.MeshLambertMaterial({ color: 0x6a5a40, side: THREE.DoubleSide });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.rotation.x = -Math.PI / 2;
+  ring.position.y = 0.02;
+  scene.add(ring);
+
+  // Kiosco base
+  const baseGeo  = new THREE.CylinderGeometry(3.2, 3.5, 0.5, 8);
+  const baseMat  = new THREE.MeshStandardMaterial({ color: 0x6a5040, roughness: 0.7 });
+  scene.add(Object.assign(new THREE.Mesh(baseGeo, baseMat), { position: { x:0,y:0.25,z:0 }, castShadow:true }));
+  const base = new THREE.Mesh(baseGeo, baseMat);
+  base.position.y = 0.25;
+  base.castShadow = true;
+  scene.add(base);
+
+  // Columns (8)
+  const colGeo = new THREE.CylinderGeometry(0.12, 0.12, 3.8, 10);
+  const colMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, metalness: 0.85, roughness: 0.2 });
+  for (let i = 0; i < 8; i++) {
+    const angle = (i / 8) * Math.PI * 2;
+    const col   = new THREE.Mesh(colGeo, colMat);
+    col.position.set(Math.cos(angle) * 2.6, 2.4, Math.sin(angle) * 2.6);
+    col.castShadow = true;
+    scene.add(col);
+  }
+
+  // Dome
+  const domeGeo = new THREE.SphereGeometry(3.0, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2);
+  const domeMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, metalness: 0.9, roughness: 0.15, side: THREE.DoubleSide });
+  const dome = new THREE.Mesh(domeGeo, domeMat);
+  dome.position.y = 4.2;
+  dome.castShadow = true;
+  scene.add(dome);
+
+  // Finial
+  const finGeo = new THREE.ConeGeometry(0.14, 1.0, 8);
+  const finMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 1.0, roughness: 0.1 });
+  const fin = new THREE.Mesh(finGeo, finMat);
+  fin.position.y = 7.4;
+  scene.add(fin);
+
+  // Gold ring top
+  const torusGeo = new THREE.TorusGeometry(2.7, 0.08, 8, 48);
+  const torusMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 1.0, roughness: 0.1 });
+  const torus = new THREE.Mesh(torusGeo, torusMat);
+  torus.position.y = 4.1;
+  torus.rotation.x = Math.PI / 2;
+  scene.add(torus);
+
+  // Trees
+  [[-10,6],[-7,-9],[8,10],[10,-7],[-12,-3],[5,13],[-6,12],[13,2]].forEach(([tx,tz]) => {
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.18, 0.28, 2.2, 8),
+      new THREE.MeshLambertMaterial({ color: 0x4a2e10 })
+    );
+    trunk.position.set(tx, 1.1, tz);
+    trunk.castShadow = true;
+    scene.add(trunk);
+
+    const foliage = new THREE.Mesh(
+      new THREE.SphereGeometry(1.4 + Math.random() * 0.5, 8, 6),
+      new THREE.MeshLambertMaterial({ color: 0x1a5c10 + Math.floor(Math.random() * 0x082010) })
+    );
+    foliage.position.set(tx, 3.4 + Math.random() * 0.4, tz);
+    foliage.castShadow = true;
+    scene.add(foliage);
+  });
+
+  // Agent spheres (circle around kiosco)
+  AGENTS.forEach((a, i) => {
+    const angle  = (i / AGENTS.length) * Math.PI * 2 - Math.PI / 2;
+    const radius = 6;
+    const x      = Math.cos(angle) * radius;
+    const z      = Math.sin(angle) * radius;
+
+    const geo  = new THREE.SphereGeometry(0.55, 20, 16);
+    const mat  = new THREE.MeshStandardMaterial({
+      color:    parseInt(a.color.replace('#',''), 16),
+      emissive: parseInt(a.color.replace('#',''), 16),
+      emissiveIntensity: 0.25,
+      roughness: 0.25,
+      metalness: 0.7,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(x, 1.2, z);
+    mesh.castShadow = true;
+    scene.add(mesh);
+    sphereMeshes[a.id]  = mesh;
+    sphereTargets[a.id] = { x, y: 1.2, z, baseY: 1.2 };
+  });
+
+  // Lantern lights inside kiosco
+  const lanternColors = [0xffd700, 0xff8800, 0x88ffdd];
+  lanternColors.forEach((c, i) => {
+    const pl = new THREE.PointLight(c, 0.6, 8);
+    pl.position.set(
+      Math.cos((i/3)*Math.PI*2)*1.4,
+      3.0,
+      Math.sin((i/3)*Math.PI*2)*1.4
+    );
+    scene.add(pl);
+  });
+
+  animate();
+  handleResize();
+  window.addEventListener('resize', handleResize);
+}
+
+let clock = { t: 0 };
+
+function animate() {
+  animFrameId = requestAnimationFrame(animate);
+  clock.t += 0.016;
+
+  AGENTS.forEach((a, i) => {
+    const mesh = sphereMeshes[a.id];
+    if (!mesh) return;
+    const t = clock.t;
+    const chip = document.getElementById(`chip-${a.id}`);
+    const isSpeaking = chip && chip.classList.contains('speaking');
+
+    // Float bob
+    mesh.position.y = sphereTargets[a.id].baseY + Math.sin(t * 1.2 + i * 1.3) * 0.12;
+    mesh.rotation.y += 0.008;
+
+    // Pulse when speaking
+    const targetScale = isSpeaking ? 1.25 + Math.sin(t * 6) * 0.08 : 1.0;
+    mesh.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.12);
+    mesh.material.emissiveIntensity = isSpeaking
+      ? 0.7 + Math.sin(t * 6) * 0.3
+      : 0.2 + Math.sin(t * 1.5 + i) * 0.05;
+  });
+
+  // Gentle camera orbit
+  camera.position.x = Math.sin(clock.t * 0.04) * 2;
+  camera.position.z = 18 + Math.sin(clock.t * 0.03) * 1.5;
+  camera.lookAt(0, 2, 0);
+
+  renderer.render(scene, camera);
+}
+
+function handleResize() {
+  const wrap = document.getElementById('canvas-wrap');
+  const w = wrap.clientWidth;
+  const h = wrap.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+
+function highlightSphere(agentId) {
+  // Briefly boost the target sphere
+  const mesh = sphereMeshes[agentId];
+  if (mesh) {
+    mesh.material.emissiveIntensity = 1.0;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// COUNCIL CONVENING
+// ─────────────────────────────────────────────────────────────────
+async function conveneCouncil() {
+  if (isConvening) return;
+
+  const topicEl = document.getElementById('topic-input');
+  const topic   = topicEl.value.trim();
+  if (!topic) { showToast('⚠️ ' + (lang === 'es' ? 'Escribe un tema primero.' : 'Enter a topic first.')); return; }
+
+  isConvening = true;
+  const btn = document.getElementById('convene-btn');
+  btn.disabled = true;
+  btn.textContent = lang === 'es' ? '⌛ Deliberando…' : '⌛ Deliberating…';
+
+  // Clear transcript
+  const transcriptEl = document.getElementById('transcript');
+  const emptyState   = document.getElementById('empty-state');
+  if (emptyState) emptyState.remove();
+  transcriptEl.innerHTML = '';
+
+  // Show typing indicator
+  let typingEl = addTypingIndicator();
+
+  try {
+    const res = await fetch('/api/council', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topic, lang, context: '' }),
+    });
+
+    if (!res.ok || !res.body) throw new Error('Council API failed');
+
+    const reader   = res.body.getReader();
+    const decoder  = new TextDecoder();
+    let   buffer   = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        let payload;
+        try { payload = JSON.parse(line.slice(6)); } catch { continue; }
+
+        if (payload.error) {
+          showToast('❌ ' + payload.error);
+          continue;
+        }
+
+        if (payload.done) {
+          setSpeaking(null);
+          break;
+        }
+
+        if (payload.agentId && payload.text) {
+          if (typingEl) { typingEl.remove(); typingEl = null; }
+          setSpeaking(payload.agentId);
+          appendMessage(payload);
+          typingEl = addTypingIndicator();
+        }
+      }
+    }
+  } catch (err) {
+    showToast('❌ ' + (lang === 'es' ? 'Error del consejo: ' : 'Council error: ') + err.message);
+  } finally {
+    if (typingEl) typingEl.remove();
+    setSpeaking(null);
+    isConvening = false;
+    btn.disabled = false;
+    btn.textContent = lang === 'es' ? UI.es.conveneBtn : UI.en.conveneBtn;
+  }
+}
+
+function addTypingIndicator() {
+  const transcriptEl = document.getElementById('transcript');
+  const el = document.createElement('div');
+  el.className = 'typing-indicator';
+  el.id = 'typing-indicator';
+  el.innerHTML = `
+    <div class="typing-dots"><span></span><span></span><span></span></div>
+    <span>${lang === 'es' ? UI.es.typing : UI.en.typing}</span>
+  `;
+  transcriptEl.appendChild(el);
+  transcriptEl.scrollTop = transcriptEl.scrollHeight;
+  return el;
+}
+
+function appendMessage(payload) {
+  const transcriptEl = document.getElementById('transcript');
+  const agent = AGENTS.find(a => a.id === payload.agentId) || {};
+  const color = payload.color || agent.color || '#d4af37';
+  const name  = lang === 'es' ? (payload.agentEs || payload.agent) : payload.agent;
+
+  const el = document.createElement('div');
+  el.className = 'msg';
+  el.style.setProperty('--agent-color', color);
+  el.innerHTML = `
+    <div class="msg-header">
+      <span class="msg-agent">${name}</span>
+      <span class="msg-role">${payload.role || ''}</span>
+    </div>
+    <div class="msg-text">${escHtml(payload.text)}</div>
+    <button class="voice-btn" onclick="playVoice('${escAttr(payload.text)}','${payload.agentId}','${color}',this)">
+      ${lang === 'es' ? UI.es.voiceBtn : UI.en.voiceBtn}
+    </button>
+  `;
+  transcriptEl.appendChild(el);
+  transcriptEl.scrollTop = transcriptEl.scrollHeight;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// VOICE
+// ─────────────────────────────────────────────────────────────────
+async function playVoice(text, agentId, color, btn) {
+  btn.disabled = true;
+  btn.textContent = lang === 'es' ? UI.es.voiceLoading : UI.en.voiceLoading;
+  btn.classList.add('loading');
+
+  try {
+    const res = await fetch('/api/voice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, agentId, lang }),
+    });
+
+    if (!res.ok) throw new Error('Voice API failed');
+
+    const data = await res.json();
+    if (!data.audio) throw new Error('No audio returned');
+
+    const binary = atob(data.audio);
+    const bytes  = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    const blob = new Blob([bytes], { type: 'audio/mpeg' });
+    const url  = URL.createObjectURL(blob);
+
+    const audio = new Audio(url);
+
+    btn.textContent = lang === 'es' ? UI.es.voicePlaying : UI.en.voicePlaying;
+    setSpeaking(agentId);
+
+    audio.play();
+    audio.onended = () => {
+      setSpeaking(null);
+      btn.textContent = lang === 'es' ? UI.es.voiceBtn : UI.en.voiceBtn;
+      btn.disabled    = false;
+      btn.classList.remove('loading');
+      URL.revokeObjectURL(url);
+    };
+    audio.onerror = () => {
+      setSpeaking(null);
+      btn.textContent = lang === 'es' ? UI.es.voiceBtn : UI.en.voiceBtn;
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    };
+  } catch (err) {
+    showToast('🔇 ' + (lang === 'es' ? 'Voz no disponible aún — sincronización pendiente.' : 'Voice not available yet — sync pending.'));
+    btn.textContent = lang === 'es' ? UI.es.voiceBtn : UI.en.voiceBtn;
+    btn.disabled    = false;
+    btn.classList.remove('loading');
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// PAYMENT
+// ─────────────────────────────────────────────────────────────────
+function selectPlan(plan) {
+  selectedPlan = plan;
+  ['starter','pro','agency'].forEach(p => {
+    document.getElementById(`plan-${p}`).classList.toggle('selected', p === plan);
+  });
+}
+
+async function startCheckout() {
+  const btn = document.getElementById('checkout-btn');
+  btn.disabled = true;
+  btn.textContent = lang === 'es' ? '⌛ Redirigiendo…' : '⌛ Redirecting…';
+
+  try {
+    const res = await fetch('/api/payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId: selectedPlan }),
+    });
+
+    const data = await res.json();
+
+    if (data.checkoutUrl) {
+      window.open(data.checkoutUrl, '_blank');
+    } else {
+      throw new Error(data.error || 'No checkout URL');
+    }
+  } catch (err) {
+    showToast('❌ ' + (lang === 'es' ? 'Error de pago: ' : 'Payment error: ') + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = lang === 'es' ? UI.es.checkoutBtn : UI.en.checkoutBtn;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────────────────────────
+function showToast(msg, duration = 3000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+function escHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function escAttr(str) {
+  return str.replace(/'/g, '&#39;').replace(/"/g, '&quot;').slice(0, 500);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────
+renderAgentChips();
+initTheater();
+setLang('en');
+</script>
+</body>
+</html>
