@@ -53,7 +53,9 @@ export interface LLMResult {
 }
 
 // ---------------------------------------------------------------------------
-// Daily spend tracker (in-memory, resets on server restart)
+// Daily spend tracker
+// NOTE: In-memory resets on cold start (serverless). Acceptable for cost
+// visibility; hard enforcement anchored by ZTE $10/task guard below.
 // ---------------------------------------------------------------------------
 
 const dailySpend = {
@@ -78,6 +80,54 @@ function isOverBudget(): boolean {
   return dailySpend.totalUsd >= getDailyBudget();
 }
 
+// ---------------------------------------------------------------------------
+// LOOP_GUARD — ZTE circuit breaker: halt after 3 consecutive provider errors
+// ---------------------------------------------------------------------------
+
+const loopGuard: Record<string, { count: number; lastError: string; haltedAt?: string }> = {};
+
+const LOOP_GUARD_MAX = 3;
+
+function recordProviderError(key: string, errMsg: string): void {
+  if (!loopGuard[key]) loopGuard[key] = { count: 0, lastError: '' };
+  loopGuard[key].count += 1;
+  loopGuard[key].lastError = errMsg;
+  if (loopGuard[key].count >= LOOP_GUARD_MAX) {
+    loopGuard[key].haltedAt = new Date().toISOString();
+    console.error(
+      `[litellm-gateway] LOOP_GUARD TRIGGERED for "${key}": ` +
+      `${LOOP_GUARD_MAX} consecutive failures. Last error: ${errMsg}. ` +
+      `Call resetLoopGuard("${key}") to clear.`
+    );
+  }
+}
+
+function clearProviderError(key: string): void {
+  delete loopGuard[key];
+}
+
+function isLoopGuardHalted(key: string): boolean {
+  return (loopGuard[key]?.count ?? 0) >= LOOP_GUARD_MAX;
+}
+
+export function resetLoopGuard(key?: string): void {
+  if (key) {
+    delete loopGuard[key];
+  } else {
+    Object.keys(loopGuard).forEach(k => delete loopGuard[k]);
+  }
+}
+
+export function getLoopGuardStatus(): Record<string, { count: number; lastError: string; haltedAt?: string }> {
+  return { ...loopGuard };
+}
+
+// ---------------------------------------------------------------------------
+// PER-TASK COST_GUARD — $10 max per single callLLM invocation
+// ---------------------------------------------------------------------------
+
+const PER_TASK_MAX_USD = parseFloat(process.env.ZTE_PER_TASK_BUDGET_USD || '10');
+
 // Rough cost estimate: Claude Opus ~$15/Mtok in, $75/Mtok out
 function estimateCost(inputTokens: number, outputTokens: number, model: string): number {
   if (model.includes('opus')) return (inputTokens * 15 + outputTokens * 75) / 1_000_000;
@@ -101,25 +151,52 @@ export async function callLLM(
     taskId,
   } = options;
 
-  // Budget circuit breaker
+  // COST_GUARD — daily budget circuit breaker
   if (isOverBudget()) {
     console.error(`[litellm-gateway] COST_GUARD: Daily budget $${getDailyBudget()} reached. Using stub.`);
     return stub(messages, 'COST_GUARD_TRIGGERED');
   }
+
+  // LOOP_GUARD — halt if all providers have consecutive errors
+  const guardKey = 'global';
+  if (isLoopGuardHalted(guardKey)) {
+    const status = loopGuard[guardKey];
+    console.error(
+      `[litellm-gateway] LOOP_GUARD active since ${status.haltedAt}. ` +
+      `Call resetLoopGuard() to recover. Last error: ${status.lastError}`
+    );
+    return stub(messages, `LOOP_GUARD_TRIGGERED: ${status.lastError}`);
+  }
+
+  // PER-TASK cost guard — track cost within this single call
+  let taskCostAccumulator = 0;
 
   // Route 1: OpenRouter (primary — OPEN_ROUTER_API)
   const openRouterKey = process.env.OPEN_ROUTER_API;
   if (openRouterKey) {
     const orModel = toOpenRouterModel(model);
     const result = await tryOpenRouter(messages, { model: orModel, maxTokens, temperature, sphereId }, openRouterKey);
-    if (result) return result;
+    if (result) {
+      taskCostAccumulator += result.costEstimateUsd ?? 0;
+      if (taskCostAccumulator > PER_TASK_MAX_USD) {
+        console.error(`[litellm-gateway] PER_TASK COST_GUARD: $${taskCostAccumulator.toFixed(4)} > $${PER_TASK_MAX_USD} limit`);
+        return stub(messages, `PER_TASK_COST_GUARD: $${taskCostAccumulator.toFixed(4)}`);
+      }
+      clearProviderError('openrouter');
+      return result;
+    }
+    recordProviderError('openrouter', 'OpenRouter unreachable');
   }
 
   // Route 2: LiteLLM proxy (legacy compatibility)
   if (process.env.LITELLM_BASE_URL && process.env.LITELLM_MASTER_KEY &&
       process.env.LITELLM_MASTER_KEY !== 'your-litellm-master-key') {
     const result = await tryLiteLLM(messages, { model, maxTokens, temperature, sphereId });
-    if (result) return result;
+    if (result) {
+      clearProviderError('litellm');
+      return result;
+    }
+    recordProviderError('litellm', 'LiteLLM proxy unreachable');
   }
 
   // Route 3: Direct Anthropic SDK (fallback)
@@ -127,9 +204,15 @@ export async function callLLM(
   if (anthropicKey) {
     const fallbackModel = model.includes('opus') ? 'claude-3-haiku-20240307' : model;
     const result = await tryAnthropic(messages, { model: fallbackModel, maxTokens, temperature, sphereId });
-    if (result) return result;
+    if (result) {
+      clearProviderError('anthropic');
+      return result;
+    }
+    recordProviderError('anthropic', 'Anthropic SDK failed');
   }
 
+  // All providers tried — record global failure
+  recordProviderError(guardKey, 'all providers failed');
   return stub(messages, 'no-providers-configured');
 }
 
@@ -333,5 +416,7 @@ export function getBudgetStatus() {
     date: dailySpend.date,
     percentUsed: Math.round((dailySpend.totalUsd / getDailyBudget()) * 100),
     isOverBudget: isOverBudget(),
+    perTaskMaxUsd: PER_TASK_MAX_USD,
+    loopGuard: getLoopGuardStatus(),
   };
 }
