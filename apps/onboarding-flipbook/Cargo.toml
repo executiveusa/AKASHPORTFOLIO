@@ -3,11 +3,36 @@ name = "onboarding-flipbook"
 version = "0.1.0"
 edition = "2021"
 
-[dependencies]
-bevy = { version = "0.13" }
+# Tells wasm-bindgen-cli where to find the generated bindings output
+[lib]
+crate-type = ["cdylib"]
 
+[[bin]]
+name = "onboarding_flipbook"
+path = "src/main.rs"
+
+[dependencies]
+# webgl2 feature is required for Bevy WASM builds (WebGPU not yet stable in browsers)
+bevy = { version = "0.13", features = ["webgl2"] }
+
+# WASM-only: JS interop for custom DOM events (video-trigger, open-fraction bridge)
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2"
+web-sys = { version = "0.3", features = [
+    "Window",
+    "Document",
+    "Event",
+    "CustomEvent",
+    "CustomEventInit",
+] }
+
+# Release: optimize hard for WASM binary size
 [profile.release]
 opt-level = 'z'
 lto = true
 codegen-units = 1
 panic = 'abort'
+
+# Dev: faster iteration on desktop
+[profile.dev]
+opt-level = 1
