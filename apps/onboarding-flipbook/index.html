@@ -4,6 +4,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Kupuri Media — Bienvenida a Sphere OS™</title>
+    <!-- Preconnect to control-room API so beacons fire instantly -->
+    <link rel="preconnect" href="https://kupuri.vercel.app" crossorigin />
+    <link rel="dns-prefetch" href="https://kupuri.vercel.app" />
     <style>
         /* ----------------------------------------------------------------
            UNCODIXFY compliance:
@@ -524,6 +527,48 @@ let velocity    = 0;
 let rafId       = null;
 
 /* =========================================================================
+   VIRAL ANALYTICS — non-blocking, never breaks user experience
+========================================================================= */
+const SESSION_ID = (() => {
+    try { return crypto.randomUUID(); } catch { return Math.random().toString(36).slice(2); }
+})();
+
+/** Resolve the beacon endpoint: same-origin if embedded in control-room,
+ *  otherwise absolute URL for standalone flipbook deployment. */
+const BEACON_URL = (() => {
+    const base = window.__kupuri_api_base ?? '';
+    return base ? `${base}/api/onboarding/event` : '/api/onboarding/event';
+})();
+
+let __sw = null; // ServiceWorkerRegistration cache
+
+function beacon(event, extra = {}) {
+    const payload = {
+        event,
+        sessionId: SESSION_ID,
+        lang,
+        stage,
+        ts: Date.now(),
+        ...extra,
+    };
+    const json = JSON.stringify(payload);
+    // Primary: sendBeacon (fire-and-forget, survives page unload)
+    if (navigator.sendBeacon) {
+        const sent = navigator.sendBeacon(BEACON_URL, json);
+        if (sent) return;
+    }
+    // Fallback: fetch (edge runtime, keepalive)
+    fetch(BEACON_URL, {
+        method: 'POST', keepalive: true,
+        headers: { 'Content-Type': 'application/json' },
+        body: json,
+    }).catch(() => {
+        // Offline: queue in SW for background sync
+        if (__sw) __sw.active?.postMessage({ type: 'QUEUE_EVENT', payload });
+    });
+}
+
+/* =========================================================================
    DOM
 ========================================================================= */
 const cover      = document.getElementById('cover');
@@ -549,10 +594,24 @@ function init() {
     renderFeatures();
     applyLang();
     showStage(0);
+    // Register Service Worker for offline resilience + event queue
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
+            .then(reg => {
+                __sw = reg;
+                // Flush any events queued while offline
+                reg.active?.postMessage({ type: 'FLUSH_EVENTS' });
+                navigator.onLine
+                    ? reg.active?.postMessage({ type: 'FLUSH_EVENTS' })
+                    : window.addEventListener('online', () => reg.active?.postMessage({ type: 'FLUSH_EVENTS' }), { once: true });
+            })
+            .catch(() => {}); // SW optional — never block
+    }
     setTimeout(() => {
         loadEl.classList.add('hidden');
         stageLabel.classList.add('visible');
         tryLoadWasm();
+        beacon('view');  // First touch — kick off funnel tracking
     }, 700);
 }
 
@@ -606,7 +665,11 @@ function applyLang() {
 }
 
 document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.addEventListener('click', () => { lang = btn.dataset.lang; applyLang(); });
+    btn.addEventListener('click', () => {
+        lang = btn.dataset.lang;
+        applyLang();
+        beacon('lang_toggle', { lang });
+    });
 });
 
 /* =========================================================================
@@ -632,6 +695,7 @@ function renderFeatures() {
    STAGE + FRACTION
 ========================================================================= */
 function showStage(s) {
+    const prev = stage;
     stage = Math.max(0, Math.min(3, s));
     dots.forEach((dot, i) => {
         dot.classList.toggle('done',   i < stage);
@@ -641,6 +705,7 @@ function showStage(s) {
     book.classList.toggle('open', fraction > 0.15);
     dragCue.style.opacity = fraction < 0.05 ? '0.7' : '0';
     renderStageText();
+    if (stage !== prev) beacon('stage_change', { stage });
 }
 
 function renderStageText() {
@@ -749,6 +814,7 @@ document.addEventListener('keydown', (e) => {
 ========================================================================= */
 btnCont.addEventListener('click', () => {
     localStorage.setItem('kupuri_onboarding_seen', 'true');
+    beacon('complete');
     window.dispatchEvent(new CustomEvent('onboarding:complete', {
         bubbles: true, detail: { ts: Date.now() },
     }));
