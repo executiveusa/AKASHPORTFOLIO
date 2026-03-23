@@ -9,12 +9,39 @@ import { useState } from 'react';
 import { SphereField } from '@/components/SphereField';
 import { SPHERE_FREQUENCY_MAP, ALL_SPHERE_IDS } from '@/shared/sphere-state';
 
+const copy = {
+  es: {
+    title: 'Sphere OS™ — Consejo Cósmico',
+    subtitle: 'Kupuri Media · CDMX',
+    field: 'Campo',
+    roster: 'Elenco',
+    newMeeting: 'Nueva Reunión',
+    topicPlaceholder: 'Tema de la reunión...',
+    launching: 'Iniciando…',
+    launch: 'Convocar Consejo',
+    meetingError: 'Error al iniciar reunión',
+  },
+  en: {
+    title: 'Sphere OS™ — Cosmic Council',
+    subtitle: 'Kupuri Media · CDMX',
+    field: 'Field',
+    roster: 'Roster',
+    newMeeting: 'New Meeting',
+    topicPlaceholder: 'Meeting topic...',
+    launching: 'Launching…',
+    launch: 'Summon Council',
+    meetingError: 'Error starting meeting',
+  },
+};
+
 export default function SpheresPage() {
   const [meetingId, setMeetingId] = useState<string | null>(null);
   const [topic, setTopic] = useState('');
   const [isLaunching, setIsLaunching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'field' | 'roster'>('field');
+  const [lang, setLang] = useState<'es' | 'en'>('es');
+  const t = copy[lang];
 
   const launchMeeting = async () => {
     if (!topic.trim()) return;
@@ -30,7 +57,7 @@ export default function SpheresPage() {
       const data = (await res.json()) as { meetingId?: string };
       if (data.meetingId) setMeetingId(data.meetingId);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al iniciar reunión');
+      setError(err instanceof Error ? err.message : t.meetingError);
     } finally {
       setIsLaunching(false);
     }
@@ -42,12 +69,18 @@ export default function SpheresPage() {
       <header className="flex items-center justify-between px-6 py-3 border-b border-violet-900/40 bg-black/40 backdrop-blur-sm z-10">
         <div>
           <h1 className="text-sm font-bold tracking-widest uppercase text-violet-300">
-            Sphere OS™ — Consejo Cósmico
+            {t.title}
           </h1>
-          <p className="text-[10px] text-zinc-500 tracking-widest">Kupuri Media · CDMX</p>
+          <p className="text-[10px] text-zinc-500 tracking-widest">{t.subtitle}</p>
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setLang(lang === 'es' ? 'en' : 'es')}
+            className="px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest border border-violet-700/50 text-violet-300 hover:bg-violet-900/30 transition-colors"
+          >
+            {lang === 'es' ? 'EN' : 'ES'}
+          </button>
           <button
             onClick={() => setActiveTab('field')}
             className={`px-3 py-1 rounded-md text-xs uppercase tracking-widest transition-colors ${
@@ -56,7 +89,7 @@ export default function SpheresPage() {
                 : 'text-zinc-400 hover:text-white'
             }`}
           >
-            Campo
+            {t.field}
           </button>
           <button
             onClick={() => setActiveTab('roster')}
@@ -66,7 +99,7 @@ export default function SpheresPage() {
                 : 'text-zinc-400 hover:text-white'
             }`}
           >
-            Elenco
+            {t.roster}
           </button>
         </div>
       </header>
@@ -89,11 +122,11 @@ export default function SpheresPage() {
         <aside className="hidden md:flex flex-col w-72 border-l border-violet-900/30 bg-black/50 backdrop-blur-sm p-4 gap-4 overflow-y-auto">
           {/* Meeting launcher */}
           <section>
-            <h2 className="text-[10px] uppercase tracking-widest text-violet-400 mb-2">Nueva Reunión</h2>
+            <h2 className="text-[10px] uppercase tracking-widest text-violet-400 mb-2">{t.newMeeting}</h2>
             <textarea
               className="w-full bg-zinc-900/80 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-500 resize-none focus:outline-none focus:border-violet-500 transition-colors"
               rows={3}
-              placeholder="Tema de la reunión..."
+              placeholder={t.topicPlaceholder}
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter' && e.metaKey) launchMeeting(); }}
@@ -104,7 +137,7 @@ export default function SpheresPage() {
               disabled={isLaunching || !topic.trim()}
               className="mt-2 w-full py-2 rounded-lg text-xs font-bold uppercase tracking-widest bg-violet-600 hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
-              {isLaunching ? 'Iniciando…' : 'Convocar Consejo'}
+              {isLaunching ? t.launching : t.launch}
             </button>
             {meetingId && (
               <p className="text-[9px] text-violet-400 mt-1 font-mono break-all">
@@ -115,7 +148,7 @@ export default function SpheresPage() {
 
           {/* Sphere roster */}
           <section>
-            <h2 className="text-[10px] uppercase tracking-widest text-violet-400 mb-2">Elenco</h2>
+            <h2 className="text-[10px] uppercase tracking-widest text-violet-400 mb-2">{t.roster}</h2>
             <RosterGrid />
           </section>
         </aside>

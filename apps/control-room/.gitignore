@@ -38,4 +38,12 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# Build-time copied assets (assembled by scripts/build-all.mjs)
+/public/index.html
+/public/contact.html
+/public/assets/
+/public/fonts/
+/public/images/
+/public/onboarding/
 next-env.d.ts

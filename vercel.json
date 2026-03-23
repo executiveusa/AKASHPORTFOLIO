@@ -1,11 +1,8 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "node scripts/build-all.mjs",
   "installCommand": "npm install --legacy-peer-deps",
   "outputDirectory": "apps/control-room/.next",
   "framework": "nextjs",
-  "env": {
-    "NEXT_PUBLIC_SYNTHIA_BACKEND_URL": "@synthia_backend_url"
-  },
   "regions": ["sfo1"],
   "functions": {
     "apps/control-room/src/app/api/**/*.ts": {
@@ -15,10 +12,15 @@
   },
   "git": {
     "deploymentEnabled": {
-      "main": true,
-      "claude/deploy-vercel-backend-update-H6MlJ": true
+      "main": true
     }
   },
+  "rewrites": [
+    { "source": "/contact", "destination": "/contact.html" },
+    { "source": "/work", "destination": "/index.html" },
+    { "source": "/about", "destination": "/index.html" },
+    { "source": "/home", "destination": "/index.html" }
+  ],
   "headers": [
     {
       "source": "/api/onboarding/event",

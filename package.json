@@ -6,6 +6,7 @@
         "apps/*"
     ],
     "scripts": {
+        "build": "node scripts/build-all.mjs",
         "dev:web": "npm run dev --workspace=@kupuri-media/portfolio",
         "build:web": "npm run build --workspace=@kupuri-media/portfolio",
         "deploy:check": "npx tsx tools/vercel-agent/check-deployment.ts",
