@@ -291,11 +291,12 @@ export default function WatcherPage() {
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
+      console.warn('[TODO] migrate: /api/watcher, /api/telemetry');
       const [watcherRes, budgetRes, eventsRes, reportsRes] = await Promise.allSettled([
-        fetch("/api/watcher").then(r => r.json()),
-        fetch("/api/telemetry?view=budget").then(r => r.json()),
-        fetch("/api/telemetry?limit=50").then(r => r.json()),
-        fetch("/api/telemetry?view=reports&limit=20").then(r => r.json()),
+        Promise.reject(new Error('watcher migrating')),
+        Promise.reject(new Error('telemetry migrating')),
+        Promise.reject(new Error('telemetry migrating')),
+        Promise.reject(new Error('telemetry migrating')),
       ]);
 
       if (watcherRes.status === "fulfilled") setStatus(watcherRes.value as WatcherStatus);

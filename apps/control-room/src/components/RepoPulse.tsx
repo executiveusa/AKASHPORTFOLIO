@@ -10,9 +10,8 @@ export default function RepoPulse() {
     useEffect(() => {
         async function fetchRepos() {
             try {
-                const res = await fetch('/api/repos');
-                const data = await res.json();
-                setRepos(data);
+                console.warn('[TODO] migrate: /api/repos');
+                setRepos([]);
             } catch (err) {
                 console.error("Failed to fetch repo pulse:", err);
             } finally {

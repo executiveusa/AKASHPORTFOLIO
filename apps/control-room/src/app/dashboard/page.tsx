@@ -23,9 +23,8 @@ export default function Home() {
   useEffect(() => {
     async function fetchAgents() {
       try {
-        const res = await fetch('/api/swarm');
-        const data = await res.json();
-        setAgents(data);
+        console.warn('[TODO] migrate: /api/swarm');
+        setAgents([]);
       } catch (err) {
         console.error(err);
       }

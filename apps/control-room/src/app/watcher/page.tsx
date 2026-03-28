@@ -80,16 +80,8 @@ export default function WatcherPage() {
 
   const fetchAll = useCallback(async () => {
     try {
-      const [sRes, mRes, dRes] = await Promise.all([
-        fetch('/api/watcher?view=status'),
-        fetch('/api/watcher?view=metrics'),
-        fetch('/api/watcher?view=directives'),
-      ]);
-      if (!sRes.ok || !mRes.ok || !dRes.ok) throw new Error('Fetch failed');
-      const [s, m, d] = await Promise.all([sRes.json(), mRes.json(), dRes.json()]);
-      setStatus(s as WatcherStatus);
-      setMetrics(m as WatcherMetrics);
-      setDirectives((d as { directives?: Directive[] }).directives ?? []);
+      console.warn('[TODO] migrate: /api/watcher');
+      throw new Error('Watcher migrating to SYNTHIA™ backend');
       setLastRefresh(new Date());
       setError(null);
     } catch (e) {
@@ -289,11 +281,7 @@ function SendAlertForm({ onAlert }: { onAlert: (a: AlertEntry) => void }) {
     if (!msg.trim()) return;
     setSending(true);
     try {
-      await fetch('/api/watcher', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agentId: 'manual', message: msg.trim(), severity: 'info' }),
-      });
+      console.warn('[TODO] migrate: /api/watcher');
       onAlert({ agentId: 'manual', message: msg.trim(), severity: 'info', receivedAt: new Date().toISOString() });
       setMsg('');
     } finally {

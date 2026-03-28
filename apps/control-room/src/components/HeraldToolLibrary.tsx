@@ -169,14 +169,8 @@ function RunModal({
     setRunning(true);
     setResult(null);
     try {
-      const args = JSON.parse(argsJson) as Record<string, unknown>;
-      const res = await fetch("/api/herald/execute", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tool_id: tool.tool_id, args, agent_id: agentId }),
-      });
-      const data = await res.json() as RunResult;
-      setResult(data);
+      console.warn('[TODO] migrate: /api/herald/execute');
+      setResult({ success: false, error: 'Herald execute migrating to SYNTHIA™ backend', latency_ms: 0 });
     } catch (err) {
       setResult({ success: false, error: (err as Error).message, latency_ms: 0 });
     } finally {
@@ -285,9 +279,8 @@ export default function HeraldToolLibrary() {
 
   const loadTools = useCallback(async () => {
     try {
-      const res = await fetch("/api/herald");
-      const data = await res.json() as { tools: ToolRecord[]; count: number };
-      setTools(data.tools ?? []);
+      console.warn('[TODO] migrate: /api/herald');
+      setTools([]);
     } catch {
       /* fail silently */
     } finally {
@@ -304,11 +297,7 @@ export default function HeraldToolLibrary() {
   const handleBootstrap = async () => {
     setBootstrapping(true);
     try {
-      await fetch("/api/herald", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "bootstrap" }),
-      });
+      console.warn('[TODO] migrate: /api/herald bootstrap');
       await loadTools();
     } finally {
       setBootstrapping(false);

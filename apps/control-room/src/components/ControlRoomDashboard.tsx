@@ -17,14 +17,8 @@ export default function ControlRoomDashboard() {
     const [error, setError] = useState<string | null>(null);
 
     const fetchDashboard = useCallback(async () => {
-        const response = await fetch("/api/dashboard", { cache: "no-store" });
-        if (!response.ok) {
-            throw new Error(`Dashboard request failed with status ${response.status}`);
-        }
-
-        const payload = (await response.json()) as DashboardSnapshot;
-        setSnapshot(payload);
-        setError(null);
+        console.warn('[TODO] migrate: /api/dashboard');
+        throw new Error('Dashboard migrating to SYNTHIA™ backend');
     }, []);
 
     useEffect(() => {

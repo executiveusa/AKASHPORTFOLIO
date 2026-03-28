@@ -90,13 +90,11 @@ export default function MeetingRoom() {
 
   // Fetch past meetings
   useEffect(() => {
-    fetch('/api/meeting?limit=20')
-      .then(r => r.json())
-      .then(data => setMeetings(Array.isArray(data) ? data : []))
-      .catch(() => {});
+    console.warn('[TODO] migrate: /api/meeting');
+    setMeetings([]);
   }, []);
 
-  // SSE for live meetings
+  // SSE for live meetings — TODO: migrate to SYNTHIA™ backend
   useEffect(() => {
     const es = new EventSource('/api/meeting/live');
 
@@ -132,11 +130,7 @@ export default function MeetingRoom() {
   const startMeeting = async (type: string) => {
     setIsStarting(true);
     try {
-      await fetch('/api/meeting', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type }),
-      });
+      console.warn('[TODO] migrate: /api/meeting', type);
     } finally {
       setIsStarting(false);
     }

@@ -716,6 +716,29 @@ export default function SynthiaLandingPage() {
           <div style={{ fontSize: 11, color: 'var(--color-cream-600)' }}>
             © 2026 KUPURI MEDIA™ · Synthia™ 3.0 · Sistema Operativo para Empresarias de Latinoamérica
           </div>
+          <a
+            href="https://getsynthia.vercel.app/demo"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              fontSize: 11,
+              color: '#8a7a66',
+              textDecoration: 'none',
+              border: '1px solid #2e2210',
+              padding: '4px 10px',
+              borderRadius: 4,
+              transition: 'all 0.2s',
+            }}
+          >
+            <span style={{
+              width: 8, height: 8, borderRadius: '50%',
+              background: '#8b5cf6', display: 'inline-block'
+            }} />
+            Powered by SYNTHIA™
+          </a>
         </div>
       </footer>
     </div>

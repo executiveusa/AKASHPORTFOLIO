@@ -1,18 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Playfair_Display, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
-const playfairDisplay = Playfair_Display({
-  variable: "--font-playfair-display",
-  subsets: ["latin"],
-  weight: ["400", "600", "700", "900"],
-});
-
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-});
+// Fonts loaded via globals.css @import — avoids build-time Google Fonts fetch
+const playfairDisplay = { variable: "--font-playfair-display", className: "font-playfair" };
+const spaceGrotesk = { variable: "--font-space-grotesk", className: "font-space-grotesk" };
 
 export const metadata: Metadata = {
   title: "Synthia™ 3.0 — Sistema Operativo Agéntico",

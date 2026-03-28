@@ -26,11 +26,7 @@ export function DailyBriefCard({ userId, language = 'es' }: DailyBriefCardProps)
   useEffect(() => {
     const fetchBrief = async () => {
       try {
-        const res = await fetch(`/api/daily-brief?userId=${userId || 'default'}`);
-        if (res.ok) {
-          const data = await res.json();
-          setBrief(data.brief);
-        }
+        console.warn('[TODO] migrate: /api/daily-brief');
       } catch (error) {
         console.error('Error fetching daily brief:', error);
       } finally {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
+import { synthiaApi } from '@/lib/api-client';
 
 export default function SynthiaTerminal() {
     const [input, setInput] = useState('');
@@ -23,18 +24,12 @@ export default function SynthiaTerminal() {
         setLoading(true);
 
         try {
-            const res = await fetch('/api/synthia', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: userMsg })
+            const data = await synthiaApi.spheres.chat({
+                sphereId: 'synthia',
+                message: userMsg,
+                history: [],
             });
-            const data = await res.json();
-
-            if (data.success) {
-                setHistory(prev => [...prev, { type: 'agent', text: data.response }]);
-            } else {
-                setHistory(prev => [...prev, { type: 'agent', text: `ERROR: ${data.error}` }]);
-            }
+            setHistory(prev => [...prev, { type: 'agent', text: data.response }]);
         } catch (err) {
             setHistory(prev => [...prev, { type: 'agent', text: 'FATAL: Fallo en la conexión con el núcleo Synthia.' }]);
         } finally {

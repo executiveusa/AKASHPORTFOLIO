@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from 'react';
+import { synthiaApi } from '@/lib/api-client';
 
 export default function OrgoConsole() {
     const [logs, setLogs] = useState<{ msg: string, type: 'in' | 'out' }[]>([]);
@@ -16,12 +17,11 @@ export default function OrgoConsole() {
         setLogs(prev => [...prev, { msg: `> ${currentCmd}`, type: 'in' }]);
 
         try {
-            const res = await fetch('/api/synthia', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: `Execute on Orgo: ${currentCmd}` })
+            const data = await synthiaApi.spheres.chat({
+                sphereId: 'synthia',
+                message: `Execute on Orgo: ${currentCmd}`,
+                history: [],
             });
-            const data = await res.json();
             setLogs(prev => [...prev, { msg: data.response, type: 'out' }]);
         } catch (err) {
             setLogs(prev => [...prev, { msg: "[ERROR] Conexión fallida con el Núcleo.", type: 'out' }]);

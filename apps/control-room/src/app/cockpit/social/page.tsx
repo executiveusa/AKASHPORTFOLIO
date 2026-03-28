@@ -41,17 +41,7 @@ function ComposePanel({ onClose }: { onClose: () => void }) {
     setSubmitState("loading");
     // POST to /api/social — creates campaign
     try {
-      await fetch("/api/social", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: `${platform} — ${market} — ${new Date().toLocaleDateString("es-MX")}`,
-          objective: "Awareness",
-          keyMessage: content.slice(0, 200),
-          targetAudience: market,
-          platforms: [platform],
-        }),
-      });
+      console.warn('[TODO] migrate: /api/social');
     } catch { /* non-critical */ }
     setSubmitState("done");
     setTimeout(onClose, 1200);

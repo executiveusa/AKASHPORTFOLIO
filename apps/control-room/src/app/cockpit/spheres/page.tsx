@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { synthiaApi } from "@/lib/api-client";
 
 const SPHERES = [
   { id: "synthia", name: "SYNTHIA™", role: "Coordinadora General", color: "#8b5cf6", locale: "es-MX CDMX" },
@@ -124,59 +125,9 @@ export default function CockpitSpheres() {
     setSpeakingSphere(null);
 
     try {
-      // Step 1: POST → receive meetingId (fire-and-forget on server side)
-      const postRes = await fetch("/api/council/orchestrator", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic, agentIds: activeSpheres }),
-      });
-
-      if (!postRes.ok) {
-        simulateMeeting();
-        return;
-      }
-
-      const { meetingId } = await postRes.json() as { meetingId: string };
-
-      // Step 2: Open SSE stream via GET with meetingId param
-      const sseRes = await fetch(`/api/council/orchestrator?meetingId=${encodeURIComponent(meetingId)}`);
-      if (!sseRes.ok || !sseRes.body) {
-        simulateMeeting();
-        return;
-      }
-
-      const reader = sseRes.body.getReader();
-      const decoder = new TextDecoder();
-      let keepReading = true;
-
-      while (keepReading) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split("\n").filter((l) => l.startsWith("data: "));
-        for (const line of lines) {
-          try {
-            const data = JSON.parse(line.slice(6)) as Record<string, unknown>;
-            if (data.type === "sphere.signal" && data.agentId) {
-              const agId = data.agentId as string;
-              setSpeakingSphere(agId);
-              const meta = SPHERES.find(s => s.id === agId);
-              setMessages((prev) => [...prev, {
-                agentId: agId,
-                agentName: meta?.name ?? agId,
-                content: (data.text as string) || "",
-                timestamp: new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" }),
-                type: "statement",
-              }]);
-            }
-            if (data.type === "meeting.end") {
-              setSpeakingSphere(null);
-              setMeetingActive(false);
-              keepReading = false;
-            }
-          } catch { /* skip malformed SSE line */ }
-        }
-      }
+      // TODO: migrate /api/council/orchestrator to SYNTHIA™ backend
+      console.warn('[TODO] migrate: /api/council/orchestrator')
+      simulateMeeting();
     } catch {
       simulateMeeting();
     }
@@ -226,34 +177,20 @@ export default function CockpitSpheres() {
     setChatHistory(prev => [...prev, userMsg]);
 
     try {
-      const res = await fetch("/api/spheres/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sphereId: selectedSphere,
-          message: msg,
-          history: chatHistory.slice(-6).map(m => ({
-            role: m.role === "user" ? "user" : "assistant",
-            content: m.text,
-          })),
-        }),
+      const data = await synthiaApi.spheres.chat({
+        sphereId: selectedSphere,
+        message: msg,
+        history: chatHistory.slice(-6).map(m => ({
+          role: m.role === "user" ? "user" : "assistant",
+          content: m.text,
+        })),
       });
-      if (res.ok) {
-        const data = await res.json() as { response: string };
-        setChatHistory(prev => [...prev, {
-          role: "sphere",
-          sphereId: selectedSphere,
-          text: data.response,
-          timestamp: new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" }),
-        }]);
-      } else {
-        setChatHistory(prev => [...prev, {
-          role: "sphere",
-          sphereId: selectedSphere,
-          text: "Error conectando con la esfera. Verifica ANTHROPIC_API_KEY en Vercel.",
-          timestamp: new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" }),
-        }]);
-      }
+      setChatHistory(prev => [...prev, {
+        role: "sphere",
+        sphereId: selectedSphere,
+        text: data.response,
+        timestamp: new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" }),
+      }]);
     } catch {
       setChatHistory(prev => [...prev, {
         role: "sphere",

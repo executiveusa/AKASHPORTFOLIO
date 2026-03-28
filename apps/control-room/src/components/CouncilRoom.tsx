@@ -53,26 +53,15 @@ export default function CouncilRoom() {
   const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
-    fetch('/api/council?limit=10')
-      .then(r => r.json())
-      .then(data => {
-        if (Array.isArray(data)) setSessions(data);
-      })
-      .catch(() => {});
+    console.warn('[TODO] migrate: /api/council');
+    setSessions([]);
   }, []);
 
   const conveneCouncil = async () => {
     if (!form.question || !form.context) return;
     setLoading(true);
     try {
-      const res = await fetch('/api/council', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, requester: 'synthia-prime' }),
-      });
-      const session = await res.json();
-      setSessions(prev => [session, ...prev]);
-      setSelectedSession(session);
+      console.warn('[TODO] migrate: /api/council — use synthiaApi.spheres.council()');
       setShowForm(false);
       setForm({ question: '', context: '', urgency: 'today' });
     } finally {
