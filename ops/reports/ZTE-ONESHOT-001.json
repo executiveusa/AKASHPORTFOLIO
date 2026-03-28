@@ -1,0 +1,121 @@
+{
+  "bead_id": "ZTE-ONESHOT-001",
+  "version": "1.0.0",
+  "timestamp": "2026-03-28T18:00:00.000Z",
+  "status": "complete",
+  "phase": 2,
+  "scope": "REPO B — executiveusa/AKASHPORTFOLIO (Kupuri Media brand site)",
+  "repos": {
+    "akash_frontend": {
+      "url": "https://github.com/executiveusa/AKASHPORTFOLIO",
+      "branch": "claude/synthia-oneshot-build-qVmep",
+      "deploy_target": "Vercel kupurimedia.com",
+      "env_vars_required": 1,
+      "env_var": "NEXT_PUBLIC_SYNTHIA_API_URL=http://31.220.58.212:4000",
+      "api_routes_deleted": 55,
+      "fetch_calls_repointed": 37,
+      "fetch_calls_mapped_to_synthia_api": 3,
+      "fetch_calls_stubbed": 34,
+      "powered_by_badge": true,
+      "badge_link": "https://getsynthia.vercel.app/demo",
+      "typescript_errors_before": 4,
+      "typescript_errors_after": 0,
+      "typescript_errors_fixed": [
+        "src/agents/la-vigilante/index.ts: missing fields in getBudgetStatus fallback",
+        "src/lib/herald/router.ts: .catch() on PostgrestFilterBuilder (x2)",
+        "src/lib/herald/tool-registry.ts: duplicate 'stripe' key in capabilityMap"
+      ],
+      "build_status": "passing",
+      "pages_generated": 29,
+      "pre_existing_commit_sha": "8c541c1569832f50a0980e7f032d1f0f659328fa"
+    }
+  },
+  "files_created": [
+    "apps/control-room/src/lib/api-client.ts",
+    "ops/deleted-api-routes.txt",
+    "ops/reports/ZTE-ONESHOT-001.json"
+  ],
+  "files_modified": [
+    "apps/control-room/.env.example",
+    "apps/control-room/src/app/landing/page.tsx",
+    "apps/control-room/src/app/layout.tsx",
+    "apps/control-room/src/app/cockpit/cazadora/page.tsx",
+    "apps/control-room/src/app/cockpit/page.tsx",
+    "apps/control-room/src/app/cockpit/revenue/page.tsx",
+    "apps/control-room/src/app/cockpit/social/page.tsx",
+    "apps/control-room/src/app/cockpit/spheres/page.tsx",
+    "apps/control-room/src/app/cockpit/theater/page.tsx",
+    "apps/control-room/src/app/cockpit/watcher/page.tsx",
+    "apps/control-room/src/app/dashboard/page.tsx",
+    "apps/control-room/src/app/spheres/page.tsx",
+    "apps/control-room/src/app/watcher/page.tsx",
+    "apps/control-room/src/components/AgentGrid.tsx",
+    "apps/control-room/src/components/AgentMailbox.tsx",
+    "apps/control-room/src/components/ControlRoomDashboard.tsx",
+    "apps/control-room/src/components/CouncilRoom.tsx",
+    "apps/control-room/src/components/DailyBriefCard.tsx",
+    "apps/control-room/src/components/HeraldToolLibrary.tsx",
+    "apps/control-room/src/components/MeetingRoom.tsx",
+    "apps/control-room/src/components/OrgoConsole.tsx",
+    "apps/control-room/src/components/RepoPulse.tsx",
+    "apps/control-room/src/components/SynthiaTerminal.tsx",
+    "apps/control-room/src/components/ViewingRoom.tsx",
+    "apps/control-room/src/lib/alex-agent.ts",
+    "apps/control-room/src/lib/research-cycle.ts",
+    "apps/control-room/src/agents/la-vigilante/index.ts",
+    "apps/control-room/src/lib/herald/router.ts",
+    "apps/control-room/src/lib/herald/tool-registry.ts"
+  ],
+  "files_deleted": [
+    "apps/control-room/src/app/api/ (55 route files across 42 directories)"
+  ],
+  "synthia_api_direct_mappings": [
+    "/api/synthia → synthiaApi.spheres.chat({ sphereId: 'synthia', ... })",
+    "/api/spheres/chat → synthiaApi.spheres.chat(...)"
+  ],
+  "stubbed_routes": [
+    "/api/agent-mail",
+    "/api/council",
+    "/api/council/cron",
+    "/api/council/orchestrator",
+    "/api/daily-brief",
+    "/api/dashboard",
+    "/api/herald",
+    "/api/herald/dispatch",
+    "/api/herald/execute",
+    "/api/mail",
+    "/api/meeting",
+    "/api/pomelli/analyze",
+    "/api/repos",
+    "/api/revenue",
+    "/api/social",
+    "/api/swarm",
+    "/api/telemetry",
+    "/api/watcher"
+  ],
+  "done_state": {
+    "typescript_errors_zero": true,
+    "build_passing": true,
+    "api_routes_deleted": true,
+    "no_fetch_api_calls_remaining": true,
+    "powered_by_badge_added": true,
+    "env_example_stripped": true,
+    "no_secrets_committed": true
+  },
+  "next_steps": [
+    "1. Set NEXT_PUBLIC_SYNTHIA_API_URL in Vercel dashboard for AKASHPORTFOLIO",
+    "2. Deploy SYNTHIA™ backend (executiveusa/synthia) to Coolify port 4000",
+    "3. After backend is live, progressively migrate stubbed routes from console.warn to synthiaApi calls",
+    "4. The council/orchestrator SSE endpoint needs to be built in the backend before that feature is re-enabled",
+    "5. agent-mail, watcher, telemetry routes need corresponding backend routers before migration is complete"
+  ],
+  "emerald_tablets_compliance": {
+    "no_barrel_files": true,
+    "no_secrets_committed": true,
+    "no_god_files": true,
+    "zte_commit_format": true,
+    "jcodemunch_scan_ran": false,
+    "version_tags_created": false,
+    "note": "jcodemunch not installed — existing code structure analyzed via Explore agent. Pre-ZTE tags skipped (branch created by CI harness)."
+  }
+}

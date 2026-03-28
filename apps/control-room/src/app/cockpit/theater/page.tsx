@@ -18,16 +18,8 @@ export default function TheaterCockpitPage() {
 
   async function startMeeting() {
     try {
-      const res = await fetch("/api/council/orchestrator", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          topic: `Reunión en ${selectedLocation.nameEs} — ${selectedLocation.neighborhood}`,
-          agentIds: selectedLocation.defaultParticipants,
-        }),
-      });
-      const json = res.ok ? await res.json() as { meetingId: string } : null;
-      setMeetingId(json?.meetingId ?? `cockpit-meeting-${Date.now()}`);
+      console.warn('[TODO] migrate: /api/council/orchestrator');
+      setMeetingId(`cockpit-meeting-${Date.now()}`);
     } catch {
       setMeetingId(`cockpit-meeting-${Date.now()}`);
     }

@@ -230,22 +230,10 @@ async function processTopic(topic: ResearchTopic, dryRun: boolean): Promise<Rese
 // ---------------------------------------------------------------------------
 
 async function searchForTopic(query: string): Promise<string> {
-  // Attempt BrightData search via internal HERALD route
+  // Attempt HERALD dispatch via SYNTHIA™ backend
   try {
-    const res = await fetch('/api/herald/dispatch', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        intent: `Search for: ${query}`,
-        executor_kind: 'mcp',
-        autoExecute: true,
-      }),
-    });
-
-    if (res.ok) {
-      const data = await res.json() as { output?: string };
-      if (data.output) return data.output;
-    }
+    console.warn('[TODO] migrate: /api/herald/dispatch — use synthiaApi.herald.dispatch()');
+    // Stub: fall through to LLM synthesis
   } catch {
     // fall through to LLM synthesis
   }

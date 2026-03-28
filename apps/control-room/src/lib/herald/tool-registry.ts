@@ -331,7 +331,6 @@ function inferCapabilities(toolId: string, source: string): string[] {
     hotjar: ['analytics', 'heatmaps', 'user_behavior'],
     plausible: ['analytics', 'privacy_friendly', 'reporting'],
     paddle: ['payments', 'billing', 'subscriptions'],
-    stripe: ['payments', 'billing', 'subscriptions'],
     typeform: ['forms', 'surveys', 'lead_generation'],
     calendly: ['scheduling', 'calendar', 'sales'],
     buffer: ['social_media', 'scheduling', 'content_publishing'],

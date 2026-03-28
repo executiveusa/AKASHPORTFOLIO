@@ -311,11 +311,8 @@ export class AlexAgent {
    */
   async sendAgentMail(to: string, subject: string, body: string): Promise<void> {
     try {
-      await fetch('/api/agent-mail', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from: 'alex-orchestrator', to, subject, body }),
-      });
+      console.warn('[TODO] migrate: /api/agent-mail', { to, subject });
+      void body;
     } catch {
       // Non-critical — just log
       console.warn('ALEX™ agent-mail send failed');
@@ -328,15 +325,8 @@ export class AlexAgent {
    */
   async routeToCouncil(topic: string, context?: string): Promise<string> {
     try {
-      const res = await fetch('/api/council', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic, context }),
-      });
-
-      if (!res.ok) return `Council unavailable for: ${topic}`;
-      const meeting = await res.json() as { id?: string };
-      return `Council meeting initiated: ${meeting.id ?? 'unknown'} — Topic: ${topic}`;
+      console.warn('[TODO] migrate: /api/council — use synthiaApi.spheres.council()', context);
+      return `Council stub — Topic: ${topic}`;
     } catch {
       return `Council unavailable for: ${topic}`;
     }

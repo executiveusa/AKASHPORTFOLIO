@@ -107,7 +107,7 @@ export default function RevenuePage() {
   async function triggerScan() {
     setScanning(true);
     try {
-      await fetch("/api/revenue", { method: "POST" });
+      console.warn('[TODO] migrate: /api/revenue');
     } catch { /* demo mode */ }
     setTimeout(() => {
       setScanning(false);

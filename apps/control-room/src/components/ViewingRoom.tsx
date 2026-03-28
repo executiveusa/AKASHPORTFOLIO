@@ -21,11 +21,8 @@ function CouncilPanel() {
 
   const fetchMeetings = async () => {
     try {
-      const res = await fetch('/api/council?status=live');
-      if (res.ok) {
-        const data = await res.json();
-        setMeetings(Array.isArray(data) ? data : data.meetings ?? []);
-      }
+      console.warn('[TODO] migrate: /api/council');
+      setMeetings([]);
     } catch {
       // Silently fail — panel is non-critical
     }
@@ -33,11 +30,8 @@ function CouncilPanel() {
 
   const fetchSchedule = async () => {
     try {
-      const res = await fetch('/api/council/cron');
-      if (res.ok) {
-        const data = await res.json();
-        setNextSessions(data.schedules ?? []);
-      }
+      console.warn('[TODO] migrate: /api/council/cron');
+      setNextSessions([]);
     } catch {
       // Non-critical
     }

@@ -210,26 +210,26 @@ export async function executeRoute(
     const latency_ms = Date.now() - startMs;
 
     // Update quality score (reinforcing feedback loop)
-    supabaseClient
+    void Promise.resolve(supabaseClient
       .rpc('update_tool_quality_score', {
         p_tool_id: route.tool_id,
         p_success: true,
         p_latency_ms: latency_ms,
       })
-      .catch(() => { /* non-critical */ });
+    ).catch(() => { /* non-critical */ });
 
     return { success: true, output, latency_ms, tool_id: route.tool_id };
   } catch (err) {
     const latency_ms = Date.now() - startMs;
     const error = (err as Error).message;
 
-    supabaseClient
+    void Promise.resolve(supabaseClient
       .rpc('update_tool_quality_score', {
         p_tool_id: route.tool_id,
         p_success: false,
         p_latency_ms: latency_ms,
       })
-      .catch(() => { /* non-critical */ });
+    ).catch(() => { /* non-critical */ });
 
     return { success: false, error, latency_ms, tool_id: route.tool_id };
   }

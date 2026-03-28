@@ -162,8 +162,7 @@ export default function CockpitOverview() {
   useEffect(() => {
     async function loadSwarm() {
       try {
-        const res = await fetch("/api/swarm");
-        if (res.ok) setSwarmData(await res.json());
+        console.warn('[TODO] migrate: /api/swarm');
       } catch { /* silent fallback */ }
     }
     loadSwarm();

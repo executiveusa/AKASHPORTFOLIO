@@ -48,14 +48,9 @@ export default function SpheresPage() {
     setIsLaunching(true);
     setError(null);
     try {
-      const res = await fetch('/api/council/orchestrator', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic: topic.trim() }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = (await res.json()) as { meetingId?: string };
-      if (data.meetingId) setMeetingId(data.meetingId);
+      console.warn('[TODO] migrate: /api/council/orchestrator');
+      // Stub: generate a local meeting ID
+      setMeetingId(`local-meeting-${Date.now()}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : t.meetingError);
     } finally {

@@ -158,7 +158,7 @@ export async function runWatcherSweep(): Promise<WatcherAlert[]> {
 // ---------------------------------------------------------------------------
 export async function buildSnapshot(): Promise<SystemSnapshot> {
   let budgetInfo: ReturnType<typeof getBudgetStatus>;
-  try { budgetInfo = getBudgetStatus(); } catch { budgetInfo = { spentTodayUsd: 0, dailyBudgetUsd: 5, date: '', percentUsed: 0, isOverBudget: false }; }
+  try { budgetInfo = getBudgetStatus(); } catch { budgetInfo = { spentTodayUsd: 0, dailyBudgetUsd: 5, date: '', percentUsed: 0, isOverBudget: false, perTaskMaxUsd: 0, loopGuard: {}, byAgent: {} }; }
 
   let vibeConflicts = 0;
   let staleMemoryCount = 0;

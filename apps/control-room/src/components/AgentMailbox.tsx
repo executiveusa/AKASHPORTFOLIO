@@ -53,18 +53,15 @@ export default function AgentMailbox() {
 
   const fetchInbox = async () => {
     try {
-      const res = await fetch(`/api/mail?agentId=${selectedAgent}`);
-      const data = await res.json();
-      setInbox(data.inbox || []);
-      setUnreadCount(data.unreadCount || 0);
+      console.warn('[TODO] migrate: /api/mail');
+      setInbox([]);
+      setUnreadCount(0);
     } catch { /**/ }
   };
 
   const fetchSummary = async () => {
     try {
-      const res = await fetch('/api/mail');
-      const data = await res.json();
-      setSystemSummary(data.summary);
+      console.warn('[TODO] migrate: /api/mail');
     } catch { /**/ }
   };
 
@@ -76,21 +73,13 @@ export default function AgentMailbox() {
   }, [selectedAgent]);
 
   const markRead = async (mailId: string) => {
-    await fetch('/api/mail', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mailId, agentId: selectedAgent }),
-    });
+    console.warn('[TODO] migrate: /api/mail markRead', mailId);
     fetchInbox();
   };
 
   const sendMail = async () => {
     if (!draft.to || !draft.subject || !draft.body) return;
-    await fetch('/api/mail', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: selectedAgent, to: [draft.to], subject: draft.subject, body: draft.body, type: draft.type, priority: draft.priority }),
-    });
+    console.warn('[TODO] migrate: /api/mail sendMail');
     setComposing(false);
     setDraft({ to: '', subject: '', body: '', priority: 'normal', type: 'task' });
     fetchInbox();

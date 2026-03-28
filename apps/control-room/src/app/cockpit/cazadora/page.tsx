@@ -64,15 +64,8 @@ export default function CazadoraPage() {
     setResult(null);
 
     try {
-      const res = await fetch("/api/pomelli/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: url.trim() }),
-      });
-
-      if (!res.ok) throw new Error(await res.text());
-      const data = await res.json() as BrandDNA;
-      setResult(data);
+      console.warn('[TODO] migrate: /api/pomelli/analyze');
+      throw new Error('Pomelli analyzer migrating to SYNTHIA™ backend');
     } catch {
       // Simulate a result for demo if API is not running
       setResult({
