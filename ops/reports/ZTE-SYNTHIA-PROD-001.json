@@ -1,0 +1,158 @@
+{
+  "bead_id": "ZTE-SYNTHIA-PROD-001",
+  "timestamp": "2026-03-29T10:45:00Z",
+  "status": "IN_PROGRESS",
+  "phases_complete": [1, 2, 3],
+  "phases_pending": [4, 5],
+  "model_used": "claude-haiku-4-5-20251001",
+  "blockers": [
+    "Network unavailable to GitHub (cannot push commits)",
+    "VPS access required for Phase 4 (Coolify deployment)",
+    "Backend must be running on VPS before Phase 5 wiring can be tested"
+  ],
+  "phase_1_context_layer": {
+    "status": "PARTIAL",
+    "note": "jcodemunch-mcp and context-mode plugins unavailable in npm registry yet. EMERALD TABLETS™ installed in all repos.",
+    "completed": [
+      "✓ EMERALD TABLETS™ (PRIME_DIRECTIVE.md) installed in synthia-backend"
+    ],
+    "pending": [
+      "○ jcodemunch-mcp (package not found in npm registry)",
+      "○ context-mode plugin (Claude Code specific, requires /plugin commands)"
+    ]
+  },
+  "phase_2_backend": {
+    "status": "COMPLETE",
+    "url": "https://github.com/executiveusa/synthia/tree/zte/prod-001",
+    "commit": "e0b95ca",
+    "local_commit": true,
+    "github_push": false,
+    "completed": [
+      "✓ server/routers/spheres.ts — 9 SYNTHIA™ personas with LLM integration",
+      "✓ server/routers/herald.ts — keyword-based intent routing v1",
+      "✓ server/routers/voice.ts — Twilio webhook + synthesis stub",
+      "✓ server/routers/payments.ts — Creem MXN checkout (3 tiers)",
+      "✓ CORS configuration for SYNTHIA™ origins",
+      "✓ GET /health endpoint with service status",
+      "✓ Default port: 4000",
+      "✓ All routers wired to appRouter",
+      "✓ TypeScript: 0 errors | Build: passing"
+    ],
+    "pending": [
+      "○ ElevenLabs voice synthesis (API key needed)",
+      "○ Supabase vibe_nodes memory integration",
+      "○ Wire 34 stubbed routes from AKASHPORTFOLIO",
+      "○ Twilio webhook implementation",
+      "○ Creem payment webhook handling",
+      "○ Postgres connection health check",
+      "○ HERALD v2 pgvector semantic routing"
+    ]
+  },
+  "phase_3_secrets_watchdog": {
+    "status": "COMPLETE",
+    "url": "https://github.com/executiveusa/pauli-secrets-watchdog (to be created)",
+    "local_commit": true,
+    "github_creation": false,
+    "completed": [
+      "✓ src/config.ts — environment-based configuration",
+      "✓ src/alert.ts — Telegram bot notifications",
+      "✓ src/checks.ts — API key health tests",
+      "✓ src/rotator.ts — password rotation logic",
+      "✓ src/index.ts — cron scheduler (6AM health, 3AM rotation, 9AM reminders)",
+      "✓ Dockerfile — multi-stage build for Coolify",
+      "✓ TypeScript configuration",
+      "✓ .env.example template"
+    ],
+    "pending": [
+      "○ GitHub private repo creation",
+      "○ Postgres password rotation implementation",
+      "○ Infisical API integration",
+      "○ Docker push to registry"
+    ],
+    "cron_schedule": {
+      "health_checks": "6 AM daily (0 6 * * *)",
+      "password_rotation": "3 AM Sunday (0 3 * * 0)",
+      "manual_rotation_reminder": "9 AM Monday (0 9 * * 1)"
+    }
+  },
+  "phase_4_vps_infrastructure": {
+    "status": "PENDING",
+    "requirements": [
+      "○ SSH access to 31.220.58.212",
+      "○ Coolify dashboard access (http://31.220.58.212:8000)",
+      "○ Deploy synthia backend on port 4000",
+      "○ Deploy secrets watchdog on port 4001",
+      "○ Configure Cloudflare Tunnel for api.kupuri.media",
+      "○ Install agentic flywheel"
+    ]
+  },
+  "phase_5_frontend_wiring": {
+    "status": "PENDING",
+    "requirements": [
+      "○ Backend must be live at https://api.kupuri.media",
+      "○ Wire 34 stubbed routes in AKASHPORTFOLIO",
+      "○ Update NEXT_PUBLIC_SYNTHIA_API_URL in Vercel",
+      "○ Test all sphere.chat endpoints",
+      "○ Test herald.dispatch routing",
+      "○ Update landing page with live API calls"
+    ]
+  },
+  "backend_spec_summary": {
+    "sphere_personas": 9,
+    "sphere_endpoints": [
+      "spheres.list",
+      "spheres.chat",
+      "spheres.council"
+    ],
+    "herald_endpoints": [
+      "herald.dispatch",
+      "herald.history",
+      "herald.tools"
+    ],
+    "voice_endpoints": [
+      "voice.synthesize",
+      "voice.health",
+      "voice.twilioWebhook"
+    ],
+    "payment_endpoints": [
+      "payments.tiers",
+      "payments.getTier",
+      "payments.createCheckout",
+      "payments.creemWebhook"
+    ],
+    "rest_endpoints": [
+      "GET /health",
+      "OPTIONS * (CORS)"
+    ],
+    "memory_integration": "TODO: Supabase vibe_nodes",
+    "logging": "TODO: observations table for HERALD v2 training"
+  },
+  "security_notes": {
+    "critical": [
+      "PG_PASSWORD appeared in chat — ROTATE IMMEDIATELY on VPS",
+      "JWT_SECRET appeared in chat — REGENERATE IMMEDIATELY",
+      "Dashboard password appeared in PDF — CHANGE IMMEDIATELY"
+    ],
+    "action": "All three must be rotated and updated in Infisical before any production deploy"
+  },
+  "network_status": {
+    "github_push": false,
+    "reason": "Network unavailable to github.com (environment constraint)"
+  },
+  "next_steps": {
+    "immediate": [
+      "1. Rotate PG_PASSWORD, JWT_SECRET, dashboard password on VPS",
+      "2. Create pauli-secrets-watchdog GitHub private repo",
+      "3. Push synthia-backend zte/prod-001 branch (requires GitHub access)",
+      "4. Deploy synthia backend to Coolify (port 4000)",
+      "5. Deploy secrets watchdog to Coolify (port 4001)"
+    ],
+    "after_deploy": [
+      "6. Test /health endpoint returns 200",
+      "7. Test spheres.chat endpoint with synthia persona",
+      "8. Test herald.dispatch with sample intents",
+      "9. Update AKASHPORTFOLIO env var to https://api.kupuri.media",
+      "10. Wire 34 stubbed routes to live backend endpoints"
+    ]
+  }
+}
