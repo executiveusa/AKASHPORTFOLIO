@@ -66,6 +66,11 @@ pub fn create_router(state: AppState) -> Router {
         .route("/el-panorama/constelacion",          get(ep_constelacion))
         .route("/el-panorama/presupuesto",           get(ep_presupuesto))
         .route("/el-panorama/consejo",               post(ep_council))
+        // ── PAULI-CLIP™ — 3D Ceremony Orchestration ────────────────
+        .route("/el-panorama/pauli-clip/ceremony",   post(ep_pauli_clip_ceremony))
+        .route("/el-panorama/pauli-clip/ceremony/:id", get(ep_pauli_clip_ceremony_status))
+        .route("/el-panorama/pauli-clip/decision",   post(ep_pauli_clip_record_decision))
+        .route("/el-panorama/pauli-clip/dissolve",   post(ep_pauli_clip_sphere_dissolve))
         .with_state(state)
 }
 

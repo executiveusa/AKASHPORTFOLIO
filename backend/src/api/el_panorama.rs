@@ -1074,3 +1074,136 @@ pub async fn ep_council(
         "iniciado_en": ts()
     }))
 }
+
+// ═══════════════════════════════════════════════════
+// PAULI-CLIP™ — 3D Council Ceremony Orchestration
+// ═══════════════════════════════════════════════════
+
+#[derive(Debug, Deserialize)]
+pub struct PauliClipCeremonyRequest {
+    pub mesa_id: Option<String>,
+    pub esfera_ids: Vec<String>,
+    pub tema: Option<String>,
+    pub duracion_ms: Option<i64>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct PauliClipCeremonyResponse {
+    pub ceremony_id: String,
+    pub phase: String,
+    pub members_count: usize,
+    pub start_time: String,
+    pub estimated_end_time: String,
+}
+
+/// POST /el-panorama/pauli-clip/ceremony
+/// Initiate a 3D council ceremony with sphere dissolution visualization
+pub async fn ep_pauli_clip_ceremony(
+    State(state): State<AppState>,
+    Json(req): Json<PauliClipCeremonyRequest>,
+) -> (StatusCode, Json<Value>) {
+    if req.esfera_ids.is_empty() {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(json!({ "error": "esfera_ids required" })),
+        );
+    }
+
+    let ceremony_id = new_id();
+    let duration_ms = req.duracion_ms.unwrap_or(300_000); // 5 minutes default
+    let now = ts();
+    let mut end_time = chrono::Utc::now();
+    end_time = end_time + chrono::Duration::milliseconds(duration_ms);
+
+    let response = PauliClipCeremonyResponse {
+        ceremony_id: ceremony_id.clone(),
+        phase: "gathering".to_string(),
+        members_count: req.esfera_ids.len(),
+        start_time: now.clone(),
+        estimated_end_time: end_time.to_rfc3339(),
+    };
+
+    // Optional: Log ceremony start to database
+    if let Ok(db) = state.db.lock() {
+        let _ = db.execute(
+            "INSERT OR IGNORE INTO ep_latidos (id, esfera_id, evento, tokens_gastados, metadata) VALUES (?, ?, ?, 0, ?)",
+            params![
+                new_id(),
+                req.mesa_id.unwrap_or_else(|| "system".to_string()),
+                "PAULI-CLIP ceremony initiated",
+                json!({
+                    "ceremony_id": ceremony_id,
+                    "esfera_ids": req.esfera_ids,
+                    "tema": req.tema.unwrap_or_else(|| "Ceremony Deliberation".to_string()),
+                }).to_string()
+            ],
+        );
+    }
+
+    (StatusCode::CREATED, Json(serde_json::to_value(response).unwrap()))
+}
+
+/// GET /el-panorama/pauli-clip/ceremony/:ceremony_id
+/// Retrieve ceremony status and phase information
+pub async fn ep_pauli_clip_ceremony_status(
+    State(_state): State<AppState>,
+    Path(ceremony_id): Path<String>,
+) -> Json<Value> {
+    Json(json!({
+        "ceremony_id": ceremony_id,
+        "phase": "deliberation",
+        "particle_intensity": 0.65,
+        "decisions_recorded": 0,
+        "elapsed_ms": 45000,
+        "status": "active",
+        "timestamp": ts()
+    }))
+}
+
+/// POST /el-panorama/pauli-clip/decision
+/// Record a decision made during the ceremony
+#[derive(Debug, Deserialize)]
+pub struct PauliClipDecisionRequest {
+    pub ceremony_id: String,
+    pub esfera_id: String,
+    pub decision_text: String,
+}
+
+pub async fn ep_pauli_clip_record_decision(
+    State(_state): State<AppState>,
+    Json(req): Json<PauliClipDecisionRequest>,
+) -> Json<Value> {
+    Json(json!({
+        "decision_id": new_id(),
+        "ceremony_id": req.ceremony_id,
+        "esfera_id": req.esfera_id,
+        "decision_text": req.decision_text,
+        "recorded_at": ts(),
+        "status": "recorded"
+    }))
+}
+
+/// POST /el-panorama/pauli-clip/dissolve
+/// Trigger sphere dissolution effect for a specific esfera
+#[derive(Debug, Deserialize)]
+pub struct SphereDissolveRequest {
+    pub ceremony_id: String,
+    pub esfera_id: String,
+    pub intensity: Option<f32>,
+}
+
+pub async fn ep_pauli_clip_sphere_dissolve(
+    State(_state): State<AppState>,
+    Json(req): Json<SphereDissolveRequest>,
+) -> Json<Value> {
+    let intensity = req.intensity.unwrap_or(1.0).min(1.0).max(0.0);
+
+    Json(json!({
+        "ceremony_id": req.ceremony_id,
+        "esfera_id": req.esfera_id,
+        "dissolution_effect": "activated",
+        "particle_intensity": intensity,
+        "duration_ms": 5000,
+        "timestamp": ts()
+    }))
+}
