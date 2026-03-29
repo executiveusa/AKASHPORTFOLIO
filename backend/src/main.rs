@@ -3,8 +3,7 @@ mod config;
 mod middleware;
 mod providers;
 
-use std::sync::Arc;
-use tracing_subscriber;
+use std::sync::{Arc, Mutex};
 
 #[tokio::main]
 async fn main() {
@@ -13,6 +12,21 @@ async fn main() {
 
     // Load configuration
     let config = config::Config::from_env();
+
+    // Initialize SQLite database with El Panorama schema
+    let db_path = std::env::var("DATABASE_URL")
+        .unwrap_or_else(|_| format!("{}/el-panorama.db", config.workspace_root));
+    let conn = rusqlite::Connection::open(&db_path)
+        .expect("Failed to open SQLite database");
+
+    // Apply schema (idempotent — CREATE IF NOT EXISTS)
+    let schema = include_str!("db/schema.sql");
+    conn.execute_batch(schema)
+        .expect("Failed to apply El Panorama schema");
+
+    println!("✅ El Panorama™ DB initialized: {}", db_path);
+
+    let db = Arc::new(Mutex::new(conn));
 
     // Initialize mem0 provider
     let mem0 = Arc::new(providers::mem0::Mem0Provider::new(
@@ -29,6 +43,7 @@ async fn main() {
         config: config.clone(),
         mem0,
         metrics,
+        db,
     };
 
     // Create the Axum router
