@@ -36,6 +36,8 @@ dev-server*.log
 playwright-screenshots/
 test-results/
 playwright-report/
+backend/target/
+backend/Cargo.lock
 
 # MCP server build outputs
 tools/*/dist/
