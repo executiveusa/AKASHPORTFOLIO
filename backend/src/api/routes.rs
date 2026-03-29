@@ -11,6 +11,10 @@ use crate::config::Config;
 use crate::middleware::MetricsRegistry;
 use crate::providers::{llm_trait::ChatMessage, mem0::Mem0Provider};
 use crate::api::el_panorama::*;
+use crate::api::site_factory::{
+    firecrawl_scrape, kupuri_research,
+    generate_image, animate_hero, build_site, batch_run,
+};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -36,6 +40,10 @@ pub fn create_router(state: AppState) -> Router {
         .route("/composio/execute", post(composio_execute))
         .route("/firecrawl/scrape", post(firecrawl_scrape))
         .route("/kupuri/research", post(kupuri_research))
+        .route("/site-factory/generate-image", post(generate_image))
+        .route("/site-factory/animate-hero", post(animate_hero))
+        .route("/site-factory/build", post(build_site))
+        .route("/site-factory/batch", post(batch_run))
         .route("/audit/logs", get(audit_logs))
         .route("/api/tasks/recent", get(recent_tasks))
         .route("/api/memory/events", get(memory_events))
@@ -326,47 +334,7 @@ async fn composio_execute(
     }))
 }
 
-#[derive(serde::Deserialize)]
-pub struct FirecrawlScrapeRequest {
-    url: String,
-}
-
-async fn firecrawl_scrape(
-    State(_state): State<AppState>,
-    Json(payload): Json<FirecrawlScrapeRequest>,
-) -> Json<Value> {
-    Json(json!({
-        "status": "success",
-        "url": payload.url,
-        "markdown": "# Scraped Content\n\nMarkdown content from URL...",
-        "timestamp": chrono::Utc::now().to_rfc3339()
-    }))
-}
-
-#[derive(serde::Deserialize)]
-pub struct KupuriResearchRequest {
-    topic: String,
-    language: Option<String>,
-}
-
-async fn kupuri_research(
-    State(_state): State<AppState>,
-    Json(payload): Json<KupuriResearchRequest>,
-) -> Json<Value> {
-    let language = payload.language.unwrap_or_else(|| "es".to_string());
-
-    Json(json!({
-        "status": "researching",
-        "topic": payload.topic,
-        "language": language,
-        "message": format!("Researching {} empowerment initiatives...", payload.topic),
-        "sources": [
-            "https://example.com/resource1",
-            "https://example.com/resource2"
-        ],
-        "timestamp": chrono::Utc::now().to_rfc3339()
-    }))
-}
+// firecrawl_scrape and kupuri_research are now in site_factory.rs
 
 async fn audit_logs(State(_state): State<AppState>) -> Json<Value> {
     Json(json!({

@@ -32,7 +32,13 @@ export async function initElPanorama(): Promise<void> {
 }
 
 async function bootstrapHerald() {
-  return 'HERALD initialized';
+  try {
+    const { registerSiteFactoryTools } = await import('./site-factory/herald-registration');
+    await registerSiteFactoryTools();
+    return 'HERALD initialized + Site Factory tools registered';
+  } catch (err) {
+    return `HERALD initialized (Site Factory registration failed: ${(err as Error).message})`;
+  }
 }
 
 async function bootstrapMCP() {
