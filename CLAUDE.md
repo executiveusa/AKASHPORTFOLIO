@@ -56,11 +56,29 @@ Sprint board: `.beads/issues.jsonl`
 
 ---
 
-## Installed Skills Packs
+## Installed Skills Packs (172 Total Active Skills)
+
+### Quick Reference
+
+```
+Investigation:    7 antigravity + simota/scout/lens/trace
+Orchestration:    6 antigravity + simota/nexus/titan/rally
+Implementation:  13 antigravity + simota/builder/architect/schema
+Security:         5 antigravity + simota/sentinel/canon/guardian
+Design:           7 antigravity + simota/palette/canvas/vision
+Testing:          5 antigravity + simota/judge/triage
+────────────────────────────────
+TOTAL:          38 (antigravity) + 105 (simota) + 29 (gstack) = 172
+```
+
+**Find skills by intent:** `/semantic-search` → describes what you need
+**Full reference:** `.claude/skills/SKILLS_MANIFEST.md`
+
+---
 
 ### simota/agent-skills (.claude/skills/simota/)
 
-**100 specialized dev agents** for autonomous code operations. Key capabilities:
+**105 specialized dev agents** for autonomous code operations. Key capabilities:
 
 #### Investigation & Analysis
 - **/Scout** — Bug investigation + root cause analysis
@@ -142,6 +160,93 @@ Sprint board: `.beads/issues.jsonl`
 
 ---
 
-*Skills installed: 2026-03-29 | ZTE-20260319-0001 | simota v1.0 + gstack v1.0*
+---
 
-*Root truth: `.emerald-tablets-tm/PRIME_DIRECTIVE.md`*
+## Antigravity Awesome Skills Integration
+
+**38 curated skills** from [antigravity-awesome-skills](https://github.com/sickn33/antigravity-awesome-skills) registered in Sphere OS:
+
+### By Sphere Role
+
+- **Investigation**: error-detective, analyze-project, production-code-audit, code-quality-metrics
+- **Orchestration**: workflow-orchestration-patterns, multi-agent-patterns, parallel-agents, architecture, brainstorming
+- **Implementation**: architecture-decision-records, cqrs-implementation, event-sourcing-architect, ddd-*, c4-*, monorepo patterns
+- **Security**: wcag-audit-patterns, memory-safety-patterns, error-handling-patterns
+- **Design**: tailwind-design-system, radix-ui-design-system, hig-patterns, i18n-localization
+- **Testing**: e2e-testing-patterns, testing-patterns, github-actions-templates
+
+### Find Skills
+
+```bash
+# By sphere agent
+/Scout      # error-detective, code-audit
+/Lens       # code-quality, dependencies
+/Nexus      # orchestration workflows
+/Builder    # implementation patterns
+
+# By semantic intent (RECOMMENDED)
+/semantic-search
+intent: [what you're trying to achieve]
+context: [technical domain]
+goal: [desired outcome]
+```
+
+### Full Inventory
+
+See: `.claude/skills/SKILLS_MANIFEST.md` — complete reference with triggers, confidence scores, and HERALD integration.
+
+---
+
+## Semantic Search (Tablet VIII)
+
+When you don't know the exact skill:
+
+```bash
+/semantic-search
+intent: validate API types at compile time
+domain: TypeScript + REST
+goal: prevent runtime errors
+
+# Returns top matches:
+# ✅ [0.94] architecture-decision-records
+# ✅ [0.88] prompt-engineering
+# ✅ [0.82] testing-patterns
+```
+
+**How it works:**
+- Semantic similarity matching (60%)
+- Category match (25%)
+- Recency weighting (15%)
+- Weekly confidence decay (5%/day) per Tablet VIII
+
+---
+
+## Skills Summary
+
+```
+Skills Packs:
+  simota/agent-skills:        105 agents (Scout, Lens, Nexus, Builder, Sentinel, etc.)
+  garrytan/gstack:             29 skills (/office-hours, /review, /qa, /ship, /browse)
+  antigravity-awesome-skills:  38 curated (error-detective, workflow-orch, e2e-testing, etc.)
+  ────────────────────────────────────────────────────
+  TOTAL:                       172 active skills
+
+Sphere Assignment:
+  Investigation (Scout/Lens/Trace):     7 antigravity + simota
+  Orchestration (Nexus/Titan/Rally):   6 antigravity + simota
+  Implementation (Builder/Architect):  13 antigravity + simota
+  Security (Sentinel/Canon):            5 antigravity + simota
+  Design (Palette/Canvas/Vision):       7 antigravity + simota
+  Testing (Judge/Triage):               5 antigravity + simota
+
+Decay Schedule: Weekly (Tablet VIII)
+Confidence Decay: 5%/day
+Registry: HERALD (.lib/herald/skills-registry.ts)
+```
+
+---
+
+*Skills installed: 2026-03-29 | ZTE-20260319-0001 v2*
+*Includes: simota (105) + gstack (29) + antigravity (38) = 172 total*
+*Semantic search: enabled | Decay: weekly | Registry: HERALD*
+*Root truth: `.emerald-tablets-tm/PRIME_DIRECTIVE.md` (Tablet III + VIII)*
