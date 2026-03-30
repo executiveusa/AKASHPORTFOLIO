@@ -1,0 +1,40 @@
+{
+    "name": "control-room",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "eslint"
+    },
+    "dependencies": {
+        "@anthropic-ai/sdk": "^0.28.0",
+        "@supabase/supabase-js": "^2.50.0",
+        "@vapi-ai/web": "latest",
+        "ai": "^6.0.105",
+        "date-fns": "^4.1.0",
+        "framer-motion": "^12.34.3",
+        "next": "^16.2.1",
+        "next-auth": "^5.0.0-beta.30",
+        "react": "19.2.3",
+        "react-dom": "19.2.3",
+        "recharts": "^3.7.0",
+        "stripe": "^20.4.1",
+        "swr": "^2.4.1",
+        "three": "^0.183.2"
+    },
+    "devDependencies": {
+        "@tailwindcss/postcss": "^4",
+        "@types/express": "^4.17.21",
+        "@types/node": "^20",
+        "@types/react": "^19",
+        "@types/react-dom": "^19",
+        "@types/serve-static": "^1.15.7",
+        "@types/three": "^0.183.1",
+        "eslint": "^9",
+        "eslint-config-next": "16.1.6",
+        "tailwindcss": "^4",
+        "typescript": "^5"
+    }
+}

@@ -1,0 +1,86 @@
+{
+  "buildCommand": "node scripts/build-all.mjs",
+  "installCommand": "npm install --legacy-peer-deps",
+  "outputDirectory": "apps/control-room/.next",
+  "framework": "nextjs",
+  "regions": ["sfo1"],
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
+  },
+  "rewrites": [
+    { "source": "/contact", "destination": "/contact.html" },
+    { "source": "/work", "destination": "/index.html" },
+    { "source": "/about", "destination": "/index.html" },
+    { "source": "/home", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/api/onboarding/event",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin",  "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "POST, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type" },
+        { "key": "Cache-Control",                "value": "no-store" }
+      ]
+    },
+    {
+      "source": "/api/onboarding/stats",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, s-maxage=60, stale-while-revalidate=300" }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/morning",
+      "schedule": "0 15 * * 1-5"
+    },
+    {
+      "path": "/api/cron/midday",
+      "schedule": "0 19 * * 1-5"
+    },
+    {
+      "path": "/api/cron/evening",
+      "schedule": "0 23 * * 1-5"
+    },
+    {
+      "path": "/api/council/cron",
+      "schedule": "0 16 * * 1"
+    },
+    {
+      "path": "/api/council/cron",
+      "schedule": "0 21 1 * *"
+    },
+    {
+      "path": "/api/cron/sphere-hunt",
+      "schedule": "0 20 * * 1-5"
+    },
+    {
+      "path": "/api/cron/nightly-summary",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/research-cycle",
+      "schedule": "0 13 * * *"
+    },
+    {
+      "path": "/api/cron/evening-research",
+      "schedule": "0 1 * * *"
+    },
+    {
+      "path": "/api/cron/research-latam",
+      "schedule": "0 7 * * 1-5"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "buildCommand": "npm run build",
+  "installCommand": "npm install --legacy-peer-deps",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "regions": ["sfo1"],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/council/heartbeat",
+      "schedule": "0 15 * * 1-5"
+    },
+    {
+      "path": "/api/council/cron",
+      "schedule": "0 16 * * 1"
+    },
+    {
+      "path": "/api/council/cron",
+      "schedule": "0 21 1 * *"
+    },
+    {
+      "path": "/api/cron/sphere-hunt",
+      "schedule": "0 20 * * 1-5"
+    },
+    {
+      "path": "/api/cron/nightly-summary",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/research-cycle",
+      "schedule": "0 13 * * *"
+    },
+    {
+      "path": "/api/cron/self-improvement",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/morning",
+      "schedule": "0 15 * * 1-5"
+    },
+    {
+      "path": "/api/cron/evening",
+      "schedule": "0 2 * * *"
+    }
+  ]
+}

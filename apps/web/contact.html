@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact | KUPURI MEDIA™ | Portfolio</title>
+  <link rel="icon" href="/images/global/site-icon.png" />
+  <link rel="stylesheet" href="/css/transition.css" />
+  <link rel="stylesheet" href="/css/fonts.css" />
+  <link rel="stylesheet" href="/css/globals.css" />
+  <link rel="stylesheet" href="/css/menu.css" />
+  <link rel="stylesheet" href="/css/contact.css" />
+  <script type="module" src="/js/i18n.js"></script>
+</head>
+
+<body>
+  <div class="transition">
+    <div class="transition-overlay overlay-1"></div>
+    <div class="transition-overlay overlay-2"></div>
+    <div class="transition-overlay overlay-3"></div>
+    <div class="transition-overlay overlay-4"></div>
+    <div class="transition-overlay overlay-5"></div>
+  </div>
+  <div class="page contact-page">
+    <nav>
+      <div class="logo">
+        <div class="logo-container">
+          <p class="mn"><a href="/"><img src="/images/global/kupuri-logo.png" alt="Kupuri Media Logo"
+                style="height: 1.5em; width: auto;" /></a></p>
+        </div>
+      </div>
+      <div class="back-nav" style="position:absolute;top:2em;left:50%;transform:translateX(-50%);font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;opacity:0.6;">
+        <a href="/" style="color:inherit;text-decoration:none;">← Inicio</a>
+      </div>
+
+      <div class="lang-toggle" style="margin-right: 2em; margin-top: 2em; align-self: flex-start;">
+        <button id="lang-es" class="lang-btn active">ES</button>
+        <button id="lang-en" class="lang-btn">EN</button>
+      </div>
+    </nav>
+    <section class="contact trail-container">
+      <div class="floating-elements"></div>
+      <div class="contact-left">
+        <div class="contact-card-header-main">
+          <h1 data-i18n="contact.title">Let's Connect</h1>
+          <p data-i18n="contact.subtitle">
+            Got a project idea? Need AI solutions, lead generation or a personal custom app for your company? We have a
+            global team of creative women just like you that love to help and network. Reach out. You're in good
+            company.
+          </p>
+        </div>
+        <div class="contact-info">
+          <div class="contact-info-item">
+            <p class="label" data-i18n="contact.inquiries">Project Inquiries</p>
+            <p><a href="mailto:referencias@kupurimedia.com" target="_blank">referencias@kupurimedia.com</a></p>
+          </div>
+          <div class="contact-info-item">
+            <p class="label" data-i18n="contact.chat">Quick Chat</p>
+            <p><a href="https://t.me/kupurimedia" target="_blank" data-i18n="contact.telegram">@kupurimedia on
+                Telegram</a></p>
+          </div>
+        </div>
+      </div>
+      <div class="contact-form-container">
+        <div class="form-header">
+          <h2 data-i18n="contact.formHeader">Start a Project</h2>
+          <p data-i18n="contact.formSub">Tell us about your goals</p>
+        </div>
+        <form class="contact-form" id="contactForm">
+          <div class="form-row">
+            <div class="form-group">
+              <input type="text" id="firstName" name="firstName" placeholder="Your first name" required
+                data-i18n="contact.firstName">
+              <label for="firstName" data-i18n="contact.firstName">First Name</label>
+            </div>
+            <div class="form-group">
+              <input type="text" id="lastName" name="lastName" placeholder="Your last name" required
+                data-i18n="contact.lastName">
+              <label for="lastName" data-i18n="contact.lastName">Last Name</label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <input type="email" id="email" name="email" placeholder="your@email.com" required
+                data-i18n="contact.email">
+              <label for="email" data-i18n="contact.email">Email Address</label>
+            </div>
+            <div class="form-group">
+              <input type="tel" id="phone" name="phone" placeholder="+1 (555) 123-4567" data-i18n="contact.phone">
+              <label for="phone" data-i18n="contact.phone">Phone Number</label>
+            </div>
+          </div>
+          <div class="form-group full-width">
+            <select id="projectType" name="projectType" required>
+              <option value="" data-i18n="contact.selectProject">Select project type</option>
+              <option value="website" data-i18n-type="website">Website Development</option>
+              <option value="webapp" data-i18n-type="webapp">Web Application</option>
+              <option value="mobileapp" data-i18n-type="mobileapp">Mobile Application</option>
+              <option value="ecommerce" data-i18n-type="ecommerce">E-commerce Platform</option>
+              <option value="redesign" data-i18n-type="redesign">Website Redesign</option>
+              <option value="consultation" data-i18n-type="consultation">Consultation</option>
+              <option value="other" data-i18n-type="other">Other</option>
+            </select>
+            <label for="projectType" data-i18n="contact.projectType">Project Type</label>
+          </div>
+          <div class="form-group full-width">
+            <textarea id="message" name="message" placeholder="Tell us about your goals" required
+              data-i18n="contact.details"></textarea>
+            <label for="message" data-i18n="contact.details">Project Details</label>
+          </div>
+          <button type="submit" class="submit-btn" data-i18n="contact.send">
+            Send Message
+          </button>
+          <div class="success-message" id="successMessage">
+            <p data-i18n="contact.success">Thanks! Your message has been sent. We'll get back to you within 24 hours.
+            </p>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
+  <script type="module" src="/js/transition.js"></script>
+  <script type="module" src="/js/contact.js"></script>
+</body>
+
+</html>

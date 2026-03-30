@@ -1,0 +1,49 @@
+schema: paperclip/v1
+agents:
+  synthia-prime:
+    adapter:
+      type: claude_local
+      config:
+        model: claude-sonnet-4-6
+  ralphy:
+    adapter:
+      type: claude_local
+      config:
+        model: claude-sonnet-4-6
+    inputs:
+      env:
+        GH_TOKEN:
+          kind: secret
+          requirement: optional
+  cazadora:
+    adapter:
+      type: claude_local
+      config:
+        model: claude-sonnet-4-6
+  fany:
+    inputs:
+      env:
+        POSTIZ_API_KEY:
+          kind: secret
+          requirement: required
+        POSTIZ_MCP_URL:
+          kind: secret
+          requirement: required
+  fany-tiktok:
+    inputs:
+      env:
+        POSTIZ_API_KEY:
+          kind: secret
+          requirement: required
+  fany-instagram:
+    inputs:
+      env:
+        POSTIZ_API_KEY:
+          kind: secret
+          requirement: required
+  fany-linkedin:
+    inputs:
+      env:
+        POSTIZ_API_KEY:
+          kind: secret
+          requirement: required

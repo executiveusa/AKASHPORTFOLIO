@@ -1,0 +1,57 @@
+node_modules/
+.vercel/
+dist/
+.env
+.env.local
+.DS_Store
+*.local
+.vercel
+__pycache__/
+*.pyc
+.pytest_cache/
+scripts/*.log
+
+# Secrets & credentials — never commit
+secrets.md
+master.env
+*.env
+GH_PAT_ADMIN*
+test_*.ps1
+test_*.py
+check_*.py
+rustup-init.exe
+backend/rustup-init.exe
+.git-temp/
+.yarn/
+DEPLOYMENT_SUMMARY.md
+VERCEL_DEPLOYMENT_COMPLETE.md
+
+# Claude Code settings (contain local MCP paths, not for git)
+.claude/settings.local.json
+
+# Build & test artifacts
+build-output.txt
+visual-results.txt
+dev-server*.log
+playwright-screenshots/
+test-results/
+playwright-report/
+apps/control-room/build*.log
+apps/control-room/build_*.txt
+apps/control-room/build_*.log
+_b*.txt
+_b*.err
+_status.txt
+_statuserr.txt
+scripts/set-vercel-env.ps1
+
+# MCP server build outputs
+tools/*/dist/
+tools/*/node_modules/
+tools/*/.env
+
+# Blender render outputs (large files)
+tools/mcp-blender/renders/
+tools/mcp-worlds/renders/
+*.blend1
+*.glb.tmp

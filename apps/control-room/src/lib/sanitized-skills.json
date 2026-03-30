@@ -1,0 +1,23 @@
+[
+  {
+    "name": "access_grant_orchestrator",
+    "description": "Orchestrates access grants for agents.",
+    "sanitized": true,
+    "security_scan": "passed",
+    "loop_protocol": "ralphy_v1"
+  },
+  {
+    "name": "remotion_video_generator",
+    "description": "Automated UGC video production via Remotion.",
+    "sanitized": true,
+    "security_scan": "passed",
+    "loop_protocol": "ralphy_v1"
+  },
+  {
+    "name": "ralphy_loop_enforcer",
+    "description": "Enforces technical debt management and code quality loops.",
+    "sanitized": true,
+    "security_scan": "passed",
+    "loop_protocol": "ralphy_v1"
+  }
+]

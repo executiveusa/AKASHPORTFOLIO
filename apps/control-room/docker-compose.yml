@@ -1,0 +1,61 @@
+version: '3.9'
+
+services:
+  synthia-control-room:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    image: synthia-control-room:latest
+    container_name: synthia-control-room
+    restart: always
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - DATABASE_URL=${DATABASE_URL}
+      - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET}
+      - PG_HOST=${PG_HOST}
+      - PG_PORT=${PG_PORT}
+      - PG_DATABASE=${PG_DATABASE}
+      - PG_USER=${PG_USER}
+      - PG_PASSWORD=${PG_PASSWORD}
+      - VERCEL_TOKEN=${VERCEL_TOKEN}
+      - COOLIFY_API_TOKEN=${COOLIFY_API_TOKEN}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - synthia-network
+    labels:
+      - "com.synthia.version=3.0.0"
+      - "com.synthia.component=control-room"
+
+  # Optional: PostgreSQL connection pooler (Supavisor)
+  # If you want local caching/pooling, uncomment and configure
+  # supavisor:
+  #   image: supabase/supavisor:latest
+  #   container_name: synthia-supavisor
+  #   ports:
+  #     - "6544:6544"
+  #   environment:
+  #     - DATABASE_URL=${DATABASE_URL}
+  #   networks:
+  #     - synthia-network
+
+networks:
+  synthia-network:
+    driver: bridge
+
+volumes:
+  logs:
+    driver: local

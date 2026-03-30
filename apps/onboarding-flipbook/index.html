@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Kupuri Media — Bienvenida a Sphere OS™</title>
+    <!-- Preconnect to control-room API so beacons fire instantly -->
+    <link rel="preconnect" href="https://kupuri.vercel.app" crossorigin />
+    <link rel="dns-prefetch" href="https://kupuri.vercel.app" />
+    <style>
+        /* ----------------------------------------------------------------
+           UNCODIXFY compliance:
+           - No backdrop-filter / glassmorphism
+           - No gradients
+           - Max 12px border-radius
+           - System font stack
+           - Palette: #050510 bg, #d4af37 ALEX Gold, #8b5cf6 SYNTHIA Violet
+           - Spacing: 4/8/12/16/24/32px only
+        ---------------------------------------------------------------- */
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --gold:    #d4af37;
+            --violet:  #8b5cf6;
+            --bg:      #050510;
+            --surface: #0d0d1a;
+            --border:  #1e1e2e;
+            --muted:   #52525b;
+            --text:    #f4f4f5;
+            --text-2:  #a1a1aa;
+        }
+
+        html, body {
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background: var(--bg);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text);
+            -webkit-user-select: none; user-select: none;
+        }
+
+        /* ================================================================
+           TOP BAR
+        ================================================================ */
+        #topbar {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 48px;
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg);
+        }
+        #logo { display: flex; align-items: center; gap: 8px; }
+        #logo-mark {
+            width: 20px; height: 20px;
+            background: var(--gold);
+            border-radius: 4px;
+            position: relative;
+        }
+        #logo-mark::after {
+            content: '';
+            position: absolute; bottom: 3px; right: 3px;
+            width: 7px; height: 7px;
+            background: var(--bg);
+            border-radius: 2px;
+        }
+        #logo-text { font-size: 13px; font-weight: 600; letter-spacing: -0.2px; }
+        #logo-text span { color: var(--gold); }
+
+        #lang-toggle {
+            display: flex; align-items: center; gap: 2px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2px;
+        }
+        .lang-btn {
+            padding: 4px 10px;
+            font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+            border: none; background: transparent; color: var(--muted);
+            border-radius: 6px; cursor: pointer; font-family: inherit;
+            transition: background 0.15s, color 0.15s;
+        }
+        .lang-btn.active { background: var(--gold); color: var(--bg); }
+
+        /* ================================================================
+           CANVAS (Bevy WebGL2 — progressive enhancement)
+        ================================================================ */
+        canvas {
+            position: absolute;
+            top: 48px; left: 0;
+            width: 100% !important;
+            height: calc(100% - 48px) !important;
+            z-index: 1;
+        }
+
+        /* ================================================================
+           CSS 3D FLIPBOOK
+        ================================================================ */
+        #css-stage {
+            position: absolute;
+            top: 48px; left: 0; right: 0; bottom: 0;
+            z-index: 2;
+            display: flex; align-items: center; justify-content: center;
+            perspective: 1200px;
+        }
+        #css-stage.behind-wasm { z-index: 0; }
+
+        .book {
+            position: relative;
+            width: 600px; max-width: 92vw;
+            height: 430px;
+            transform-style: preserve-3d;
+        }
+
+        .spine {
+            position: absolute; left: -8px; top: 4px;
+            width: 16px; height: calc(100% - 8px);
+            background: #0a0a14;
+            border: 1px solid #2a2a3e;
+            border-radius: 2px; z-index: 5;
+        }
+
+        .inner-page {
+            position: absolute; inset: 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px; z-index: 2;
+            display: flex; align-items: stretch;
+        }
+
+        .cover {
+            position: absolute; inset: 0;
+            background: #181408;
+            border: 1px solid var(--gold);
+            border-radius: 4px; z-index: 3;
+            transform-origin: left center;
+            transform-style: preserve-3d;
+            cursor: grab; will-change: transform;
+        }
+        .cover.grabbing { cursor: grabbing; }
+
+        .cover-face {
+            position: absolute; inset: 0; border-radius: 3px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 32px;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .cover-face.front  { background: #0e0b04; }
+        .cover-face.back   { background: #100d18; transform: rotateY(180deg); }
+
+        .cover-accent {
+            width: 32px; height: 3px;
+            background: var(--gold); border-radius: 2px;
+            margin-bottom: 16px;
+        }
+        .cover-title {
+            font-size: 22px; font-weight: 700; letter-spacing: -0.5px;
+            color: var(--gold); text-align: center; line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        .cover-subtitle {
+            font-size: 11px; color: var(--muted);
+            text-align: center; letter-spacing: 0.5px;
+        }
+        .cover-tagline {
+            margin-top: 16px; font-size: 11px; font-weight: 500;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--violet); text-align: center;
+        }
+        .drag-cue {
+            position: absolute; right: 12px; top: 50%;
+            transform: translateY(-50%);
+            display: flex; flex-direction: column;
+            align-items: center; gap: 4px;
+            animation: nudge 2s ease-in-out infinite;
+            transition: opacity 0.4s;
+        }
+        .drag-cue svg  { width: 16px; height: 16px; color: var(--gold); opacity: 0.6; }
+        .drag-cue span { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--gold); opacity: 0.5; }
+        @keyframes nudge {
+            0%,100% { transform: translateY(-50%) translateX(0); }
+            50%      { transform: translateY(-50%) translateX(5px); }
+        }
+
+        /* ================================================================
+           INNER PAGE CONTENT
+        ================================================================ */
+        .page-content {
+            flex: 1; display: grid;
+            grid-template-columns: 1fr 1fr;
+            overflow: hidden;
+        }
+        .page-left {
+            padding: 24px 16px 24px 24px;
+            border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .page-right {
+            padding: 24px 24px 24px 16px;
+            display: flex; flex-direction: column; justify-content: center;
+            opacity: 0; transform: translateX(8px);
+            transition: opacity 0.5s 0.2s, transform 0.5s 0.2s;
+        }
+        .book.open .page-right { opacity: 1; transform: translateX(0); }
+
+        .page-eyebrow {
+            font-size: 10px; font-weight: 600; letter-spacing: 2px;
+            text-transform: uppercase; color: var(--violet); margin-bottom: 8px;
+        }
+        .page-heading {
+            font-size: 17px; font-weight: 700; letter-spacing: -0.4px;
+            color: var(--text); line-height: 1.25; margin-bottom: 6px;
+        }
+        .page-body {
+            font-size: 12px; color: var(--text-2); line-height: 1.6;
+        }
+        .page-body strong { color: var(--text); font-weight: 600; }
+
+        .agent-grid { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
+        .agent-row  { display: flex; align-items: center; gap: 8px; }
+        .agent-dot  { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+        .agent-name { font-size: 11px; font-weight: 600; color: var(--text); min-width: 96px; }
+        .agent-role { font-size: 11px; color: var(--muted); }
+
+        .feature-list { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        .feature-list li {
+            display: flex; align-items: flex-start; gap: 8px;
+            font-size: 12px; color: var(--text-2); line-height: 1.4;
+        }
+        .feature-list li::before {
+            content: ''; width: 4px; height: 4px; border-radius: 50%;
+            background: var(--gold); flex-shrink: 0; margin-top: 5px;
+        }
+
+        /* ================================================================
+           LOADING SCREEN
+        ================================================================ */
+        #loading {
+            position: absolute;
+            top: 48px; left: 0; right: 0; bottom: 0;
+            z-index: 50;
+            background: var(--bg);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 16px;
+            transition: opacity 0.6s ease;
+        }
+        #loading.hidden { opacity: 0; pointer-events: none; }
+        .loading-mark {
+            width: 32px; height: 32px;
+            background: var(--gold); border-radius: 6px; position: relative;
+            animation: pulse-mark 1.4s ease-in-out infinite;
+        }
+        .loading-mark::after {
+            content: ''; position: absolute; bottom: 5px; right: 5px;
+            width: 10px; height: 10px; background: var(--bg); border-radius: 3px;
+        }
+        @keyframes pulse-mark {
+            0%,100% { opacity: 1; transform: scale(1); }
+            50%      { opacity: 0.6; transform: scale(0.92); }
+        }
+        .loading-text {
+            font-size: 11px; font-weight: 500; letter-spacing: 3px;
+            text-transform: uppercase; color: var(--muted);
+        }
+        .loading-sub { font-size: 11px; color: #3f3f46; letter-spacing: 1px; }
+
+        /* ================================================================
+           BOTTOM HUD
+        ================================================================ */
+        #hud {
+            position: absolute; bottom: 0; left: 0; right: 0; z-index: 20;
+            display: flex; align-items: flex-end; justify-content: space-between;
+            padding: 16px 24px 24px; pointer-events: none;
+        }
+        #stage-label {
+            display: flex; flex-direction: column; gap: 4px;
+            opacity: 0; transform: translateY(8px);
+            transition: opacity 0.4s, transform 0.4s;
+        }
+        #stage-label.visible { opacity: 1; transform: translateY(0); }
+        .stage-num  { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+        .stage-title { font-size: 14px; font-weight: 600; color: var(--text); }
+        .stage-desc  { font-size: 12px; color: var(--text-2); max-width: 240px; line-height: 1.4; }
+
+        #progress-wrap {
+            position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            pointer-events: none;
+        }
+        #progress-dots { display: flex; gap: 8px; }
+        .dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: #27272a;
+            transition: background 0.3s, transform 0.3s;
+        }
+        .dot.active { background: var(--gold); transform: scale(1.4); }
+        .dot.done   { background: var(--violet); }
+        #progress-pct { font-size: 10px; font-weight: 500; letter-spacing: 1px; color: var(--muted); }
+
+        #btn-continuar {
+            pointer-events: auto;
+            background: var(--gold); color: var(--bg);
+            border: none; border-radius: 8px;
+            padding: 12px 24px; font-size: 14px; font-weight: 700;
+            font-family: inherit; letter-spacing: -0.2px; cursor: pointer;
+            opacity: 0; transform: translateY(8px);
+            transition: opacity 0.4s, transform 0.4s, background 0.15s;
+        }
+        #btn-continuar.visible { opacity: 1; transform: translateY(0); }
+        #btn-continuar:hover    { background: #c9a22e; }
+        #btn-continuar:active   { background: #b8911f; }
+
+        /* ================================================================
+           RESPONSIVE
+        ================================================================ */
+        @media (max-width: 640px) {
+            .book { height: 500px; }
+            .page-content { grid-template-columns: 1fr; }
+            .page-right { display: none; }
+            .cover-title { font-size: 18px; }
+            #hud { padding: 12px 16px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ======================================================================
+     TOP BAR
+====================================================================== -->
+<header id="topbar">
+    <div id="logo">
+        <div id="logo-mark"></div>
+        <span id="logo-text"><span>Kupuri</span> Media™</span>
+    </div>
+    <div id="lang-toggle" role="group" aria-label="Language / Idioma">
+        <button class="lang-btn active" data-lang="es" aria-pressed="true">ES</button>
+        <button class="lang-btn"        data-lang="en" aria-pressed="false">EN</button>
+    </div>
+</header>
+
+<!-- ======================================================================
+     LOADING SCREEN
+====================================================================== -->
+<div id="loading">
+    <div class="loading-mark"></div>
+    <div class="loading-text">Iniciando Sphere OS™</div>
+    <div class="loading-sub">Un momento…</div>
+</div>
+
+<!-- ======================================================================
+     CSS 3D BOOK STAGE
+====================================================================== -->
+<section id="css-stage" aria-label="Flipbook interactivo">
+
+    <div class="book" id="book">
+
+        <div class="spine"></div>
+
+        <!-- Inner page (always visible) -->
+        <div class="inner-page" id="inner-page">
+            <div class="page-content">
+
+                <!-- LEFT: ¿Qué es Sphere OS? -->
+                <div class="page-left">
+                    <p class="page-eyebrow" id="left-eyebrow">Sphere OS™ · v2.0</p>
+                    <h2 class="page-heading" id="left-heading">Tu equipo de IA trabaja mientras tú duermes.</h2>
+                    <p class="page-body" id="left-body">Sphere OS™ es un sistema de 9 agentes de inteligencia artificial diseñados para <strong>empresas latinas de alto impacto</strong>. Cada agente tiene personalidad propia, habla en español, y opera de forma autónoma las 24 horas.</p>
+                    <div class="agent-grid" id="agent-grid"></div>
+                </div>
+
+                <!-- RIGHT: Cockpit + features -->
+                <div class="page-right">
+                    <p class="page-eyebrow" id="right-eyebrow">Tu cockpit personal</p>
+                    <h2 class="page-heading" id="right-heading">Visión completa. Control total.</h2>
+                    <p class="page-body" id="right-body">Desde un solo panel central, tú decides qué hacen tus agentes, cuándo hablan en consejo, y cuánto gasta cada uno.</p>
+                    <ul class="feature-list" id="feature-list"></ul>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Cover (ALEX Gold) —— draggable, pivots from left edge -->
+        <div class="cover" id="cover">
+            <!-- Front face -->
+            <div class="cover-face front">
+                <div class="cover-accent"></div>
+                <div class="cover-title" id="cover-title">Bienvenida a<br>Sphere OS™</div>
+                <div class="cover-subtitle" id="cover-subtitle">Kupuri Media™ · Santa María la Ribera, CDMX</div>
+                <div class="cover-tagline" id="cover-tagline">9 agentes · IA en español · 24/7</div>
+                <div class="drag-cue" id="drag-cue">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                    <span id="drag-cue-label">Abre</span>
+                </div>
+            </div>
+            <!-- Back face -->
+            <div class="cover-face back">
+                <div class="cover-accent" style="background:var(--violet)"></div>
+                <div class="cover-title" style="color:var(--violet);font-size:16px;" id="back-title">Sphere OS™<br>está listo para ti.</div>
+                <div class="cover-subtitle" id="back-subtitle">Abre el libro para conocer tu equipo.</div>
+            </div>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ======================================================================
+     BOTTOM HUD
+====================================================================== -->
+<div id="hud">
+
+    <div id="stage-label">
+        <span class="stage-num"  id="stage-num">Introducción · Paso 1 de 3</span>
+        <span class="stage-title" id="stage-title">Bienvenida</span>
+        <span class="stage-desc"  id="stage-desc">Abre la portada para descubrir tu equipo de agentes IA.</span>
+    </div>
+
+    <div id="progress-wrap">
+        <div id="progress-dots">
+            <div class="dot active" id="dot-0"></div>
+            <div class="dot"        id="dot-1"></div>
+            <div class="dot"        id="dot-2"></div>
+            <div class="dot"        id="dot-3"></div>
+        </div>
+        <span id="progress-pct">0%</span>
+    </div>
+
+    <button id="btn-continuar" type="button">
+        <span id="btn-cta-text">Entrar al Dashboard →</span>
+    </button>
+
+</div>
+
+<script>
+/* =========================================================================
+   BILINGUAL COPY — Mexican Spanish primary, English secondary
+========================================================================= */
+const COPY = {
+    stages: [
+        {
+            num:   { es: 'Introducción · Paso 1 de 3',       en: 'Introduction · Step 1 of 3' },
+            title: { es: 'Bienvenida',                        en: 'Welcome' },
+            desc:  { es: 'Abre la portada para descubrir tu equipo de agentes IA.',
+                     en: 'Open the cover to discover your AI agent team.' },
+        },
+        {
+            num:   { es: 'Sistema · Paso 2 de 3',             en: 'System · Step 2 of 3' },
+            title: { es: 'Tu equipo trabaja 24/7',            en: 'Your team works 24/7' },
+            desc:  { es: '9 agentes especializados. Cada uno con voz, personalidad y misión propias.',
+                     en: '9 specialized agents. Each with their own voice, personality, and mission.' },
+        },
+        {
+            num:   { es: 'Cockpit · Paso 3 de 3',             en: 'Cockpit · Step 3 of 3' },
+            title: { es: 'Visión completa. Control total.',   en: 'Complete visibility. Total control.' },
+            desc:  { es: 'Panel central. Decisiones en tiempo real. Presupuesto por agente.',
+                     en: 'Central panel. Real-time decisions. Per-agent budget.' },
+        },
+        {
+            num:   { es: '¡Listo!',                           en: 'Ready!' },
+            title: { es: 'Tu Sphere OS™ está activo.',        en: 'Your Sphere OS™ is active.' },
+            desc:  { es: 'SYNTHIA™ ya está coordinando tu primera reunión de consejo.',
+                     en: 'SYNTHIA™ is already coordinating your first council meeting.' },
+        },
+    ],
+    agents: [
+        { color: '#8b5cf6', name: 'SYNTHIA™',     role: { es: 'Coordinadora General',     en: 'Chief of Staff'        } },
+        { color: '#d4af37', name: 'ALEX™',         role: { es: 'Estratega Ejecutivo',       en: 'Executive Strategist'  } },
+        { color: '#ef4444', name: 'CAZADORA™',     role: { es: 'Cazadora de Oportunidades', en: 'Opportunity Hunter'    } },
+        { color: '#22c55e', name: 'FORJADORA™',    role: { es: 'Arquitecta de Sistemas',    en: 'Systems Architect'     } },
+        { color: '#eab308', name: 'SEDUCTORA™',    role: { es: 'Closera Maestra',           en: 'Master Closer'         } },
+        { color: '#1d4ed8', name: 'CONSEJO™',      role: { es: 'Consejero Mayor',           en: 'Senior Advisor'        } },
+        { color: '#f97316', name: 'DR. ECONOMÍA',  role: { es: 'Analista Financiero',       en: 'Financial Analyst'     } },
+        { color: '#f43f5e', name: 'DRA. CULTURA',  role: { es: 'Estratega Cultural',        en: 'Cultural Strategist'   } },
+        { color: '#06b6d4', name: 'ING. TEKNOS',   role: { es: 'Ingeniero de Sistemas',     en: 'Systems Engineer'      } },
+    ],
+    features: [
+        { es: 'Reuniones de consejo IA — todos los agentes debaten en tiempo real',
+          en: 'AI council meetings — all agents debate in real time' },
+        { es: 'Prospectos automatizados — CAZADORA™ busca clientes sin parar',
+          en: 'Automated prospects — CAZADORA™ hunts clients nonstop' },
+        { es: 'Presupuesto por agente — circuit breakers automáticos a $10/tarea',
+          en: 'Per-agent budget — automatic circuit breakers at $10/task' },
+        { es: 'Voz en español — Mercury 2 Inception + ElevenLabs multilingüe',
+          en: 'Spanish voice — Mercury 2 Inception + ElevenLabs multilingual' },
+    ],
+    cover: {
+        title:    { es: 'Bienvenida a<br>Sphere OS™',              en: 'Welcome to<br>Sphere OS™' },
+        subtitle: { es: 'Kupuri Media™ · Santa María la Ribera, CDMX', en: 'Kupuri Media™ · Santa María la Ribera, CDMX' },
+        tagline:  { es: '9 agentes · IA en español · 24/7',        en: '9 agents · AI in Spanish · 24/7' },
+        drag:     { es: 'Abre',                                    en: 'Open' },
+        back:     { title:    { es: 'Sphere OS™<br>está listo para ti.',  en: 'Sphere OS™<br>is ready for you.' },
+                    subtitle: { es: 'Abre el libro para conocer tu equipo.', en: 'Open the book to meet your team.' } },
+    },
+    inner: {
+        left:  { eyebrow: { es: 'Sphere OS™ · v2.0',       en: 'Sphere OS™ · v2.0' },
+                 heading:  { es: 'Tu equipo de IA trabaja mientras tú duermes.', en: 'Your AI team works while you sleep.' },
+                 body:     { es: 'Sphere OS™ es un sistema de 9 agentes de inteligencia artificial diseñados para <strong>empresas latinas de alto impacto</strong>. Cada agente tiene personalidad propia, habla en español, y opera de forma autónoma las 24 horas.',
+                             en: 'Sphere OS™ is a system of 9 AI agents designed for <strong>high-impact Latin businesses</strong>. Each agent has its own personality, speaks Spanish, and operates autonomously 24 hours a day.' } },
+        right: { eyebrow: { es: 'Tu cockpit personal',     en: 'Your personal cockpit' },
+                 heading:  { es: 'Visión completa. Control total.', en: 'Complete visibility. Total control.' },
+                 body:     { es: 'Desde un solo panel central, tú decides qué hacen tus agentes, cuándo hablan en consejo, y cuánto gasta cada uno.',
+                             en: 'From a single central panel, you decide what your agents do, when they speak in council, and how much each one spends.' } },
+    },
+    cta: { es: 'Entrar al Dashboard →', en: 'Enter Dashboard →' },
+};
+
+/* =========================================================================
+   STATE
+========================================================================= */
+let lang     = 'es';
+let fraction = 0;
+let stage    = 0;
+let isDragging  = false;
+let dragStartX  = 0;
+let dragStartFr = 0;
+let velocity    = 0;
+let rafId       = null;
+
+/* =========================================================================
+   VIRAL ANALYTICS — non-blocking, never breaks user experience
+========================================================================= */
+const SESSION_ID = (() => {
+    try { return crypto.randomUUID(); } catch { return Math.random().toString(36).slice(2); }
+})();
+
+/** Resolve the beacon endpoint: same-origin if embedded in control-room,
+ *  otherwise absolute URL for standalone flipbook deployment. */
+const BEACON_URL = (() => {
+    const base = window.__kupuri_api_base ?? '';
+    return base ? `${base}/api/onboarding/event` : '/api/onboarding/event';
+})();
+
+let __sw = null; // ServiceWorkerRegistration cache
+
+function beacon(event, extra = {}) {
+    const payload = {
+        event,
+        sessionId: SESSION_ID,
+        lang,
+        stage,
+        ts: Date.now(),
+        ...extra,
+    };
+    const json = JSON.stringify(payload);
+    // Primary: sendBeacon (fire-and-forget, survives page unload)
+    if (navigator.sendBeacon) {
+        const sent = navigator.sendBeacon(BEACON_URL, json);
+        if (sent) return;
+    }
+    // Fallback: fetch (edge runtime, keepalive)
+    fetch(BEACON_URL, {
+        method: 'POST', keepalive: true,
+        headers: { 'Content-Type': 'application/json' },
+        body: json,
+    }).catch(() => {
+        // Offline: queue in SW for background sync
+        if (__sw) __sw.active?.postMessage({ type: 'QUEUE_EVENT', payload });
+    });
+}
+
+/* =========================================================================
+   DOM
+========================================================================= */
+const cover      = document.getElementById('cover');
+const book       = document.getElementById('book');
+const dragCue    = document.getElementById('drag-cue');
+const stageNum   = document.getElementById('stage-num');
+const stageTitle = document.getElementById('stage-title');
+const stageDesc  = document.getElementById('stage-desc');
+const stageLabel = document.getElementById('stage-label');
+const dots       = [0,1,2,3].map(i => document.getElementById(`dot-${i}`));
+const pctEl      = document.getElementById('progress-pct');
+const btnCont    = document.getElementById('btn-continuar');
+const btnCtaTxt  = document.getElementById('btn-cta-text');
+const loadEl     = document.getElementById('loading');
+const agentGrid  = document.getElementById('agent-grid');
+const featureList = document.getElementById('feature-list');
+
+/* =========================================================================
+   BOOT
+========================================================================= */
+function init() {
+    renderAgents();
+    renderFeatures();
+    applyLang();
+    showStage(0);
+    // Register Service Worker for offline resilience + event queue
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
+            .then(reg => {
+                __sw = reg;
+                // Flush any events queued while offline
+                reg.active?.postMessage({ type: 'FLUSH_EVENTS' });
+                navigator.onLine
+                    ? reg.active?.postMessage({ type: 'FLUSH_EVENTS' })
+                    : window.addEventListener('online', () => reg.active?.postMessage({ type: 'FLUSH_EVENTS' }), { once: true });
+            })
+            .catch(() => {}); // SW optional — never block
+    }
+    setTimeout(() => {
+        loadEl.classList.add('hidden');
+        stageLabel.classList.add('visible');
+        tryLoadWasm();
+        beacon('view');  // First touch — kick off funnel tracking
+    }, 700);
+}
+
+async function tryLoadWasm() {
+    try {
+        const mod = await import('./out/onboarding_flipbook.js');
+        await mod.default();
+        document.getElementById('css-stage').classList.add('behind-wasm');
+        document.addEventListener('flipbook:open', (e) => setFraction(e.detail ?? 0));
+    } catch (_) { /* WASM not compiled yet — CSS flipbook stays active */ }
+}
+
+/* =========================================================================
+   LANGUAGE
+========================================================================= */
+function applyLang() {
+    const c = COPY;
+    // Cover
+    document.getElementById('cover-title').innerHTML    = c.cover.title[lang];
+    document.getElementById('cover-subtitle').textContent = c.cover.subtitle[lang];
+    document.getElementById('cover-tagline').textContent  = c.cover.tagline[lang];
+    document.getElementById('drag-cue-label').textContent = c.cover.drag[lang];
+    document.getElementById('back-title').innerHTML     = c.cover.back.title[lang];
+    document.getElementById('back-subtitle').textContent  = c.cover.back.subtitle[lang];
+    // Inner left
+    document.getElementById('left-eyebrow').textContent  = c.inner.left.eyebrow[lang];
+    document.getElementById('left-heading').textContent  = c.inner.left.heading[lang];
+    document.getElementById('left-body').innerHTML       = c.inner.left.body[lang];
+    // Inner right
+    document.getElementById('right-eyebrow').textContent = c.inner.right.eyebrow[lang];
+    document.getElementById('right-heading').textContent = c.inner.right.heading[lang];
+    document.getElementById('right-body').textContent    = c.inner.right.body[lang];
+    // CTA
+    btnCtaTxt.textContent = c.cta[lang];
+    // Agent roles
+    document.querySelectorAll('.agent-role').forEach((el, i) => {
+        el.textContent = c.agents[i].role[lang];
+    });
+    // Features
+    document.querySelectorAll('.feature-list li').forEach((el, i) => {
+        el.textContent = c.features[i][lang];
+    });
+    // Lang buttons
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        const active = btn.dataset.lang === lang;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-pressed', String(active));
+    });
+    // Re-render stage
+    renderStageText();
+}
+
+document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        lang = btn.dataset.lang;
+        applyLang();
+        beacon('lang_toggle', { lang });
+    });
+});
+
+/* =========================================================================
+   RENDER AGENTS + FEATURES
+========================================================================= */
+function renderAgents() {
+    agentGrid.innerHTML = COPY.agents.map(a =>
+        `<div class="agent-row">
+            <div class="agent-dot" style="background:${a.color}"></div>
+            <span class="agent-name">${a.name}</span>
+            <span class="agent-role">${a.role.es}</span>
+        </div>`
+    ).join('');
+}
+
+function renderFeatures() {
+    featureList.innerHTML = COPY.features.map(f =>
+        `<li>${f.es}</li>`
+    ).join('');
+}
+
+/* =========================================================================
+   STAGE + FRACTION
+========================================================================= */
+function showStage(s) {
+    const prev = stage;
+    stage = Math.max(0, Math.min(3, s));
+    dots.forEach((dot, i) => {
+        dot.classList.toggle('done',   i < stage);
+        dot.classList.toggle('active', i === stage);
+    });
+    btnCont.classList.toggle('visible', stage === 3);
+    book.classList.toggle('open', fraction > 0.15);
+    dragCue.style.opacity = fraction < 0.05 ? '0.7' : '0';
+    renderStageText();
+    if (stage !== prev) beacon('stage_change', { stage });
+}
+
+function renderStageText() {
+    const d = COPY.stages[stage];
+    stageNum.textContent   = d.num[lang];
+    stageTitle.textContent = d.title[lang];
+    stageDesc.textContent  = d.desc[lang];
+}
+
+function setFraction(f) {
+    fraction = Math.max(0, Math.min(1, f));
+    const deg = fraction * 172;
+    cover.style.transform = `rotateY(${-deg}deg)`;
+    const sh = Math.round(fraction * 32);
+    cover.style.boxShadow = fraction > 0.05
+        ? `${sh}px 0 ${sh * 2}px rgba(0,0,0,${0.3 + fraction * 0.4})` : '';
+    pctEl.textContent = `${Math.round(fraction * 100)}%`;
+    const newStage = fraction < 0.1 ? 0 : fraction < 0.45 ? 1 : fraction < 0.85 ? 2 : 3;
+    if (newStage !== stage) showStage(newStage);
+    stageLabel.classList.add('visible');
+    renderStageText();
+}
+
+/* =========================================================================
+   SPRING SNAP
+========================================================================= */
+function runSpring() {
+    if (isDragging) return;
+    const target  = fraction > 0.45 ? 1 : 0;
+    const spring  = 10 * (target - fraction);
+    const damping = 5.5 * velocity;
+    velocity += (spring - damping) / 60;
+    fraction = Math.max(0, Math.min(1, fraction + velocity / 60));
+    setFraction(fraction);
+    if (Math.abs(fraction - target) > 0.001 || Math.abs(velocity) > 0.001) {
+        rafId = requestAnimationFrame(runSpring);
+    } else {
+        fraction = target; velocity = 0; setFraction(fraction);
+    }
+}
+
+function animateTo(target) {
+    velocity = (target - fraction) * 4;
+    isDragging = false;
+    cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(runSpring);
+}
+
+/* =========================================================================
+   DRAG — MOUSE
+========================================================================= */
+cover.addEventListener('mousedown', (e) => {
+    isDragging = true; dragStartX = e.clientX; dragStartFr = fraction;
+    cover.classList.add('grabbing');
+    cancelAnimationFrame(rafId); e.preventDefault();
+});
+window.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    const delta = (e.clientX - dragStartX) / (book.offsetWidth * 0.7);
+    setFraction(dragStartFr + delta);
+});
+window.addEventListener('mouseup', () => {
+    if (!isDragging) return;
+    isDragging = false; cover.classList.remove('grabbing');
+    rafId = requestAnimationFrame(runSpring);
+});
+
+/* =========================================================================
+   DRAG — TOUCH
+========================================================================= */
+cover.addEventListener('touchstart', (e) => {
+    isDragging = true; dragStartX = e.touches[0].clientX; dragStartFr = fraction;
+    cancelAnimationFrame(rafId);
+}, { passive: true });
+window.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    const delta = (e.touches[0].clientX - dragStartX) / (book.offsetWidth * 0.7);
+    setFraction(dragStartFr + delta);
+}, { passive: true });
+window.addEventListener('touchend', () => {
+    if (!isDragging) return;
+    isDragging = false; rafId = requestAnimationFrame(runSpring);
+});
+
+/* =========================================================================
+   CLICK TO TOGGLE
+========================================================================= */
+let mouseDownX = 0;
+cover.addEventListener('mousedown', (e) => { mouseDownX = e.clientX; });
+cover.addEventListener('click', (e) => {
+    if (Math.abs(e.clientX - mouseDownX) < 5) animateTo(fraction < 0.5 ? 1 : 0);
+});
+
+/* =========================================================================
+   KEYBOARD
+========================================================================= */
+document.addEventListener('keydown', (e) => {
+    if (e.key === ' ' || e.code === 'Space') { e.preventDefault(); animateTo(fraction < 0.5 ? 1 : 0); }
+    if (e.key === 'Escape')      animateTo(0);
+    if (e.key === 'ArrowRight')  setFraction(Math.min(1, fraction + 0.1));
+    if (e.key === 'ArrowLeft')   setFraction(Math.max(0, fraction - 0.1));
+});
+
+/* =========================================================================
+   CTA BUTTON
+========================================================================= */
+btnCont.addEventListener('click', () => {
+    localStorage.setItem('kupuri_onboarding_seen', 'true');
+    beacon('complete');
+    window.dispatchEvent(new CustomEvent('onboarding:complete', {
+        bubbles: true, detail: { ts: Date.now() },
+    }));
+    if (!window.__kupuri_spa) window.location.href = '/dashboard';
+});
+
+/* =========================================================================
+   START
+========================================================================= */
+init();
+</script>
+</body>
+</html>
