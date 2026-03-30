@@ -458,3 +458,54 @@ Access if needed by cloning directly from `/tmp/antigravity-skills/skills/[name]
 *Skills Manifest for AKASHPORTFOLIO*
 *ZTE-20260319-0001*
 *Based on EMERALD TABLETS Tablet III + Tablet VIII*
+
+---
+
+## VERSION 2.0 — OpenClaw AI OS Integration
+
+**Added**: 30 production-tested OpenClaw AI OS skills
+**New Total**: 203 active skills across all packs
+
+### Updated Skill Count
+
+```
+┌────────────────────────────────────────────────────────┐
+│      AKASHPORTFOLIO SKILL REGISTRY v2.0              │
+├────────────────────────────────────────────────────────┤
+│                                                        │
+│ Investigation:      7 (antigravity) + 7 (OpenClaw)    │
+│ Orchestration:      6 (antigravity) + 8 (OpenClaw)    │
+│ Implementation:    13 (antigravity) + 3 (OpenClaw)    │
+│ Security:          5 (antigravity)                    │
+│ Design:            7 (antigravity) + 12 (OpenClaw)    │
+│ Testing:           5 (antigravity)                    │
+│                                                        │
+├────────────────────────────────────────────────────────┤
+│ Subtotal (Antigravity):         38 skills             │
+│ Subtotal (OpenClaw AI OS):      30 skills             │
+│ simota/agent-skills:           105 agents             │
+│ garrytan/gstack:                29 skills             │
+│ semantic-search:                 1 skill              │
+├────────────────────────────────────────────────────────┤
+│ TOTAL ACTIVE SKILLS:           203 skills             │
+│ Average Confidence:            0.89                   │
+│ Tech Stack Cost:            $30/month                 │
+│ Status:                  Production ready              │
+│ Latest:            OpenClaw AI OS integration          │
+└────────────────────────────────────────────────────────┘
+```
+
+### OpenClaw Skills Overview
+
+**See full details**: `.claude/skills/openclaw-ai-os-skills.md`
+
+| Category | Skills | Sphere | Purpose |
+|----------|--------|--------|---------|
+| **Knowledge Graph** | 1 | Lens | Codebase documentation + RAG |
+| **Social Media** | 8 | Scout/Trace/Nexus | Publish, analytics, engagement |
+| **Lead Scraping** | 4 | Scout | Instagram, LinkedIn, Maps, enrichment |
+| **Email Automation** | 5* | Nexus | Campaign orchestration + sequencing |
+| **Computer Use Marketing** | 3 | Nexus | DM automation (Instagram, LinkedIn, Facebook) |
+| **Video/Content** | 9 | Builder/Canvas | Cloning, generation, repurposing |
+
+**Total: 30 skills** mapped to sphere roles per EMERALD TABLETS
