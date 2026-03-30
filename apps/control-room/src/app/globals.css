@@ -2,6 +2,18 @@
 
 :root {
   /* Synthia 3.0 Brand Palette — Uncodixfy compliant */
+  /* .impeccable.md canonical palette */
+  --color-bg:          #0a0a0f;
+  --color-surface:     #111118;
+  --color-border:      #1f1f2e;
+  --color-border-loud: #2d2d45;
+  --color-accent:      #8b5cf6;
+  --color-gold:        #d4af37;
+  --color-text:        #e8e8f0;
+  --color-muted:       #6b6b85;
+  --color-success:     #22c55e;
+  --color-warning:     #f59e0b;
+  --color-danger:      #ef4444;
   --color-charcoal-900: #0f0d08;
   --color-charcoal-800: #1a1208;
   --color-charcoal-700: #231a0c;

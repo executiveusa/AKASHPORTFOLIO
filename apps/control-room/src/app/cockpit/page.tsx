@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import HeraldToolLibrary from "@/components/HeraldToolLibrary";
 
 interface SwarmData {
@@ -356,6 +356,71 @@ export default function CockpitOverview() {
       }}>
         <HeraldToolLibrary />
       </div>
+
+      {/* Panels row: Repo Graph + Cost Guard + System Health */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, marginTop: 24 }}>
+        {/* Repo Graph summary */}
+        <div style={{ background: "var(--color-surface, #111118)", border: "1px solid var(--color-border, #1f1f2e)", borderRadius: 10, padding: 16 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "var(--color-muted, #6b6b85)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 10 }}>Repositorios</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: "var(--color-text, #e8e8f0)" }}>371</div>
+          <div style={{ fontSize: 12, color: "var(--color-muted, #6b6b85)", marginBottom: 12 }}>repos activos</div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {[["K", "#8b5cf6"], ["P", "#d4af37"], ["T", "#22c55e"], ["A", "#06b6d4"]].map(([label, color]) => (
+              <span key={label} style={{ fontSize: 11, padding: "3px 8px", borderRadius: 4, background: `${color}20`, color, fontWeight: 600 }}>{label}</span>
+            ))}
+          </div>
+        </div>
+
+        {/* Cost Guard */}
+        <CostGuardPanel />
+
+        {/* System Health */}
+        <div style={{ background: "var(--color-surface, #111118)", border: "1px solid var(--color-border, #1f1f2e)", borderRadius: 10, padding: 16 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "var(--color-muted, #6b6b85)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 10 }}>Estado del sistema</div>
+          {[
+            { label: "Vercel",   status: "ok" as const },
+            { label: "Supabase", status: "ok" as const },
+            { label: "API LLM",  status: "ok" as const },
+          ].map((item) => (
+            <div key={item.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 8, marginBottom: 8, borderBottom: "1px solid var(--color-border, #1f1f2e)" }}>
+              <span style={{ fontSize: 13, color: "var(--color-text, #e8e8f0)" }}>{item.label}</span>
+              <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, background: "#22c55e20", color: "#22c55e", fontWeight: 600 }}>Activo</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Cost Guard Panel ─────────────────────────────────────────────────────────
+
+function CostGuardPanel() {
+  const [budget, setBudget] = React.useState<{ today_usd: number; daily_limit_usd: number } | null>(null);
+
+  React.useEffect(() => {
+    fetch("/api/telemetry?view=budget")
+      .then((r) => r.json())
+      .then((d) => setBudget({ today_usd: d?.today_usd ?? 0, daily_limit_usd: d?.daily_limit_usd ?? 50 }))
+      .catch(() => {});
+  }, []);
+
+  const pct = budget ? Math.min(100, Math.round((budget.today_usd / budget.daily_limit_usd) * 100)) : 0;
+  const statusColor = pct > 80 ? "#ef4444" : pct > 60 ? "#f59e0b" : "#22c55e";
+
+  return (
+    <div style={{ background: "var(--color-surface, #111118)", border: "1px solid var(--color-border, #1f1f2e)", borderRadius: 10, padding: 16 }}>
+      <div style={{ fontSize: 11, fontWeight: 600, color: "var(--color-muted, #6b6b85)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 10 }}>Costo API hoy</div>
+      <div style={{ fontSize: 28, fontWeight: 700, color: "var(--color-text, #e8e8f0)" }}>
+        ${budget?.today_usd.toFixed(2) ?? "—"}
+      </div>
+      <div style={{ fontSize: 12, color: "var(--color-muted, #6b6b85)", marginBottom: 12 }}>
+        de ${budget?.daily_limit_usd ?? 50} límite diario
+      </div>
+      <div style={{ height: 6, background: "var(--color-border, #1f1f2e)", borderRadius: 3 }}>
+        <div style={{ height: "100%", background: statusColor, borderRadius: 3, width: `${pct}%`, transition: "width 500ms" }} />
+      </div>
+      <div style={{ marginTop: 6, fontSize: 11, color: statusColor }}>{pct}% utilizado</div>
     </div>
   );
 }

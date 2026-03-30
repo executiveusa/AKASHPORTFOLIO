@@ -126,9 +126,47 @@ curl -X POST http://localhost:3000/api/herald/dispatch \
 
 ## Active Sprint
 
-**ZTE-20260319-0001** — HERALD Tool Topology + Full Phase Completion
+**ZTE-20260330-FINAL** — SYNTHIA 3.0 — 9 Screens Complete
 
 Sprint board: `.beads/issues.jsonl`
+
+---
+
+## Planning & Design Protocol (Added 2026-03-30)
+
+### Session Start — Always Run First
+```bash
+git fetch origin && git log --oneline -3
+git branch -a | grep "claude/"
+find apps/control-room/src -name "*.tsx" -o -name "*.ts" | xargs wc -l 2>/dev/null | sort -rn | head -10
+```
+Cherry-pick needed work from branches BEFORE writing new code.
+jcodemunch any file >500 lines BEFORE editing it.
+Context budget: 45k tokens per session.
+
+### Screen Spec Format
+Every new page/feature gets this spec before code:
+- Route, Krug law (user knows X in N seconds), data sources, new APIs needed
+- Design tokens from `.impeccable.md` ONLY — no generic shadcn defaults
+
+### Anti-Hype Test
+"What does Ivette do differently tomorrow because of this?"
+If the answer is nothing external → don't build it.
+
+### 9-Screen Target State (built 2026-03-30)
+| Screen | Route | Status |
+|--------|-------|--------|
+| Dashboard | `/dashboard` | ✓ Built |
+| El Panorama | `/panorama` | ✓ Built |
+| Gastos | `/panorama/gastos` | ✓ Built |
+| Tareas | `/cockpit/tasks` | ✓ Pre-existing |
+| Chat Hermes | `/chat` | ✓ Built |
+| Cockpit | `/cockpit` | ✓ Extended |
+| Integraciones | `/integraciones` | ✓ Built |
+| Casos | `/casos` | ✓ Built |
+| Nuevo Proyecto | `/panorama/proyecto/nuevo` | ✓ Built |
+
+Full specs: `ops/reports/WORKFLOW_MANIFEST.md`
 
 ---
 

@@ -42,6 +42,19 @@
 > DB: Supabase (self-hosted + cloud). Schema: herald-schema.sql includes mistake_log.
 > Crons: 5 active (morning, nightly-summary, research-cycle, self-improvement, evening).
 
+> **Screen-first design protocol (2026-03-30)**: Before writing any new page or component, produce a screen spec (route, Krug law, data sources, new APIs). Design against `.impeccable.md` palette only. Zero generic Shadcn defaults.
+> Reference: `apps/control-room/.impeccable.md`
+
+> **jcodemunch mandatory (2026-03-30)**: Any file >500 lines must be compressed with `/jmunch {filepath}` before adding new code. Run `find apps/control-room/src -name "*.tsx" | xargs wc -l | sort -rn | head -10` at session start to identify candidates.
+> Rule: context budget per session = 45k tokens max.
+
+> **Audit before build (2026-03-30)**: Run `git branch -a | grep "claude/"` at session start. Cherry-pick existing work from unmerged branches before rebuilding. El Panorama lives in `f3b6729`. Skills live in `claude/execute-skill-installation-OGkgi`. Never duplicate what already exists.
+> Cherry-pick command: `git cherry-pick {hash}` — grab only what you need.
+
+> **9-screen target state (2026-03-30)**: Synthia app has 9 screens. Build order: Dashboard → El Panorama → Gastos → Tareas → Chat → Cockpit → Integraciones → Casos → Nuevo Proyecto Wizard. All built as of 2026-03-30. Full specs: `ops/reports/WORKFLOW_MANIFEST.md`
+
+> **Anti-hype law (permanent)**: Every feature must ship something a human values externally. No agents managing agents. No dashboards with fake data. No setup without output. Test: "What does Ivette do differently tomorrow because of this?"
+
 ---
 
 ## Standard Operating Procedure (Mandatory)
