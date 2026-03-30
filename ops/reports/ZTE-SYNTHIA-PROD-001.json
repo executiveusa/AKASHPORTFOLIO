@@ -12,13 +12,13 @@
   ],
   "phase_1_context_layer": {
     "status": "PARTIAL",
-    "note": "jcodemunch-mcp and context-mode plugins unavailable in npm registry yet. EMERALD TABLETS™ installed in all repos.",
+    "note": "jcodemunch-mcp and context-mode plugins unavailable in npm registry yet. EMERALD TABLETS\u2122 installed in all repos.",
     "completed": [
-      "✓ EMERALD TABLETS™ (PRIME_DIRECTIVE.md) installed in synthia-backend"
+      "\u2713 EMERALD TABLETS\u2122 (PRIME_DIRECTIVE.md) installed in synthia-backend"
     ],
     "pending": [
-      "○ jcodemunch-mcp (package not found in npm registry)",
-      "○ context-mode plugin (Claude Code specific, requires /plugin commands)"
+      "\u25cb jcodemunch-mcp (package not found in npm registry)",
+      "\u25cb context-mode plugin (Claude Code specific, requires /plugin commands)"
     ]
   },
   "phase_2_backend": {
@@ -28,24 +28,24 @@
     "local_commit": true,
     "github_push": false,
     "completed": [
-      "✓ server/routers/spheres.ts — 9 SYNTHIA™ personas with LLM integration",
-      "✓ server/routers/herald.ts — keyword-based intent routing v1",
-      "✓ server/routers/voice.ts — Twilio webhook + synthesis stub",
-      "✓ server/routers/payments.ts — Creem MXN checkout (3 tiers)",
-      "✓ CORS configuration for SYNTHIA™ origins",
-      "✓ GET /health endpoint with service status",
-      "✓ Default port: 4000",
-      "✓ All routers wired to appRouter",
-      "✓ TypeScript: 0 errors | Build: passing"
+      "\u2713 server/routers/spheres.ts \u2014 9 SYNTHIA\u2122 personas with LLM integration",
+      "\u2713 server/routers/herald.ts \u2014 keyword-based intent routing v1",
+      "\u2713 server/routers/voice.ts \u2014 Twilio webhook + synthesis stub",
+      "\u2713 server/routers/payments.ts \u2014 Creem MXN checkout (3 tiers)",
+      "\u2713 CORS configuration for SYNTHIA\u2122 origins",
+      "\u2713 GET /health endpoint with service status",
+      "\u2713 Default port: 4000",
+      "\u2713 All routers wired to appRouter",
+      "\u2713 TypeScript: 0 errors | Build: passing"
     ],
     "pending": [
-      "○ ElevenLabs voice synthesis (API key needed)",
-      "○ Supabase vibe_nodes memory integration",
-      "○ Wire 34 stubbed routes from AKASHPORTFOLIO",
-      "○ Twilio webhook implementation",
-      "○ Creem payment webhook handling",
-      "○ Postgres connection health check",
-      "○ HERALD v2 pgvector semantic routing"
+      "\u25cb ElevenLabs voice synthesis (API key needed)",
+      "\u25cb Supabase vibe_nodes memory integration",
+      "\u25cb Wire 34 stubbed routes from AKASHPORTFOLIO",
+      "\u25cb Twilio webhook implementation",
+      "\u25cb Creem payment webhook handling",
+      "\u25cb Postgres connection health check",
+      "\u25cb HERALD v2 pgvector semantic routing"
     ]
   },
   "phase_3_secrets_watchdog": {
@@ -54,20 +54,20 @@
     "local_commit": true,
     "github_creation": false,
     "completed": [
-      "✓ src/config.ts — environment-based configuration",
-      "✓ src/alert.ts — Telegram bot notifications",
-      "✓ src/checks.ts — API key health tests",
-      "✓ src/rotator.ts — password rotation logic",
-      "✓ src/index.ts — cron scheduler (6AM health, 3AM rotation, 9AM reminders)",
-      "✓ Dockerfile — multi-stage build for Coolify",
-      "✓ TypeScript configuration",
-      "✓ .env.example template"
+      "\u2713 src/config.ts \u2014 environment-based configuration",
+      "\u2713 src/alert.ts \u2014 Telegram bot notifications",
+      "\u2713 src/checks.ts \u2014 API key health tests",
+      "\u2713 src/rotator.ts \u2014 password rotation logic",
+      "\u2713 src/index.ts \u2014 cron scheduler (6AM health, 3AM rotation, 9AM reminders)",
+      "\u2713 Dockerfile \u2014 multi-stage build for Coolify",
+      "\u2713 TypeScript configuration",
+      "\u2713 .env.example template"
     ],
     "pending": [
-      "○ GitHub private repo creation",
-      "○ Postgres password rotation implementation",
-      "○ Infisical API integration",
-      "○ Docker push to registry"
+      "\u25cb GitHub private repo creation",
+      "\u25cb Postgres password rotation implementation",
+      "\u25cb Infisical API integration",
+      "\u25cb Docker push to registry"
     ],
     "cron_schedule": {
       "health_checks": "6 AM daily (0 6 * * *)",
@@ -78,23 +78,23 @@
   "phase_4_vps_infrastructure": {
     "status": "PENDING",
     "requirements": [
-      "○ SSH access to 31.220.58.212",
-      "○ Coolify dashboard access (http://31.220.58.212:8000)",
-      "○ Deploy synthia backend on port 4000",
-      "○ Deploy secrets watchdog on port 4001",
-      "○ Configure Cloudflare Tunnel for api.kupuri.media",
-      "○ Install agentic flywheel"
+      "\u25cb SSH access to 31.220.58.212",
+      "\u25cb Coolify dashboard access (http://31.220.58.212:8000)",
+      "\u25cb Deploy synthia backend on port 4000",
+      "\u25cb Deploy secrets watchdog on port 4001",
+      "\u25cb Configure Cloudflare Tunnel for api.kupuri.media",
+      "\u25cb Install agentic flywheel"
     ]
   },
   "phase_5_frontend_wiring": {
     "status": "PENDING",
     "requirements": [
-      "○ Backend must be live at https://api.kupuri.media",
-      "○ Wire 34 stubbed routes in AKASHPORTFOLIO",
-      "○ Update NEXT_PUBLIC_SYNTHIA_API_URL in Vercel",
-      "○ Test all sphere.chat endpoints",
-      "○ Test herald.dispatch routing",
-      "○ Update landing page with live API calls"
+      "\u25cb Backend must be live at https://api.kupuri.media",
+      "\u25cb Wire 34 stubbed routes in AKASHPORTFOLIO",
+      "\u25cb Update NEXT_PUBLIC_SYNTHIA_API_URL in Vercel",
+      "\u25cb Test all sphere.chat endpoints",
+      "\u25cb Test herald.dispatch routing",
+      "\u25cb Update landing page with live API calls"
     ]
   },
   "backend_spec_summary": {
@@ -129,9 +129,9 @@
   },
   "security_notes": {
     "critical": [
-      "PG_PASSWORD appeared in chat — ROTATE IMMEDIATELY on VPS",
-      "JWT_SECRET appeared in chat — REGENERATE IMMEDIATELY",
-      "Dashboard password appeared in PDF — CHANGE IMMEDIATELY"
+      "PG_PASSWORD appeared in chat \u2014 ROTATE IMMEDIATELY on VPS",
+      "JWT_SECRET appeared in chat \u2014 REGENERATE IMMEDIATELY",
+      "Dashboard password appeared in PDF \u2014 CHANGE IMMEDIATELY"
     ],
     "action": "All three must be rotated and updated in Infisical before any production deploy"
   },
