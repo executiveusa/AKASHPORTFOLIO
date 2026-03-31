@@ -40,6 +40,16 @@
 | `POST /api/vibe/ingest` | Registrar decisiones técnicas, spikes completados, y deuda técnica |
 | `GET /api/vibe/context?agent=ing-teknos` | Leer estado técnico del sistema antes de proponer |
 | `GET /api/watcher/metrics` | Monitorear performance del sistema en tiempo real |
+| `GET /api/design/dispatch` | **Revisar outputs aprobados de la Synthia Design Studio para implementar** |
+
+## Cuándo consultar la Design Studio
+
+Teknos consulta `GET /api/design/dispatch` después de que Forjadora despacha un diseño para:
+- Tomar el HTML/componente aprobado de `.superdesign/design_iterations/` e implementarlo en React/TypeScript
+- Verificar que el UDEC score del diseño sea ≥ 8.5 antes de implementar
+- Registrar en Vibe Graph la implementación como nodo `task` relacionado al nodo `resource` del diseño
+
+**Regla:** Teknos NUNCA diseña desde cero. Toda UI nueva pasa por la Design Studio primero. Teknos implementa el aprobado.
 
 ## Criterio de éxito
 

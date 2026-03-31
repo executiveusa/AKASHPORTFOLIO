@@ -11,7 +11,7 @@ import { vibeIngest, getVibeContext, vibeInvalidate } from '@/lib/vibe-graph';
 import type { SphereAgentId } from '@/shared/council-events';
 import type { NodeKind } from '@/lib/vibe-graph';
 
-const VALID_AGENTS = ['synthia','alex','cazadora','forjadora','seductora','consejo','dr-economia','dra-cultura','ing-teknos','system'] as const;
+const VALID_AGENTS = ['synthia','synthia-design','alex','cazadora','forjadora','seductora','consejo','dr-economia','dra-cultura','ing-teknos','system'] as const;
 const VALID_NODE_KINDS: NodeKind[] = ['agent','task','fact','memory','goal','resource','relationship'];
 
 export async function POST(req: NextRequest) {

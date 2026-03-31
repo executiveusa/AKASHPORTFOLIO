@@ -35,6 +35,29 @@
 | `POST /api/vibe/ingest` | Registrar decisiones arquitectónicas y deuda técnica |
 | `GET /api/vibe/context?agent=forjadora` | Leer estado del sistema antes de diseñar |
 | `POST /api/council/orchestrator` | Solicitar reunión técnica con Teknos cuando hay decisión de arquitectura |
+| `POST /api/design/dispatch` | **Encargar trabajo de diseño UI/UX a la Synthia Design Studio** |
+
+## Cuándo llamar a la Design Studio
+
+Forjadora llama `POST /api/design/dispatch` cuando:
+- Ivette necesita un componente UI nuevo o una pantalla
+- Se aprueba un ADR que requiere nueva interfaz
+- Se detecta que el diseño actual no pasa el estándar UDEC 8.5
+- Se necesita un sitio o landing page completo
+
+```json
+// Ejemplo: body del POST
+{
+  "requestedBy": "forjadora",
+  "designType": "ui-component",
+  "projectName": "cockpit-repos-panel",
+  "brief": "Panel de repositorios GitHub para el Cockpit. Diseño estilo Linear/GitHub. Dark mode obligatorio. Debe mostrar: último commit, issues abiertos, build status, nodos activos del Vibe Graph. Sin datos mock.",
+  "udecFloor": 8.5,
+  "priority": "high"
+}
+```
+
+La Design Studio devuelve el HTML/componente aprobado en `.superdesign/design_iterations/` y lo postea al Vibe Graph como nodo `resource` para que Teknos lo implemente.
 
 ## Criterio de éxito
 

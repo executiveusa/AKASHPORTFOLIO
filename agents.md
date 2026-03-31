@@ -55,6 +55,19 @@
 
 > **Anti-hype law (permanent)**: Every feature must ship something a human values externally. No agents managing agents. No dashboards with fake data. No setup without output. Test: "What does Ivette do differently tomorrow because of this?"
 
+> **Synthia Design Studio (2026-03-31)** — ALL new UI/design work flows through the Design Studio.
+> Route: `POST /api/design/dispatch` — accepts any sphere's design brief, queues in Vibe Graph, returns task file
+> Studio repo: `github.com/executiveusa/synthia-superdesign` — produces Awwwards-quality output
+> UDEC quality floor: **8.5** — nothing ships below this
+> Design pipeline: HERMES routes → RALPHY×3 builds → LENA scores → gate → MARCO iterates
+> Callers: FORJADORA (UI/architecture), DRA-CULTURA (brand/assets), ING-TEKNOS (implements approved output)
+> Example call:
+> ```json
+> { "requestedBy": "forjadora", "designType": "dashboard", "projectName": "cockpit-repos-panel",
+>   "brief": "GitHub repos panel for Cockpit. Linear/GitHub aesthetic. Dark. Real data only.", "udecFloor": 8.5 }
+> ```
+> Rule: **Teknos NEVER designs inline**. All new UI goes through dispatch first. Teknos implements what the studio approves.
+
 ---
 
 ## Standard Operating Procedure (Mandatory)

@@ -17,6 +17,7 @@ STEP 6 → Run: get_errors on apps/control-room/  (fix all before new code)
 STEP 7 → For any file >500 lines: apply jcodemunch split before adding code
 STEP 8 → Check emerald-tablets/superpowers/FRONTEND_DESIGN_SYSTEM.md
 STEP 9 → ACK: "ZTE-PERSONA-v2.0 ACKNOWLEDGED | Agent: <name> | Role: <role>"
+STEP 10 → For ANY new UI/design work: use POST /api/design/dispatch — never design from scratch inline
 ```
 
 **Zero-Touch Engineering Protocol v2.0** — Ship → Test → Fix → Commit → Deploy → Verify → Notify
@@ -78,6 +79,8 @@ kupuri-media-cdmx/
 | DB schema (run once) | `apps/control-room/src/lib/herald-schema.sql` |
 | Cockpit UI | `apps/control-room/src/app/cockpit/` |
 | Backend API routes | `apps/control-room/src/app/api/` (131 routes) |
+| **Design dispatch** | `POST /api/design/dispatch` → Synthia Design Studio |
+| **Design Studio** | `github.com/executiveusa/synthia-superdesign` |
 | Task tracker | `.beads/issues.jsonl` (via `bd` CLI) |
 | Memory | `memory/memory.md` |
 | Design memory | `apps/control-room/.impeccable.md` |
