@@ -4,6 +4,7 @@ title: Desarrollador de Migraciones
 reportsTo: lane-ceo
 skills:
   - paperclip
+  - opencli-rs-skill
 budget:
   monthly_usd: 60
 inputs:

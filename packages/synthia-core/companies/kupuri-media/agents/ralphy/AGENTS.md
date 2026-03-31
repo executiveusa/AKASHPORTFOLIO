@@ -4,6 +4,7 @@ title: Quality Coach — Arquitecto de Calidad
 reportsTo: synthia-prime
 skills:
   - paperclip
+  - opencli-rs-skill
 budget:
   monthly_usd: 50
 ---

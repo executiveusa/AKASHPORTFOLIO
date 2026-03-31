@@ -1,5 +1,9 @@
 # AGENTS.md — Kupuri Media™ / ALEX™ Agent Framework
 
+> **Mandatory OpenCLI-RS Skill (2026-03-31)**: All agents MUST load `opencli-rs-skill` as a default skill before executing terminal automation or repo-wide build/test operations.
+> Skill source: `https://github.com/nashsu/opencli-rs-skill.git`
+> Local skill docs: `packages/synthia-core/companies/kupuri-media/skills/opencli-rs-skill/SKILL.md` and `packages/synthia-core/companies/akash-engine/skills/opencli-rs-skill/SKILL.md`
+
 > **Mandatory SOP** (2026-03-11): All agents must use the **agentic-sop** skill.
 > See: [agentic-sop skill](C:\Users\execu\.claude\skills\agentic-sop\SKILL.md)
 

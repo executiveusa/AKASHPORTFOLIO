@@ -4,6 +4,7 @@ title: Especialista TikTok
 reportsTo: fany
 skills:
   - paperclip
+  - opencli-rs-skill
   - postiz
 budget:
   monthly_usd: 10

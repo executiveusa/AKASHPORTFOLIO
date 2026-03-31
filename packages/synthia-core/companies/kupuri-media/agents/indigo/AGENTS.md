@@ -4,6 +4,7 @@ title: Estratega de Conversión
 reportsTo: synthia-prime
 skills:
   - paperclip
+  - opencli-rs-skill
 budget:
   monthly_usd: 20
 ---

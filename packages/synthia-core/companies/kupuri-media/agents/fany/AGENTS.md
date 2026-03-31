@@ -4,6 +4,7 @@ title: Directora de Contenido — La Coneja Blanca
 reportsTo: synthia-prime
 skills:
   - paperclip
+  - opencli-rs-skill
   - postiz
 budget:
   monthly_usd: 30
