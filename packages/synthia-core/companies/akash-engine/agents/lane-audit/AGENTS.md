@@ -4,6 +4,7 @@ title: Auditor de Sitios — SYNTHIA Scoring
 reportsTo: lane-ceo
 skills:
   - paperclip
+  - opencli-rs-skill
 budget:
   monthly_usd: 25
 ---

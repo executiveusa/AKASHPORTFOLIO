@@ -4,6 +4,7 @@ title: CEO Digital — Coordinadora General
 reportsTo: null
 skills:
   - paperclip
+  - opencli-rs-skill
 budget:
   monthly_usd: 20
 heartbeat:

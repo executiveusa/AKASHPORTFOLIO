@@ -4,6 +4,7 @@ title: Analista de Datos
 reportsTo: synthia-prime
 skills:
   - paperclip
+  - opencli-rs-skill
 budget:
   monthly_usd: 10
 heartbeat:

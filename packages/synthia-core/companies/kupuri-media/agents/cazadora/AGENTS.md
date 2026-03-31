@@ -4,6 +4,7 @@ title: Cazadora de Oportunidades — Prospect Hunter
 reportsTo: synthia-prime
 skills:
   - paperclip
+  - opencli-rs-skill
 budget:
   monthly_usd: 40
 heartbeat:

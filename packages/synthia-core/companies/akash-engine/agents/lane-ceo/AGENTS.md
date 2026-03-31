@@ -4,6 +4,7 @@ title: Operations Director — Akash Engine
 reportsTo: null
 skills:
   - paperclip
+  - opencli-rs-skill
 budget:
   monthly_usd: 15
 heartbeat:
