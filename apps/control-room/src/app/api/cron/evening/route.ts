@@ -7,12 +7,21 @@
  * This is the most important meeting — includes Ralphy's coaching moment
  * and the executive summary for Ivette.
  */
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { runMeeting } from '../../../../lib/meeting-room';
 
 export const runtime = 'nodejs';
 
-export async function GET() {
+function verifyCronSecret(req: NextRequest): boolean {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return false;
+  return req.headers.get('authorization') === `Bearer ${secret}`;
+}
+
+export async function GET(req: NextRequest) {
+  if (!verifyCronSecret(req)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   try {
     const meeting = await runMeeting('evening_wrap');
     return NextResponse.json({

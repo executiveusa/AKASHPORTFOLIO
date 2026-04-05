@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AlexVoice } from "@/components/AlexVoice";
 
 const NAV_SECTIONS = [
@@ -61,17 +61,32 @@ const NAV_SECTIONS = [
 ];
 
 function BudgetIndicator() {
+  const [spent, setSpent] = useState<number | null>(null);
+  const limit = 10;
+
+  useEffect(() => {
+    fetch("/api/telemetry?view=budget")
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (d) setSpent(d?.today_usd ?? d?.budget?.today_usd ?? 0); })
+      .catch(() => {});
+  }, []);
+
+  const pct = spent != null ? Math.min(100, Math.round((spent / limit) * 100)) : 0;
+  const barColor = pct > 80 ? "var(--status-error)" : pct > 60 ? "var(--status-warn)" : "var(--status-ok)";
+
   return (
     <div className="metric-card" style={{ padding: "12px 16px" }}>
       <div style={{ fontSize: 11, color: "var(--color-cream-400)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>
         Presupuesto hoy
       </div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-        <span style={{ fontSize: 18, fontWeight: 600, color: "var(--color-gold-400)" }}>$2.40</span>
-        <span style={{ fontSize: 12, color: "var(--color-cream-600)" }}>/ $10.00</span>
+        <span style={{ fontSize: 18, fontWeight: 600, color: "var(--color-gold-400)" }}>
+          {spent != null ? `$${spent.toFixed(2)}` : "—"}
+        </span>
+        <span style={{ fontSize: 12, color: "var(--color-cream-600)" }}>/ ${limit}.00</span>
       </div>
       <div style={{ marginTop: 6, height: 3, background: "var(--color-charcoal-600)", borderRadius: 2 }}>
-        <div style={{ width: "24%", height: "100%", background: "var(--status-ok)", borderRadius: 2 }} />
+        <div style={{ width: `${pct}%`, height: "100%", background: barColor, borderRadius: 2, transition: "width 0.3s ease" }} />
       </div>
     </div>
   );

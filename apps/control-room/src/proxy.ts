@@ -15,10 +15,27 @@ export default auth((req: AuthRequest) => {
 });
 
 export const config = {
-  // Regex-style matchers ensure both the exact path and all sub-paths are protected
   matcher: [
     '/cockpit(.*)',
     '/dashboard(.*)',
     '/spheres(.*)',
+    '/panorama(.*)',
+    '/chat(.*)',
+    '/casos(.*)',
+    '/watcher(.*)',
+    '/integraciones(.*)',
+    '/theater(.*)',
+    '/skills(.*)',
+    '/synthia(.*)',
+    '/newspaper(.*)',
+    '/coordination(.*)',
+    '/alex(.*)',
+    '/api/revenue(.*)',
+    '/api/watcher(.*)',
+    '/api/telemetry(.*)',
+    '/api/vibe(.*)',
+    '/api/synthia(.*)',
+    '/api/income(.*)',
+    '/api/council(.*)',
   ],
 };

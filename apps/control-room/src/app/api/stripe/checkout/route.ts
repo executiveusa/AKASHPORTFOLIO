@@ -26,6 +26,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!stripe) {
+      return NextResponse.json({ error: "Payment service not configured" }, { status: 503 });
+    }
+
     const origin = req.nextUrl.origin;
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",

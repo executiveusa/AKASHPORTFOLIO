@@ -13,12 +13,18 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseClient } from '@/lib/supabase-client';
 import { getBudgetStatus, getBudgetStatusAsync, getAgentCosts } from '@/lib/litellm-gateway';
+import { auth } from '../../../../auth';
 
 // ---------------------------------------------------------------------------
 // GET /api/watcher — route based on ?view= param
 // ---------------------------------------------------------------------------
 
 export async function GET(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const view = req.nextUrl.searchParams.get('view') ?? 'status';
 
   if (view === 'metrics') return getMetrics();
@@ -170,6 +176,11 @@ async function getDirectives(): Promise<NextResponse> {
 type AlertSeverity = 'INFO' | 'WARN' | 'ALERT' | 'CRITICAL';
 
 export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   let body: {
     fromAgent?: string;
     severity?: AlertSeverity;
