@@ -20,6 +20,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing signature or secret" }, { status: 400 });
   }
 
+  if (!stripe) {
+    return NextResponse.json({ error: "Payment service not configured" }, { status: 503 });
+  }
+
   let event: Stripe.Event;
   try {
     event = stripe.webhooks.constructEvent(body, sig, WEBHOOK_SECRET);

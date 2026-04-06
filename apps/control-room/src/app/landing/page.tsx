@@ -447,7 +447,7 @@ export default function SynthiaLandingPage() {
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link
-              href="/cockpit"
+              href="/auth/signin?callbackUrl=/onboarding"
               style={{
                 padding: '14px 32px', fontSize: 15, fontWeight: 700,
                 background: GOLD6, color: BG, borderRadius: 8,
@@ -457,7 +457,7 @@ export default function SynthiaLandingPage() {
               {t.hero.cta}
             </Link>
             <Link
-              href="/cockpit/spheres"
+              href="/synthia"
               style={{
                 padding: '14px 32px', fontSize: 15, fontWeight: 600,
                 background: 'transparent', border: `1px solid ${BORDER}`,
@@ -688,7 +688,7 @@ export default function SynthiaLandingPage() {
           </h2>
           <p style={{ fontSize: 16, color: CREAM4, lineHeight: 1.7, marginBottom: 36 }}>{t.cta_section.description}</p>
           <Link
-            href="/cockpit"
+            href="/auth/signin?callbackUrl=/onboarding"
             style={{
               display: 'inline-block',
               padding: '16px 40px', fontSize: 16, fontWeight: 800,

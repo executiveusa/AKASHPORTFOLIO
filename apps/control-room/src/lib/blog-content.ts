@@ -36,6 +36,20 @@ const POSTS: Omit<BlogPost, 'html'>[] = [
     date: '2025-06-15',
     tags: ['ia', 'negocios', 'productividad'],
   },
+  {
+    slug: 'como-crear-tu-ceo-invisible',
+    title: 'Cómo crear tu CEO invisible sin código ni técnicos',
+    excerpt: 'SYNTHIA™ 3.0 orquesta 9 agentes especializados que toman decisiones, automatizan operaciones y generan ingresos — sin que tengas que saber programar.',
+    date: '2025-06-22',
+    tags: ['synthia', 'automatización', 'emprendimiento'],
+  },
+  {
+    slug: 'arbitraje-latam-forex',
+    title: 'Arbitraje LATAM: cómo los agentes detectan oportunidades de forex',
+    excerpt: 'Los diferenciales de divisas entre países LATAM crean oportunidades diarias. Los agentes pueden detectarlas, ejecutarlas y reportarlas — mientras tú duermes.',
+    date: '2025-06-29',
+    tags: ['arbitraje', 'finanzas', 'automatización'],
+  },
 ];
 
 const CONTENT: Record<string, string> = {
@@ -68,6 +82,43 @@ const CONTENT: Record<string, string> = {
 
 <p><em>ALEX™ puede escanear oportunidades activas en Upwork y Workana diariamente y enviar resúmenes directamente a tu bandeja de entrada.</em></p>
 `,
+  'como-crear-tu-ceo-invisible': `
+<p>¿Imagina que tuvieras una ejecutiva con doctorado en negocios, otra especializada en ventas, una tercera en finanzas y una cuarta en tecnología — trabajando todas 24/7 para tu negocio, sin pedir salario?</p>
+
+<p>Eso es SYNTHIA™ 3.0: un sistema operativo de 9 agentes de IA que coordina operaciones, toma decisiones y ejecuta tareas complejas.</p>
+
+<h2>Los 9 Agentes de SYNTHIA™</h2>
+<ul>
+  <li><strong>SYNTHIA™</strong> — Tu coordinadora general. Distribuye tareas, coordina agentes, toma decisiones estratégicas.</li>
+  <li><strong>ALEX™</strong> — Tu estratega. Analiza mercados, propone iniciativas, monitorea competencia.</li>
+  <li><strong>CAZADORA™</strong> — Tu cazadora de oportunidades. Busca prospectos, identifica clientes ideales, genera leads.</li>
+  <li><strong>FORJADORA™</strong> — Tu arquitecta. Diseña sistemas, implementa procesos, construye infraestructura.</li>
+  <li><strong>SEDUCTORA™</strong> — Tu closera. Negocia, convence, cierra ventas.</li>
+  <li><strong>CONSEJO™</strong> — Tu consejero. Facilita decisiones, media conflictos, propone alternativas.</li>
+  <li><strong>DR. ECONOMÍA</strong> — Tu analista financiero. Monitorea flujo de caja, detecta oportunidades de arbitraje, optimiza gastos.</li>
+  <li><strong>DRA. CULTURA</strong> — Tu estratega de contenido. Crea posts, genera ideas, mantiene tu marca.</li>
+  <li><strong>ING. TEKNOS</strong> — Tu ingeniero. Configura herramientas, resuelve problemas técnicos, optimiza sistemas.</li>
+</ul>
+
+<h2>Cómo Funciona</h2>
+<p>1. <strong>Tú describes tu negocio</strong> — En la encuesta de onboarding, cuentas qué vendes, a quién, y cuáles son tus metas.</p>
+<p>2. <strong>SYNTHIA™ asigna agentes</strong> — Automáticamente, selecciona los 4-5 agentes más relevantes para tu negocio.</p>
+<p>3. <strong>Los agentes se coordinan</strong> — Cada día, ejecutan tareas, se reportan entre sí, toman decisiones.</p>
+<p>4. <strong>Tú ves el progreso</strong> — En el Cockpit, tu tablero centralizado, ves todo: oportunidades encontradas, ventas cerradas, problemas resueltos.</p>
+
+<h2>El Cockpit: Tu Centro de Control</h2>
+<p>Es aquí donde todo sucede. En tiempo real, ves:</p>
+<ul>
+  <li><strong>Dashboard de Agentes</strong> — Qué está haciendo cada agente ahora mismo</li>
+  <li><strong>Oportunidades</strong> — Leads nuevos, referencias, clientes potenciales</li>
+  <li><strong>Ventas</strong> — Pipelines, propuestas, contratos cerrados</li>
+  <li><strong>Finanzas</strong> — Ingresos diarios, gastos, oportunidades de arbitraje</li>
+  <li><strong>Tareas Completadas</strong> — Todo lo que los agentes lograron hoy</li>
+</ul>
+
+<h2>Costo: Una Fracción de tu Equipo Actual</h2>
+<p>Si hoy pagas $50,000 al mes en salarios para un equipo de 4 personas, SYNTHIA™ cuesta una fracción de eso — y trabaja sin descanso.</p>
+    `,
   'ia-para-emprendedoras-cdmx': `
 <p>La inteligencia artificial no es solo para programadores. En 2025, cualquier emprendedora con una conexión a internet puede automatizar tareas que antes requerían un equipo completo.</p>
 
@@ -90,6 +141,52 @@ const CONTENT: Record<string, string> = {
 
 <p><em>¿Quieres ver ALEX™ en acción? Visita el Control Room en kupurimedia.com</em></p>
 `,
+  'arbitraje-latam-forex': `
+<p>Hay una oportunidad de dinero que existe todos los días en Latinoamérica — y la mayoría de emprendedoras no la ve.</p>
+
+<p>Se llama arbitraje: explotar las diferencias de precio de algo (divisas, commodities, acciones) entre dos mercados diferentes.</p>
+
+<h2>El Arbitraje en LATAM es Real</h2>
+<p>Ejemplo:</p>
+<ul>
+  <li>Peso mexicano en Bancomer: 19.50 MXN/USD</li>
+  <li>Peso mexicano en Wise: 19.80 MXN/USD</li>
+  <li>Diferencia: 0.30 centavos por dólar</li>
+</ul>
+
+<p>Si transferís $100,000 USD:</p>
+<ul>
+  <li>Compra en Bancomer: 1,950,000 MXN</li>
+  <li>Vende en Wise: 1,980,000 MXN</li>
+  <li>Ganancia: 30,000 MXN (≈$1,500 USD) en 2 horas</li>
+</ul>
+
+<p>Esto sucede diariamente. Los límites: velocidad y información. Necesitás detectar la oportunidad, ejecutarla y cerrarla — antes de que el mercado corrija el diferencial (que sucede en minutos).</p>
+
+<h2>Aquí es donde los Agentes Ganan</h2>
+<p>DR. ECONOMÍA™ (el agente financiero de SYNTHIA™) monitorea 24/7:</p>
+<ul>
+  <li>Tipos de cambio en 20+ plataformas (bancos, casas de cambio, cripto exchanges)</li>
+  <li>Identifica diferencias de precio mayores al 0.5%</li>
+  <li>Calcula ganancias después de comisiones</li>
+  <li>Ejecuta el arbitraje automáticamente si la ganancia > $500</li>
+  <li>Te reporta diariamente: oportunidades detectadas, ejecutadas, ganancia acumulada</li>
+</ul>
+
+<h2>El Riesgo</h2>
+<p>Bajo. Es un movimiento simultáneo: compras en A, vendes en B, pocketas la diferencia. No dependés de futuros movimientos de precio — la ganancia está garantizada cuando ejecutás.</p>
+
+<h2>Por Qué No Todos Hacen Esto</h2>
+<p>Porque requiere:</p>
+<ol>
+  <li>Acceso a múltiples plataformas de cambio</li>
+  <li>Capital líquido disponible</li>
+  <li>Velocidad para actuar en minutos (imposible a mano)</li>
+  <li>Monitoreo 24/7 (humanamente agotador)</li>
+</ol>
+
+<p>Con SYNTHIA™, es automático. Mientras tú duermés, el dinero se multiplica.</p>
+    `,
   'agentes-ia-vs-empleados': `
 <p>Esta es una de las preguntas más frecuentes que recibimos de emprendedoras: ¿debo contratar a alguien o automatizar con IA?</p>
 

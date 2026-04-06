@@ -1,9 +1,17 @@
 import Stripe from "stripe";
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-02-25.clover",
-  typescript: true,
-});
+function createStripeClient(): Stripe | null {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) {
+    if (process.env.NODE_ENV !== "test") {
+      console.warn("[stripe] STRIPE_SECRET_KEY not set — Stripe disabled");
+    }
+    return null;
+  }
+  return new Stripe(key, { apiVersion: "2026-02-25.clover", typescript: true });
+}
+
+export const stripe = createStripeClient();
 
 // ── Product / Price catalog ────────────────────────────────────────────────
 export const PLANS = {

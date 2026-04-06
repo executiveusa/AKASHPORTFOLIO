@@ -105,11 +105,22 @@ export default function NewspaperPage() {
   const filtered =
     activeCategory === 'all' ? BRIEFINGS : BRIEFINGS.filter((b) => b.category === activeCategory);
 
-  function handleSubscribe(e: React.FormEvent) {
+  async function handleSubscribe(e: React.FormEvent) {
     e.preventDefault();
     if (!email.includes('@')) return;
-    // Stub: in production this would POST to /api/newsletter
-    setSubscribed(true);
+    
+    try {
+      const response = await fetch('/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      if (response.ok) {
+        setSubscribed(true);
+      }
+    } catch (err) {
+      console.error('Subscription failed:', err);
+    }
   }
 
   return (
@@ -193,16 +204,39 @@ export default function NewspaperPage() {
           {/* Briefing cards */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {filtered.map((b) => (
-              <article
+              <Link
                 key={b.slug}
-                className="panel"
+                href={`/newspaper/${b.slug}`}
                 style={{
-                  padding: '20px 24px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 8,
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  display: 'block',
+                  transition: 'all 0.2s',
                 }}
               >
+                <article
+                  className="panel"
+                  style={{
+                    padding: '20px 24px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 8,
+                    cursor: 'pointer',
+                    border: '1px solid var(--color-charcoal-600)',
+                    borderRadius: 8,
+                    transition: 'border-color 0.2s, background-color 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.borderColor = 'var(--color-gold-400)';
+                    el.style.backgroundColor = 'var(--color-charcoal-800)';
+                  }}
+                  onMouseLeave={(e) => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.borderColor = 'var(--color-charcoal-600)';
+                    el.style.backgroundColor = 'transparent';
+                  }}
+                >
                 {/* Top row: category + read time */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <span
@@ -245,7 +279,8 @@ export default function NewspaperPage() {
                 >
                   {b.summary}
                 </p>
-              </article>
+                </article>
+              </Link>
             ))}
           </div>
 

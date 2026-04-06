@@ -69,16 +69,16 @@ export default function SynthiaLanding() {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
             <Link
-              href="/dashboard"
+              href="/auth/signin?callbackUrl=/onboarding"
               className="px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition transform hover:scale-105"
             >
-              Entrar al Dashboard
+              Comenzar Ahora
             </Link>
             <Link
-              href="/cockpit"
+              href="/landing"
               className="px-8 py-4 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition transform hover:scale-105"
             >
-              Ver Coordinadora
+              Volver a Kupuri
             </Link>
           </div>
 
@@ -187,10 +187,10 @@ export default function SynthiaLanding() {
             Accede al dashboard de Synthia 3.0 y comienza a coordinar tus agentes hoy mismo.
           </p>
           <Link
-            href="/dashboard"
+            href="/auth/signin?callbackUrl=/onboarding"
             className="inline-block px-10 py-4 bg-linear-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white font-bold rounded-lg transition transform hover:scale-105"
           >
-            Abrir Dashboard
+            Comenzar Ahora
           </Link>
         </div>
       </section>

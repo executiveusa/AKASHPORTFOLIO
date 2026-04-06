@@ -174,8 +174,9 @@ Body:
 export async function GET(req: NextRequest) {
   // Return active design tasks from Vibe Graph
   const { vibeIngest: _, getVibeContext } = await import('@/lib/vibe-graph');
-  const tasks = await getVibeContext('synthia' as SphereAgentId);
-  const designTasks = tasks.filter(
+  const ctx = await getVibeContext('synthia' as SphereAgentId);
+  const allNodes = [...(ctx.ownNodes ?? []), ...(ctx.sharedNodes ?? [])];
+  const designTasks = allNodes.filter(
     (n: { tags?: string[] }) => n.tags?.includes('design-dispatch')
   );
 
