@@ -44,9 +44,31 @@ export default function OnboardingPage() {
   const [activeStep, setActiveStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [recommendedSpheres, setRecommendedSpheres] = useState<string[]>([]);
 
-  const handleSubmit = () => {
-    setSubmitted(true);
+  const handleSubmit = async () => {
+    setSaving(true);
+    setSaveError('');
+    try {
+      const res = await fetch('/api/onboarding/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(answers),
+      });
+      const data = await res.json() as { success?: boolean; recommendedSpheres?: string[]; error?: string };
+      if (data.success) {
+        setRecommendedSpheres(data.recommendedSpheres ?? []);
+        setSubmitted(true);
+      } else {
+        setSaveError(data.error || 'Error guardando respuestas. Intenta de nuevo.');
+      }
+    } catch {
+      setSaveError('Error de conexión. Intenta de nuevo.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (

@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { sanitizeForLLM, sanitizeText, hasPathTraversal } from '@/lib/sanitize';
 
 interface VapiToolCall {
   toolCallId: string;
@@ -39,13 +40,33 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 async function handleToolCall(call: VapiToolCall): Promise<{ toolCallId: string; result: string }> {
   const { toolCallId, name, parameters } = call;
 
+  // Sanitize tool name
+  const safeName = sanitizeText(name, 64);
+  if (safeName !== name || hasPathTraversal(name)) {
+    return { toolCallId, result: 'Solicitud no válida.' };
+  }
+
+  // Sanitize all string parameter values
+  const safeParams: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(parameters)) {
+    if (typeof v === 'string') {
+      const { clean, blocked } = sanitizeForLLM(v);
+      if (blocked) {
+        return { toolCallId, result: 'No puedo procesar esa solicitud.' };
+      }
+      safeParams[k] = clean;
+    } else {
+      safeParams[k] = v;
+    }
+  }
+
   try {
     switch (name) {
       case 'get_sphere_status': {
         const { supabaseAdmin } = await import('@/lib/supabase-client');
         const query = supabaseAdmin.from('agent_state').select('agent_id,name,status,metadata');
-        if (parameters.sphereId) {
-          query.eq('agent_id', parameters.sphereId);
+        if (safeParams.sphereId) {
+          query.eq('agent_id', safeParams.sphereId as string);
         }
         const { data } = await query;
         const spheres = (data ?? []).map((s: { agent_id: string; name: string; status: string }) =>
@@ -55,7 +76,7 @@ async function handleToolCall(call: VapiToolCall): Promise<{ toolCallId: string;
       }
 
       case 'run_council_meeting': {
-        const { topic, urgency = 'medium' } = parameters as { topic: string; urgency?: string };
+        const { topic, urgency = 'medium' } = safeParams as { topic: string; urgency?: string };
         const { supabaseAdmin } = await import('@/lib/supabase-client');
         await supabaseAdmin.from('agent_tasks').insert({
           task_type: 'council_meeting',
@@ -70,7 +91,7 @@ async function handleToolCall(call: VapiToolCall): Promise<{ toolCallId: string;
       }
 
       case 'search_knowledge': {
-        const { query } = parameters as { query: string };
+        const { query } = safeParams as { query: string };
         // Simple Supabase full-text search on agent_memory table
         const { supabaseAdmin } = await import('@/lib/supabase-client');
         const { data } = await supabaseAdmin
@@ -86,7 +107,7 @@ async function handleToolCall(call: VapiToolCall): Promise<{ toolCallId: string;
       }
 
       case 'create_task': {
-        const { title, assignee, priority = 'medium' } = parameters as {
+        const { title, assignee, priority = 'medium' } = safeParams as {
           title: string; assignee?: string; priority?: string;
         };
         const { supabaseAdmin } = await import('@/lib/supabase-client');
@@ -103,7 +124,7 @@ async function handleToolCall(call: VapiToolCall): Promise<{ toolCallId: string;
       }
 
       case 'get_analytics': {
-        const { metric = 'overview', period = 'today' } = parameters as { metric?: string; period?: string };
+        const { metric = 'overview', period = 'today' } = safeParams as { metric?: string; period?: string };
         // Return stub analytics — wire to real dashboard-data.ts as needed
         return {
           toolCallId,

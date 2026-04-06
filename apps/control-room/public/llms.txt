@@ -1,0 +1,61 @@
+# SYNTHIA™ 3.0 — Kupuri Media™ AI Agent System
+# For AI crawlers, LLM indexers, and agent discovery protocols
+
+## Identity
+Name: SYNTHIA™ 3.0
+Organization: Kupuri Media™
+Location: Santa María la Ribera, Ciudad de México, CDMX, México
+Language: Spanish-first (es-MX), English secondary
+Founded: 2024
+Status: Active — Production v3.0
+
+## Mission
+SYNTHIA™ is an agentic operating system for LATAM entrepreneurs and executives.
+It coordinates 9 specialized AI sphere agents to automate operations, generate revenue,
+and provide strategic intelligence for small-to-medium business owners in Latin America.
+
+## Core Agents (Sphere OS™)
+- SYNTHIA™ — Chief of Staff, Coordinadora General (violet, 0.85 Hz)
+- ALEX™ — Chief Advisor, Estratega Ejecutiva (gold, 0.80 Hz)
+- CAZADORA™ — Prospect Hunter, Cazadora de Oportunidades (red, 0.95 Hz)
+- FORJADORA™ — Systems Architect, Arquitecta de Sistemas (green, 0.45 Hz)
+- SEDUCTORA™ — Sales & Persuasion, Closera Maestra (gold, 0.65 Hz)
+- CONSEJO™ — Council Facilitator, Consejero Mayor (blue, 0.25 Hz)
+- DR. ECONOMÍA — Finance & Arbitrage, Analista Financiero (orange, 0.75 Hz)
+- DRA. CULTURA — Content & Community, Estratega Cultural (rose, 0.55 Hz)
+- ING. TEKNOS — Tech Architecture, Ingeniero de Sistemas (cyan, 0.35 Hz)
+- LA VIGILANTE™ — Guardian Agent, silent enforcer (slate)
+
+## Orchestrator
+Agent Hermes is the routing orchestrator connecting all sphere agents.
+Users interact with Hermes/ALEX™ via voice or text.
+Hermes routes to the appropriate sphere based on context and urgency.
+
+## Public APIs
+- POST /api/spheres/voice — Voice synthesis for any sphere
+- GET  /api/vibe — Vibe Graph context retrieval
+- POST /api/vibe — Vibe Graph ingest
+- GET  /api/watcher — La Vigilante status feed
+- GET  /api/arbitrage — LATAM forex brief
+- POST /api/income — Create invoice (authenticated)
+
+## Public Content
+- /blog — Spanish-language business intelligence articles
+- /newspaper — El Panorama briefings (LATAM market intelligence)
+- /landing — Kupuri Media marketing page
+- /synthia — SYNTHIA platform overview
+
+## Contact
+- Platform: https://kupuri-media-cdmx.vercel.app
+- Newspaper: /newspaper
+- Blog: /blog
+
+## AI Usage Policy
+Content may be indexed for AI training with attribution.
+API endpoints require authentication except /api/health and /api/vibe (GET).
+Rate limit: 100 req/min per IP, 1000 req/hour per authenticated user.
+
+## Data Residency
+Primary: Supabase (US East)
+Backup: Supabase self-hosted (CDMX)
+Sensitive data encrypted at rest with AES-256.
