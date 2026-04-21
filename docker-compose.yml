@@ -1,0 +1,146 @@
+version: '3.8'
+
+services:
+  # OpenClaw Gateway - Multi-channel messaging interface
+  openclaw-gateway:
+    build:
+      context: ./apps/openclaw-gateway
+      dockerfile: docker/Dockerfile
+    container_name: openclaw-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: debug
+      PORT: 3000
+      HERALD_URL: http://herald:4200
+      DATABASE_PATH: /app/data/sessions.db
+      SESSION_EXPIRY_HOURS: 24
+      MAX_HISTORY_MESSAGES: 50
+      # Channel configurations (set in .env)
+      WHATSAPP_ENABLED: ${WHATSAPP_ENABLED:-false}
+      WHATSAPP_ACCOUNT_SID: ${WHATSAPP_ACCOUNT_SID}
+      WHATSAPP_AUTH_TOKEN: ${WHATSAPP_AUTH_TOKEN}
+      WHATSAPP_PHONE_NUMBER: ${WHATSAPP_PHONE_NUMBER}
+      TELEGRAM_ENABLED: ${TELEGRAM_ENABLED:-false}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      SLACK_ENABLED: ${SLACK_ENABLED:-false}
+      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN}
+      SLACK_SIGNING_SECRET: ${SLACK_SIGNING_SECRET}
+      DISCORD_ENABLED: ${DISCORD_ENABLED:-false}
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
+    volumes:
+      - ./apps/openclaw-gateway/data:/app/data
+      - ./apps/openclaw-gateway/src:/app/src
+    depends_on:
+      herald:
+        condition: service_healthy
+    networks:
+      - kupuri-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  # HERALD - Orchestration and routing engine
+  herald:
+    image: kupuri/herald:latest
+    container_name: herald
+    ports:
+      - "4200:4200"
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: debug
+      PORT: 4200
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      LITELLM_BASE_URL: http://litellm:4000
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+      litellm:
+        condition: service_healthy
+    networks:
+      - kupuri-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:4200/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Supabase PostgreSQL (for HERALD vibe graph + pgvector)
+  supabase-db:
+    image: postgres:15-alpine
+    container_name: supabase-db
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_DB: kupuri_herald
+    ports:
+      - "5432:5432"
+    volumes:
+      - supabase-data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - kupuri-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # LiteeLM - LLM Proxy for embeddings and reasoning
+  litellm:
+    image: ghcr.io/berriai/litellm:main
+    container_name: litellm
+    ports:
+      - "4000:4000"
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      LOG_LEVEL: debug
+    command:
+      - "litellm"
+      - "--port"
+      - "4000"
+      - "--debug"
+    networks:
+      - kupuri-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis - Session cache and job queue
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - kupuri-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  supabase-data:
+  redis-data:
+
+networks:
+  kupuri-network:
+    driver: bridge
