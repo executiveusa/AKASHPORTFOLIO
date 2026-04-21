@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Control Room - Synthia 3.0 Dashboard | KUPURI</title>
+  <link rel="icon" href="/images/global/site-icon.png" />
+  <script>
+    // Redirect to control-room app
+    window.location.href = '/control-room';
+  </script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      color: #fff;
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .loading {
+      text-align: center;
+      padding: 2em;
+    }
+    .loading h1 { font-size: 2rem; margin-bottom: 0.5em; }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 1em auto;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="loading">
+    <div class="spinner"></div>
+    <h1>Loading Control Room...</h1>
+    <p>Initializing Synthia 3.0 ecosystem dashboard</p>
+  </div>
+</body>
+
+</html>
