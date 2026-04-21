@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>La Monarca - Digital Newspaper & Storytelling Platform</title>
+  <link rel="icon" href="/images/global/site-icon.png" />
+
+  <link rel="stylesheet" href="/css/transition.css" />
+  <link rel="stylesheet" href="/css/fonts.css" />
+  <link rel="stylesheet" href="/css/globals.css" />
+  <link rel="stylesheet" href="/css/menu.css" />
+  <link rel="stylesheet" href="/css/footer.css" />
+  <style>
+    .newspaper-page {
+      background: var(--bg);
+      color: var(--fg);
+    }
+
+    .newspaper-hero {
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 2em;
+      background: linear-gradient(135deg, var(--bg) 0%, rgba(255,255,255,0.05) 100%);
+    }
+
+    .newspaper-hero h1 {
+      font-size: clamp(2.5rem, 8vw, 5rem);
+      font-weight: 700;
+      margin-bottom: 1em;
+      letter-spacing: -0.02em;
+    }
+
+    .newspaper-hero p {
+      font-size: clamp(1rem, 2vw, 1.5rem);
+      max-width: 600px;
+      margin: 0 auto 2em;
+      opacity: 0.8;
+    }
+
+    .newspaper-cta-button {
+      display: inline-block;
+      padding: 1em 2em;
+      background: var(--fg);
+      color: var(--bg);
+      text-decoration: none;
+      border-radius: 0.5em;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .newspaper-cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .newspaper-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2em;
+      padding: 4em 2em;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .feature-card {
+      padding: 2em;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 1em;
+      background: rgba(255,255,255,0.02);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.05);
+      transform: translateY(-5px);
+    }
+
+    .feature-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5em;
+    }
+
+    .feature-card p {
+      opacity: 0.7;
+      line-height: 1.6;
+    }
+
+    .coming-soon {
+      text-align: center;
+      padding: 4em 2em;
+      background: rgba(255,255,255,0.02);
+      border: 1px dashed rgba(255,255,255,0.2);
+      border-radius: 1em;
+      margin: 4em 2em;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .coming-soon h2 {
+      font-size: 2rem;
+      margin-bottom: 0.5em;
+    }
+
+    .coming-soon p {
+      opacity: 0.7;
+      margin-bottom: 1.5em;
+    }
+
+    @media (max-width: 768px) {
+      .newspaper-hero h1 {
+        font-size: 2rem;
+      }
+
+      .newspaper-features {
+        padding: 2em 1em;
+        gap: 1.5em;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- page transition -->
+  <div class="transition">
+    <div class="transition-overlay overlay-1"></div>
+    <div class="transition-overlay overlay-2"></div>
+    <div class="transition-overlay overlay-3"></div>
+    <div class="transition-overlay overlay-4"></div>
+    <div class="transition-overlay overlay-5"></div>
+  </div>
+
+  <div class="page newspaper-page">
+    <!-- nav -->
+    <nav>
+      <div class="logo">
+        <div class="logo-container">
+          <p class="mn"><a href="/"><img src="/images/global/kupuri-logo.png" alt="Kupuri Media Logo"
+                style="height: 1.5em; width: auto;" /></a></p>
+        </div>
+      </div>
+      <div class="menu-toggle-btn">
+        <div class="menu-toggle-btn-wrapper">
+          <p class="mn open-label">Menu</p>
+          <p class="mn close-label">Close</p>
+        </div>
+      </div>
+
+      <div class="lang-toggle">
+        <button id="lang-es" class="lang-btn active">ES</button>
+        <button id="lang-en" class="lang-btn">EN</button>
+      </div>
+    </nav>
+
+    <div class="nav-overlay">
+      <div class="nav-items">
+        <div class="nav-item">
+          <p><a href="/">Home</a></p>
+        </div>
+        <div class="nav-item">
+          <p><a href="/work">Work</a></p>
+        </div>
+        <div class="nav-item">
+          <p><a href="/about">About</a></p>
+        </div>
+        <div class="nav-item">
+          <p><a href="/newspaper">La Monarca</a></p>
+        </div>
+        <div class="nav-item">
+          <p><a href="/contact">Contact</a></p>
+        </div>
+      </div>
+      <div class="nav-footer">
+        <div class="nav-footer-item">
+          <div class="nav-footer-item-header">
+            <p class="mn">Síguenos</p>
+          </div>
+          <div class="nav-footer-item-copy">
+            <p class="mn"><a href="https://www.linkedin.com/company/kupuri-media/" target="_blank">LinkedIn</a></p>
+          </div>
+        </div>
+        <div class="nav-footer-item">
+          <div class="nav-footer-item-copy">
+            <p class="mn"></p>
+          </div>
+        </div>
+        <div class="nav-footer-item">
+          <div class="nav-footer-item-header">
+            <p class="mn">Contacto</p>
+          </div>
+          <div class="nav-footer-item-copy">
+            <p class="mn">
+              <a href="mailto:referencias@kupurimedia.com" target="_blank">referencias@kupurimedia.com</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- hero -->
+    <section class="newspaper-hero">
+      <h1>La Monarca</h1>
+      <p>Digital newspaper exploring transformation, identity, and the monarchy of creative thought</p>
+      <a href="#features" class="newspaper-cta-button">Discover More</a>
+    </section>
+
+    <!-- features -->
+    <section class="newspaper-features" id="features">
+      <div class="feature-card">
+        <h3>🌍 Global Stories</h3>
+        <p>
+          Curated narratives from around the world exploring themes of transformation, resilience, and creativity.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <h3>🎨 Creative Culture</h3>
+        <p>
+          Deep dives into the intersection of art, technology, and social impact with interviews and features.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <h3>📱 Digital First</h3>
+        <p>
+          Native digital storytelling designed for modern consumption with immersive multimedia experiences.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <h3>👥 Community Voices</h3>
+        <p>
+          Amplifying underrepresented perspectives and giving platform to emerging creators and thinkers.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <h3>🔗 Connected Ecosystem</h3>
+        <p>
+          Seamlessly integrated with KUPURI MEDIA™ projects and the broader creative community.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <h3>✨ Interactive Experience</h3>
+        <p>
+          Dynamic, engaging content that invites readers to participate in shaping the narrative.
+        </p>
+      </div>
+    </section>
+
+    <!-- coming soon -->
+    <section class="coming-soon">
+      <h2>Coming Soon</h2>
+      <p>
+        La Monarca digital newspaper platform is currently in development.
+        <br />
+        Subscribe to be notified when we launch.
+      </p>
+      <a href="/contact" class="newspaper-cta-button">Get Notified</a>
+    </section>
+
+    <!-- footer -->
+    <footer>
+      <div class="footer-container">
+        <div class="footer-symbols footer-symbols-1">
+          <img loading="lazy" src="/images/global/s6.png" alt="" />
+          <img loading="lazy" src="/images/global/s6.png" alt="" />
+        </div>
+        <div class="footer-symbols footer-symbols-2">
+          <img loading="lazy" src="/images/global/s6.png" alt="" />
+          <img loading="lazy" src="/images/global/s6.png" alt="" />
+        </div>
+        <div class="footer-header">
+          <h1>LA MONARCA</h1>
+        </div>
+        <div class="footer-row">
+          <div class="footer-col">
+            <p>Navigate</p>
+            <p><a href="/">Home</a></p>
+            <p><a href="/work">Our Work</a></p>
+            <p><a href="/about">About</a></p>
+            <p><a href="/contact">Contact</a></p>
+          </div>
+          <div class="footer-col">
+            <p>Platform</p>
+            <p><a href="https://kupurimedia.com" target="_blank">KUPURI MEDIA™</a></p>
+            <p><a href="/newspaper" target="_blank">La Monarca</a></p>
+            <p><a href="/dashboard">Dashboard</a></p>
+          </div>
+          <div class="footer-col">
+            <p>Follow Us</p>
+            <p>
+              <a href="https://www.linkedin.com/company/kupuri-media/" target="_blank">LinkedIn</a>
+            </p>
+            <p>
+              <a href="https://twitter.com/kupurimedia" target="_blank">Twitter</a>
+            </p>
+            <p>
+              <a href="https://instagram.com/kupurimedia" target="_blank">Instagram</a>
+            </p>
+          </div>
+          <div class="footer-col">
+            <p>Ecosystem</p>
+            <p><a href="/dashboard" target="_blank">Control Room</a></p>
+            <p><a href="/directory" target="_blank">Directory</a></p>
+            <p><a href="https://kupurimedia.com/blog" target="_blank">Blog</a></p>
+          </div>
+        </div>
+        <div class="copyright-info">
+          <p class="mn">© 2026 KUPURI MEDIA™ & LA MONARCA. All rights reserved.</p>
+          <p class="mn"></p>
+        </div>
+        <div class="explosion-container"></div>
+      </div>
+    </footer>
+  </div>
+
+  <script type="module" src="/js/transition.js"></script>
+  <script type="module" src="/js/lenis-scroll.js"></script>
+  <script type="module" src="/js/menu.js"></script>
+  <script type="module" src="/js/footer.js"></script>
+</body>
+
+</html>

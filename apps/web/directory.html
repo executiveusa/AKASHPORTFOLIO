@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Directory - KUPURI Ecosystem | Projects & Services</title>
+  <link rel="icon" href="/images/global/site-icon.png" />
+
+  <link rel="stylesheet" href="/css/transition.css" />
+  <link rel="stylesheet" href="/css/fonts.css" />
+  <link rel="stylesheet" href="/css/globals.css" />
+  <link rel="stylesheet" href="/css/menu.css" />
+  <link rel="stylesheet" href="/css/footer.css" />
+  <style>
+    .directory-page { background: var(--bg); color: var(--fg); }
+    .directory-hero {
+      min-height: 60vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 2em;
+    }
+    .directory-hero h1 { font-size: clamp(2rem, 8vw, 4rem); font-weight: 700; margin-bottom: 1em; }
+    .directory-hero p { font-size: clamp(1rem, 2vw, 1.3rem); max-width: 600px; opacity: 0.8; }
+    .directory-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2em;
+      padding: 4em 2em;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .directory-item {
+      padding: 2em;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 1em;
+      background: rgba(255,255,255,0.02);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .directory-item:hover {
+      border-color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.05);
+      transform: translateY(-5px);
+    }
+    .directory-item h3 { font-size: 1.3rem; margin-bottom: 0.5em; }
+    .directory-item p { opacity: 0.7; flex-grow: 1; margin-bottom: 1em; }
+    .directory-item a {
+      color: var(--fg);
+      text-decoration: none;
+      font-weight: 600;
+      padding: 0.5em 1em;
+      border: 1px solid var(--fg);
+      border-radius: 0.3em;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    .directory-item a:hover {
+      background: var(--fg);
+      color: var(--bg);
+    }
+    .category-section {
+      margin-bottom: 4em;
+    }
+    .category-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 2em 2em 1em;
+      max-width: 1400px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 1em 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    @media (max-width: 768px) {
+      .directory-hero h1 { font-size: 1.5rem; }
+      .directory-grid { gap: 1.5em; padding: 2em 1em; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="transition">
+    <div class="transition-overlay overlay-1"></div>
+    <div class="transition-overlay overlay-2"></div>
+    <div class="transition-overlay overlay-3"></div>
+    <div class="transition-overlay overlay-4"></div>
+    <div class="transition-overlay overlay-5"></div>
+  </div>
+
+  <div class="page directory-page">
+    <nav>
+      <div class="logo">
+        <div class="logo-container">
+          <p class="mn"><a href="/"><img src="/images/global/kupuri-logo.png" alt="Kupuri Media Logo"
+                style="height: 1.5em; width: auto;" /></a></p>
+        </div>
+      </div>
+      <div class="menu-toggle-btn">
+        <div class="menu-toggle-btn-wrapper">
+          <p class="mn open-label">Menu</p>
+          <p class="mn close-label">Close</p>
+        </div>
+      </div>
+      <div class="lang-toggle">
+        <button id="lang-es" class="lang-btn active">ES</button>
+        <button id="lang-en" class="lang-btn">EN</button>
+      </div>
+    </nav>
+
+    <div class="nav-overlay">
+      <div class="nav-items">
+        <div class="nav-item">
+          <p><a href="/">Home</a></p>
+        </div>
+        <div class="nav-item">
+          <p><a href="/work">Work</a></p>
+        </div>
+        <div class="nav-item">
+          <p><a href="/about">About</a></p>
+        </div>
+        <div class="nav-item active">
+          <p><a href="/directory">Directory</a></p>
+        </div>
+        <div class="nav-item">
+          <p><a href="/contact">Contact</a></p>
+        </div>
+      </div>
+      <div class="nav-footer">
+        <div class="nav-footer-item">
+          <div class="nav-footer-item-header">
+            <p class="mn">Connect</p>
+          </div>
+          <div class="nav-footer-item-copy">
+            <p class="mn"><a href="https://www.linkedin.com/company/kupuri-media/" target="_blank">LinkedIn</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="directory-hero">
+      <h1>KUPURI Ecosystem Directory</h1>
+      <p>Explore all projects, services, and initiatives across our creative ecosystem</p>
+    </section>
+
+    <!-- Featured Projects -->
+    <div class="category-section">
+      <h2 class="category-title">Featured Projects</h2>
+      <div class="directory-grid">
+        <div class="directory-item">
+          <h3>Synthia 3.0</h3>
+          <p>AI-powered control room orchestrating 172+ autonomous agents for collaborative problem solving.</p>
+          <a href="/dashboard">Access Synthia →</a>
+        </div>
+        <div class="directory-item">
+          <h3>OpenClaw Gateway</h3>
+          <p>Multi-channel AI assistant enabling 24/7 presence across WhatsApp, Telegram, Slack, and Discord.</p>
+          <a href="/contact">Learn More →</a>
+        </div>
+        <div class="directory-item">
+          <h3>NEXUS CDMX</h3>
+          <p>Event coordination platform connecting creative professionals with real-time collaboration.</p>
+          <a href="/work">View Details →</a>
+        </div>
+        <div class="directory-item">
+          <h3>Suelta App</h3>
+          <p>Mobile marketplace empowering creators to manage, collaborate, and monetize work directly.</p>
+          <a href="/work">View Details →</a>
+        </div>
+        <div class="directory-item">
+          <h3>Kupuri Studios</h3>
+          <p>International creative studio specializing in digital experiences and brand storytelling.</p>
+          <a href="https://kupurimedia.com" target="_blank">Visit Site →</a>
+        </div>
+        <div class="directory-item">
+          <h3>La Monarca</h3>
+          <p>Digital newspaper exploring transformation, identity, and creative thought.</p>
+          <a href="/newspaper">Read Now →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Services -->
+    <div class="category-section">
+      <h2 class="category-title">Services & Expertise</h2>
+      <div class="directory-grid">
+        <div class="directory-item">
+          <h3>Design Services</h3>
+          <p>UI/UX, visual design, 3D rendering, and motion graphics for digital experiences.</p>
+          <a href="/contact">Inquire →</a>
+        </div>
+        <div class="directory-item">
+          <h3>Development</h3>
+          <p>Full-stack web & mobile development, AI integration, and cloud architecture.</p>
+          <a href="/contact">Inquire →</a>
+        </div>
+        <div class="directory-item">
+          <h3>AI & Automation</h3>
+          <p>Custom agent development, multi-agent systems, and intelligent automation solutions.</p>
+          <a href="/contact">Inquire →</a>
+        </div>
+        <div class="directory-item">
+          <h3>Brand Strategy</h3>
+          <p>Brand identity, storytelling, positioning, and creative direction.</p>
+          <a href="/contact">Inquire →</a>
+        </div>
+        <div class="directory-item">
+          <h3>Content Production</h3>
+          <p>Photography, videography, animation, and multimedia content creation.</p>
+          <a href="/contact">Inquire →</a>
+        </div>
+        <div class="directory-item">
+          <h3>Consulting</h3>
+          <p>Strategic guidance on digital transformation, innovation, and creative technology.</p>
+          <a href="/contact">Inquire →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resources -->
+    <div class="category-section">
+      <h2 class="category-title">Resources & Learning</h2>
+      <div class="directory-grid">
+        <div class="directory-item">
+          <h3>Blog</h3>
+          <p>Articles, case studies, and insights on design, technology, and creative innovation.</p>
+          <a href="https://kupurimedia.com/blog" target="_blank">Read Blog →</a>
+        </div>
+        <div class="directory-item">
+          <h3>Design Archive</h3>
+          <p>Curated collection of design inspiration and completed portfolio pieces.</p>
+          <a href="https://kupurimedia.com/design-archive" target="_blank">Browse →</a>
+        </div>
+        <div class="directory-item">
+          <h3>References</h3>
+          <p>Design and animation references curated for creative professionals.</p>
+          <a href="https://kupurimedia.com/referencias" target="_blank">View →</a>
+        </div>
+        <div class="directory-item">
+          <h3>About KUPURI</h3>
+          <p>Learn about our mission, values, and commitment to social impact.</p>
+          <a href="/about">Discover More →</a>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="footer-container">
+        <div class="footer-symbols footer-symbols-1">
+          <img loading="lazy" src="/images/global/s6.png" alt="" />
+          <img loading="lazy" src="/images/global/s6.png" alt="" />
+        </div>
+        <div class="footer-symbols footer-symbols-2">
+          <img loading="lazy" src="/images/global/s6.png" alt="" />
+          <img loading="lazy" src="/images/global/s6.png" alt="" />
+        </div>
+        <div class="footer-header">
+          <h1>KUPURI ECOSYSTEM</h1>
+        </div>
+        <div class="footer-row">
+          <div class="footer-col">
+            <p>Main</p>
+            <p><a href="/">Home</a></p>
+            <p><a href="/work">Work</a></p>
+            <p><a href="/about">About</a></p>
+            <p><a href="/contact">Contact</a></p>
+          </div>
+          <div class="footer-col">
+            <p>Projects</p>
+            <p><a href="/dashboard">Synthia 3.0</a></p>
+            <p><a href="/newspaper">La Monarca</a></p>
+            <p><a href="/directory">Directory</a></p>
+          </div>
+          <div class="footer-col">
+            <p>Follow</p>
+            <p><a href="https://www.linkedin.com/company/kupuri-media/" target="_blank">LinkedIn</a></p>
+            <p><a href="https://twitter.com/kupurimedia" target="_blank">Twitter</a></p>
+            <p><a href="https://instagram.com/kupurimedia" target="_blank">Instagram</a></p>
+          </div>
+          <div class="footer-col">
+            <p>External</p>
+            <p><a href="https://kupurimedia.com" target="_blank">Main Site</a></p>
+            <p><a href="https://kupurimedia.com/blog" target="_blank">Blog</a></p>
+            <p><a href="mailto:referencias@kupurimedia.com">Email</a></p>
+          </div>
+        </div>
+        <div class="copyright-info">
+          <p class="mn">© 2026 KUPURI MEDIA™. All rights reserved.</p>
+        </div>
+        <div class="explosion-container"></div>
+      </div>
+    </footer>
+  </div>
+
+  <script type="module" src="/js/transition.js"></script>
+  <script type="module" src="/js/lenis-scroll.js"></script>
+  <script type="module" src="/js/menu.js"></script>
+  <script type="module" src="/js/footer.js"></script>
+</body>
+
+</html>
