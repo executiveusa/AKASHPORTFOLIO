@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import HeraldToolLibrary from "@/components/HeraldToolLibrary";
+import { getToolsForAgent, getAgentCapabilities, TOOL_SPHERE_ASSIGNMENTS } from "@/shared/tool-sphere-assignments";
+import { ECOSYSTEM_PROJECTS, getEcosystemStats } from "@/shared/ecosystem-projects";
+import type { SphereAgentId } from "@/shared/council-events";
 
 interface SwarmData {
   agents: Array<{ id: string; name: string; status: string; role: string; color: string; lastAction?: string }>;
@@ -150,9 +153,110 @@ function RevenueWidget() {
   );
 }
 
+function EcosystemProjectCard({ project }: { project: typeof ECOSYSTEM_PROJECTS[0] }) {
+  const statusColors: Record<string, string> = {
+    active: "#22c55e",
+    beta: "#f59e0b",
+    coming_soon: "#6b7280",
+    archived: "#4b5563",
+  };
+
+  return (
+    <a
+      href={project.url}
+      target={project.url.startsWith("http") ? "_blank" : undefined}
+      rel={project.url.startsWith("http") ? "noopener noreferrer" : undefined}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        padding: 16,
+        background: "rgba(255,255,255,0.02)",
+        border: "1px solid rgba(255,255,255,0.1)",
+        borderRadius: 8,
+        textDecoration: "none",
+        transition: "all 150ms ease",
+        cursor: "pointer",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)";
+        e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+        e.currentTarget.style.background = "rgba(255,255,255,0.02)";
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "start", justifyContent: "space-between", marginBottom: 8 }}>
+        <h4 style={{ fontSize: 13, fontWeight: 600, color: "var(--color-cream-100)", margin: 0 }}>
+          {project.name}
+        </h4>
+        <span
+          style={{
+            fontSize: 10,
+            padding: "2px 6px",
+            borderRadius: 4,
+            background: statusColors[project.status],
+            color: "#000",
+            fontWeight: 500,
+            whiteSpace: "nowrap",
+          }}
+        >
+          {project.status === "coming_soon" ? "Próximamente" : project.status === "beta" ? "Beta" : "Activo"}
+        </span>
+      </div>
+      <p style={{ fontSize: 12, color: "var(--color-cream-400)", margin: "0 0 8px", lineHeight: 1.4 }}>
+        {project.description}
+      </p>
+      <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+        {project.tags.slice(0, 3).map((tag) => (
+          <span key={tag} style={{ fontSize: 10, color: "var(--color-cream-600)", background: "var(--color-charcoal-600)", padding: "2px 6px", borderRadius: 3 }}>
+            {tag}
+          </span>
+        ))}
+      </div>
+    </a>
+  );
+}
+
+function AgentToolsCard({ agentId, agentName, agentColor }: { agentId: SphereAgentId; agentName: string; agentColor: string }) {
+  const tools = getToolsForAgent(agentId);
+  const capabilities = getAgentCapabilities(agentId);
+
+  return (
+    <div style={{ padding: 16, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+        <div style={{ width: 8, height: 8, borderRadius: "50%", background: agentColor }} />
+        <h4 style={{ fontSize: 13, fontWeight: 600, color: "var(--color-cream-100)", margin: 0 }}>
+          {agentName}
+        </h4>
+        <span style={{ fontSize: 11, color: "var(--color-cream-600)", marginLeft: "auto" }}>
+          {tools.length} herramientas
+        </span>
+      </div>
+      {tools.length > 0 ? (
+        <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+          {tools.slice(0, 5).map((tool) => (
+            <span key={tool.tool_id} style={{ fontSize: 10, color: "var(--color-cream-400)", background: "var(--color-charcoal-600)", padding: "3px 6px", borderRadius: 3 }}>
+              {tool.tool_name.split(" ")[0]}
+            </span>
+          ))}
+          {tools.length > 5 && (
+            <span style={{ fontSize: 10, color: "var(--color-cream-600)" }}>
+              +{tools.length - 5} más
+            </span>
+          )}
+        </div>
+      ) : (
+        <p style={{ fontSize: 12, color: "var(--color-cream-600)", margin: 0 }}>Sin herramientas asignadas</p>
+      )}
+    </div>
+  );
+}
+
 export default function CockpitOverview() {
   const [swarmData, setSwarmData] = useState<SwarmData | null>(null);
   const [now, setNow] = useState(new Date());
+  const [selectedAgent, setSelectedAgent] = useState<SphereAgentId | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 30000);
@@ -309,9 +413,55 @@ export default function CockpitOverview() {
         </div>
       </div>
 
+      {/* Ecosystem Projects */}
+      <div style={{ marginTop: 32 }}>
+        <div style={{ marginBottom: 16 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 600, color: "var(--color-cream-100)", margin: "0 0 4px" }}>
+            Proyectos del Ecosistema
+          </h2>
+          <p style={{ fontSize: 12, color: "var(--color-cream-400)", margin: 0 }}>
+            {getEcosystemStats().total} proyectos · {getEcosystemStats().active} activos · {getEcosystemStats().beta} en beta
+          </p>
+        </div>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: 12,
+          }}
+        >
+          {ECOSYSTEM_PROJECTS.map((project) => (
+            <EcosystemProjectCard key={project.id} project={project} />
+          ))}
+        </div>
+      </div>
+
+      {/* Herramientas Disponibles por Agente */}
+      <div style={{ marginTop: 32 }}>
+        <div style={{ marginBottom: 16 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 600, color: "var(--color-cream-100)", margin: "0 0 4px" }}>
+            Herramientas Disponibles
+          </h2>
+          <p style={{ fontSize: 12, color: "var(--color-cream-400)", margin: 0 }}>
+            {Object.keys(TOOL_SPHERE_ASSIGNMENTS).length} herramientas de marketing integradas para los agentes
+          </p>
+        </div>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+            gap: 12,
+          }}
+        >
+          {SPHERES.map((sphere) => (
+            <AgentToolsCard key={sphere.id} agentId={sphere.id as SphereAgentId} agentName={sphere.name} agentColor={sphere.color} />
+          ))}
+        </div>
+      </div>
+
       {/* HERALD Tool Library */}
       <div style={{
-        marginTop: 24,
+        marginTop: 32,
         padding: 20,
         background: "rgba(0,0,0,0.3)",
         border: "1px solid rgba(255,255,255,0.08)",
