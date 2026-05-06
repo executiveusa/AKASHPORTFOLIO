@@ -1,20 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Playfair_Display, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/Footer";
 import { Breadcrumb } from "@/components/Breadcrumb";
-
-const playfairDisplay = Playfair_Display({
-  variable: "--font-playfair-display",
-  subsets: ["latin"],
-  weight: ["400", "600", "700", "900"],
-});
-
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-});
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://kupuri-media-cdmx.vercel.app';
 
@@ -148,14 +135,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${playfairDisplay.variable} ${spaceGrotesk.variable}`}>
+    <html lang="es">
       <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="antialiased">
+      <body className="antialiased" style={{ fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" }}>
         <div className="flex flex-col min-h-screen">
           <Breadcrumb />
           <main className="flex-1">

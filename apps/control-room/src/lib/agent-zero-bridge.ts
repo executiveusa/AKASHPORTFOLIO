@@ -3,7 +3,7 @@
  *
  * Agent Zero runs as a Docker-based orchestrator at AGENT_ZERO_URL (default :8000).
  * It manages subordinate agents with ByteRover (JSON) memory:
- *   ClaudeCode, Cynthia, Switchblade, Browser Agent, ML Agent
+ *   ClaudeCode, Synthia, Switchblade, Browser Agent, ML Agent
  *
  * SYNTHIA dispatches execution tasks TO Agent Zero.
  * Agent Zero executes and reports results BACK via /api/council/orchestrator webhook.
@@ -56,6 +56,15 @@ export interface AgentZeroHealth {
   version?: string;
   queueDepth?: number;
   activeAgents?: string[];
+}
+
+export interface AgentRuntimeTopology {
+  alexRuntime: 'space-agent';
+  subagentRuntime: 'hermes-agent';
+  spaceAgentRepo: string;
+  hermesAgentRepo: string;
+  installationState: 'configured' | 'pending-network-access';
+  installationNotes: string;
 }
 
 // ─── HTTP helpers ─────────────────────────────────────────────────────────────
@@ -244,4 +253,27 @@ export async function reportToSynthia(
     console.error('[agent-zero-bridge] Failed to report to SYNTHIA:', err);
     throw err;
   }
+}
+
+/**
+ * Runtime topology contract for agent orchestration.
+ *
+ * Requirement:
+ * - ALEX runs on top of Space Agent.
+ * - All remaining agents are treated as Hermes-backed subagents.
+ *
+ * Note: this repository environment currently blocks outbound GitHub clone access
+ * (HTTP 403 CONNECT tunnel), so installation is tracked as pending until network
+ * egress is available in deployment infra.
+ */
+export function getAgentRuntimeTopology(): AgentRuntimeTopology {
+  return {
+    alexRuntime: 'space-agent',
+    subagentRuntime: 'hermes-agent',
+    spaceAgentRepo: 'https://github.com/agent0ai/space-agent',
+    hermesAgentRepo: 'https://github.com/NousResearch/hermes-agent',
+    installationState: 'pending-network-access',
+    installationNotes:
+      'GitHub clone currently fails with CONNECT tunnel 403 in this environment; provision in deploy runtime.',
+  };
 }
