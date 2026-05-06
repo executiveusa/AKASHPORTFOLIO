@@ -1,7 +1,9 @@
-# ALEX™ IDENTITY — Technical Configuration
+# ALEX SPACE™ IDENTITY — Technical Configuration
 ## Full Stack Integration Manifest
 
 **Version:** 3.0.0 | **Last Updated:** 2026-03-11 | **Status:** ACTIVE
+
+> Runtime foundation: ALEX SPACE™ is designed to run on top of Space Agent (`agent0ai/space-agent`) as the primary execution substrate.
 
 ---
 
