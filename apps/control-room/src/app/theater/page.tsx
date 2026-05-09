@@ -113,7 +113,7 @@ export default function TheaterPage() {
         <div className="text-center hidden md:block">
           <h1
             className="text-xl font-black text-white"
-            style={{ fontFamily: 'Playfair Display, serif', color: selectedLocation.accentHex }}
+            className="theater-title" style={{ color: selectedLocation.accentHex }}
           >
             {t.title}
           </h1>
