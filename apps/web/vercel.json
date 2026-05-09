@@ -1,9 +1,39 @@
 {
-    "buildCommand": "npm run build",
-    "outputDirectory": "dist",
-    "rewrites": [
-      { "source": "/home", "destination": "/index.html" },
-      { "source": "/contact", "destination": "/contact.html" }
-    ]
-  }
-  
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/home", "destination": "/index.html" },
+    { "source": "/contact", "destination": "/contact.html" }
+  ],
+  "redirects": [
+    {
+      "source": "/about",
+      "destination": "/#about-hero",
+      "permanent": false
+    },
+    {
+      "source": "/work",
+      "destination": "/#featured-work",
+      "permanent": false
+    },
+    {
+      "source": "/blog",
+      "destination": "https://kupuri-media-cdmx.vercel.app/blog",
+      "permanent": false
+    },
+    {
+      "source": "/onboarding",
+      "destination": "https://kupuri-media-cdmx.vercel.app/onboarding",
+      "permanent": false
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" }
+      ]
+    }
+  ]
+}

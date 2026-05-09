@@ -190,3 +190,5 @@ body {
     --sidebar-width: 0px;
   }
 }
+
+.theater-title { font-family: 'Playfair Display', Georgia, 'Times New Roman', serif; }
