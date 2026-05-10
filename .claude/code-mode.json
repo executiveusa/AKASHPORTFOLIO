@@ -1,0 +1,74 @@
+{
+  "activeMode": "PAID",
+  "modes": {
+    "PAID": {
+      "provider": "anthropic",
+      "endpoint": "https://api.anthropic.com/v1",
+      "models": {
+        "opus": "claude-3-5-sonnet-20241022",
+        "sonnet": "claude-3-5-sonnet-20241022",
+        "haiku": "claude-3-5-haiku-20241022"
+      },
+      "requiresAuth": true,
+      "authKey": "ANTHROPIC_API_KEY",
+      "features": [
+        "native_streaming",
+        "vision",
+        "tool_use",
+        "thinking_blocks",
+        "batch_api"
+      ],
+      "maxTokens": 200000,
+      "costPerMTok": 3.0
+    },
+    "FREE": {
+      "provider": "free-claude-code",
+      "endpoint": "http://localhost:8082",
+      "models": {
+        "opus": "ollama/neural-chat-7b",
+        "sonnet": "ollama/mistral",
+        "haiku": "ollama/neural-chat-7b"
+      },
+      "requiresAuth": false,
+      "fallbackChain": [
+        {
+          "provider": "ollama",
+          "endpoint": "http://localhost:11434",
+          "models": ["neural-chat-7b", "mistral", "llama2"]
+        },
+        {
+          "provider": "lm-studio",
+          "endpoint": "http://localhost:1234",
+          "models": ["any"]
+        },
+        {
+          "provider": "openrouter",
+          "endpoint": "https://openrouter.ai/api/v1",
+          "models": ["meta-llama/llama-3.3-70b-instruct:free"]
+        }
+      ],
+      "features": [
+        "streaming",
+        "tool_use",
+        "local_execution"
+      ],
+      "maxTokens": 32000,
+      "costPerMTok": 0.0
+    }
+  },
+  "performance": {
+    "PAID": {
+      "latencyMs": 450,
+      "throughputTokensPerSec": 85,
+      "availabilityPercent": 99.9
+    },
+    "FREE": {
+      "latencyMs": 1200,
+      "throughputTokensPerSec": 25,
+      "availabilityPercent": 95.0,
+      "note": "Varies by local hardware and model"
+    }
+  },
+  "lastUpdated": "2026-05-09T13:45:00Z",
+  "version": "1.0"
+}
