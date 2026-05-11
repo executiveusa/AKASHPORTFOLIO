@@ -271,12 +271,56 @@ When any source file exceeds **500 lines**, La Vigilante auto-emits a directive:
 
 ---
 
+## CODE_MODE Toggle — FREE vs PAID
+
+**Status**: Production Ready (2026-05-09)
+**Source**: https://github.com/Alishahryar1/free-claude-code
+
+The system supports two code execution modes:
+
+### PAID MODE (Default)
+- Uses Anthropic API directly
+- Full Claude 3.5 Sonnet capability
+- Token-based billing
+- Unlimited tool use
+- Native streaming
+
+### FREE MODE
+- Uses local proxy (free-claude-code on port 8082)
+- Routes to: NVIDIA NIM, Ollama, LM Studio, llama.cpp, DeepSeek, OpenRouter
+- Zero API costs
+- Community models (Llama 2, Mistral, etc.)
+- Same Anthropic API interface
+
+**Toggle via environment:**
+```bash
+CODE_MODE=FREE      # Uses proxy on http://localhost:8082
+CODE_MODE=PAID      # Uses ANTHROPIC_API_KEY (default)
+```
+
+**Configuration file**: `.claude/code-mode.json`
+- Stores active mode
+- Model mappings per provider
+- Fallback chains
+- Performance baseline
+
+---
+
 ## Environment Variables Required
 
 ```bash
-# Core AI
-ANTHROPIC_API_KEY=
+# CODE_MODE selection
+CODE_MODE=PAID                          # or FREE
+
+# Core AI — PAID mode
+ANTHROPIC_API_KEY=                      # Required if CODE_MODE=PAID
 LITELLM_BASE_URL=http://localhost:8000
+
+# Core AI — FREE mode (if using proxy)
+FREE_CLAUDE_CODE_ENDPOINT=http://localhost:8082  # free-claude-code proxy
+OLLAMA_ENDPOINT=http://localhost:11434           # Optional: Ollama backend
+LMSTUDIO_ENDPOINT=http://localhost:1234          # Optional: LM Studio backend
+OPENROUTER_API_KEY=                              # Optional: OpenRouter fallback
 
 # Mercury 2 Inception API
 MERCURY_API_KEY=
