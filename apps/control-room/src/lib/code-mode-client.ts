@@ -79,9 +79,7 @@ export class CodeModeClient {
     }
 
     try {
-      const response = await fetch(`${this.config.freeEndpoint}/health`, {
-        timeout: 3000,
-      });
+      const response = await fetch(`${this.config.freeEndpoint}/health`);
       return response.ok;
     } catch {
       console.warn('[CodeMode] FREE mode proxy unavailable, fallback to PAID');
@@ -97,8 +95,8 @@ export class CodeModeClient {
     options: RequestInit & { apiVersion?: string }
   ): Promise<Response> {
     const endpoint = this.getEndpoint();
-    const headers = {
-      ...options.headers,
+    const headers: Record<string, string> = {
+      ...(options.headers as Record<string, string> | undefined),
       ...this.getAuthHeader(),
     };
 

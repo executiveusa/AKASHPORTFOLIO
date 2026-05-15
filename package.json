@@ -1,0 +1,17 @@
+{
+  "name": "akashportfolio-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build:web": "npm --prefix apps/web run build",
+    "build:control": "npm --prefix apps/control-room run build",
+    "typecheck:control": "cd apps/control-room && npx tsc --noEmit",
+    "lint:control": "npm --prefix apps/control-room run lint",
+    "audit:stubs": "node scripts/audit-stubs.mjs",
+    "audit:routes": "node scripts/audit-routes.mjs",
+    "verify": "npm run audit:stubs && npm run audit:routes && npm run typecheck:control"
+  }
+}

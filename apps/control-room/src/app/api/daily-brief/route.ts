@@ -189,12 +189,16 @@ export async function GET(req: NextRequest) {
 
     const brief = await generateDailyBrief(briefData);
 
-    await supabaseAdmin.from('daily_briefs').insert({
+    const { error: storeError } = await supabaseAdmin.from('daily_briefs').insert({
       user_id: userId,
       content: brief,
       generated_at: new Date().toISOString(),
       language,
-    }).catch((e) => console.warn('[daily-brief] Failed to store brief:', e));
+    });
+
+    if (storeError) {
+      console.warn('[daily-brief] Failed to store brief:', storeError);
+    }
 
     return NextResponse.json({ brief, generatedAt: new Date().toISOString() });
   } catch (error) {

@@ -71,6 +71,8 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
   },
 
+  turbopack: {},
+
   experimental: {
     optimizePackageImports: ["framer-motion", "@radix-ui/react-icons"],
   },
