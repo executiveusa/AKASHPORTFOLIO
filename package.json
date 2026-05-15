@@ -8,7 +8,7 @@
   "scripts": {
     "build:web": "npm --prefix apps/web run build",
     "build:control": "npm --prefix apps/control-room run build",
-    "typecheck:control": "npm --prefix apps/control-room exec tsc --noEmit",
+    "typecheck:control": "cd apps/control-room && npx tsc --noEmit",
     "lint:control": "npm --prefix apps/control-room run lint",
     "audit:stubs": "node scripts/audit-stubs.mjs",
     "audit:routes": "node scripts/audit-routes.mjs",

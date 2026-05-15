@@ -112,8 +112,7 @@ export default function TheaterPage() {
         {/* Title */}
         <div className="text-center hidden md:block">
           <h1
-            className="text-xl font-black text-white"
-            className="theater-title" style={{ color: selectedLocation.accentHex }}
+            className="theater-title text-xl font-black text-white" style={{ color: selectedLocation.accentHex }}
           >
             {t.title}
           </h1>
