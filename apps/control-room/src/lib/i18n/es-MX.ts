@@ -1,0 +1,1 @@
+export default { locale:'es-MX', dashboard:'Estado de la agencia', agents:'Agentes activos', workflows:'Flujos de trabajo', approvals:'Aprobaciones pendientes', latestRuns:'Últimas ejecuciones', alerts:'Alertas', estimatedCosts:'Costos estimados', openDify:'Abrir Dify', openLangfuse:'Abrir Langfuse', openWebUI:'Abrir Open WebUI' };

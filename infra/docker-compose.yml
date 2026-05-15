@@ -1,0 +1,13 @@
+version: '3.9'
+services:
+  traefik:
+    image: traefik:v3.1
+    command: ["--providers.docker=true","--providers.file.filename=/etc/traefik/dynamic.yml"]
+    ports: ["80:80"]
+    volumes: ["/var/run/docker.sock:/var/run/docker.sock","./traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro"]
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+  redis:
+    image: redis:7
