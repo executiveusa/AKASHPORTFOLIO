@@ -1,0 +1,4 @@
+
+> typecheck:control
+> cd apps/control-room && npx tsc --noEmit
+

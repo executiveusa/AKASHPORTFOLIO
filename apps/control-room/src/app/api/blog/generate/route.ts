@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { requireUser, toErrorResponse } from '@/lib/auth/guards';
 
 /**
  * POST /api/blog/generate
@@ -21,6 +22,7 @@ const SEO_TOPICS = [
 ];
 
 export async function POST(req: NextRequest) {
+  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
   const body = await req.json().catch(() => ({}));
   const topic: string = body.topic ?? SEO_TOPICS[Math.floor(Math.random() * SEO_TOPICS.length)];
   const lang: string = body.lang ?? 'es';

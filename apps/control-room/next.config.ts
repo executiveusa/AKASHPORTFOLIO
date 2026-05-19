@@ -11,7 +11,8 @@
 
 import type { NextConfig } from "next";
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://kupuri-media-cdmx.vercel.app';
+// PATCH_002: Remove hardcoded external domain default. NEXT_PUBLIC_APP_URL must be set in env.
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://akashportfolio-control-room.vercel.app';
 
 const securityHeaders = [
   { key: "X-DNS-Prefetch-Control", value: "on" },

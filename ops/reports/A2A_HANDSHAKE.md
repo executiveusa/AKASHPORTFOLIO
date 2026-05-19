@@ -1,3 +1,6 @@
-# A2A-inspired internal contract
+# A2A Handshake — PATCH_002
 
-This implementation is an internal A2A-inspired contract and does not claim full A2A compliance.
+```json
+{"type":"A2A_INIT","patch_id":"PATCH_002_SYNTHIA_CONTROL_ROOM_PRODUCTION","repo":"https://github.com/executiveusa/AKASHPORTFOLIO.git","scope":["root workspace","AGENTS.md",".codex","scripts","apps/control-room","packages/synthia-core","infra","ops/reports"],"locks":["apps/web visual/frontend"],"expected_final_artifact":"A2A_TASK_REPORT"}
+{"type":"A2A_ACK","patch_id":"PATCH_002_SYNTHIA_CONTROL_ROOM_PRODUCTION","status":"accepted","public_frontend_locked":true}
+```

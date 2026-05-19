@@ -1,3 +1,4 @@
+import { requireCron, toErrorResponse } from '@/lib/auth/guards';
 /**
  * POST /api/cron/self-improvement
  *
@@ -23,6 +24,7 @@ import { synthiaObservability } from '@/lib/observability';
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
+  try { requireCron(req); } catch (e) { return toErrorResponse(e); }
   // Always require CRON_SECRET regardless of environment
   const authHeader = req.headers.get('authorization');
   const cronSecret = process.env.CRON_SECRET;

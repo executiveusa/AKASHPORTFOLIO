@@ -1,3 +1,4 @@
+import { requireCron, toErrorResponse } from '@/lib/auth/guards';
 /**
  * /api/cron/nightly-summary — ZTE Nightly Synthesis Loop
  *

@@ -8,8 +8,11 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { getCampaigns, getCampaign, createCampaign, createViralDemo, recordMetrics, getActiveCampaigns, Platform } from '../../../lib/social-media';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
+import { assertToolAllowed } from '@/lib/security/tool-policy';
 
 export async function GET(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');
   const active = searchParams.get('active') === 'true';
@@ -29,6 +32,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await requireOperatorOrAdmin();
+    assertToolAllowed('social', session.user.role);
     const body = await req.json();
     const { mode } = body;
 
@@ -55,6 +60,7 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
+    await requireOperatorOrAdmin();
     const { campaignId, variantId, metrics } = await req.json();
     if (!campaignId || !variantId || !metrics) {
       return NextResponse.json({ error: 'Se requieren: campaignId, variantId, metrics' }, { status: 400 });

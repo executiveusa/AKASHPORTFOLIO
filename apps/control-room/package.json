@@ -9,6 +9,7 @@
         "lint": "eslint"
     },
     "dependencies": {
+        "@synthia/core": "*",
         "@anthropic-ai/sdk": "^0.28.0",
         "@supabase/supabase-js": "^2.50.0",
         "@vapi-ai/web": "latest",

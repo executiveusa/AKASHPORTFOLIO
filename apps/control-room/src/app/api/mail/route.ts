@@ -7,8 +7,10 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { agentMail } from '../../../lib/agent-mail';
+import { requireUser, toErrorResponse } from '@/lib/auth/guards';
 
 export async function GET(req: NextRequest) {
+  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
   const { searchParams } = new URL(req.url);
   const agentId = searchParams.get('agentId');
   const sent = searchParams.get('sent') === 'true';
@@ -34,6 +36,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    await requireUser();
     const body = await req.json();
     const { from, to, cc, subject, body: mailBody, type, priority, metadata, replyTo } = body;
 
@@ -50,6 +53,7 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
+    await requireUser();
     const { mailId, agentId } = await req.json();
     if (!mailId || !agentId) {
       return NextResponse.json({ error: 'Se requiere mailId y agentId' }, { status: 400 });

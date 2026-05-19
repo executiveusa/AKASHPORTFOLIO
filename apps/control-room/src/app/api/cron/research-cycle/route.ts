@@ -1,3 +1,4 @@
+import { requireCron, toErrorResponse } from '@/lib/auth/guards';
 /**
  * POST /api/cron/research-cycle
  *
@@ -15,6 +16,7 @@ import { runResearchCycle } from '@/lib/research-cycle';
 const MAX_SINGLE_RUN_COST_USD = 3.0;
 
 export async function POST(req: NextRequest) {
+  try { requireCron(req); } catch (e) { return toErrorResponse(e); }
   // Verify cron secret — reject all other callers
   const authHeader = req.headers.get('authorization');
   const cronSecret = process.env.CRON_SECRET;

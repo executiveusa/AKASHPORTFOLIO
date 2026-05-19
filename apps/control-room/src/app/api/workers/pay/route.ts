@@ -10,6 +10,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireAdmin, toErrorResponse } from "@/lib/auth/guards";
 
 export const runtime = "nodejs";
 
@@ -22,6 +23,7 @@ function getSupabase() {
 
 export async function GET(req: NextRequest) {
   try {
+    await requireAdmin();
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
 
@@ -45,6 +47,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    await requireAdmin();
     const body = await req.json() as {
       payment_id: string;
       action: "approve" | "mark_paid";

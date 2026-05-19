@@ -1,2 +1,28 @@
+##
+## infra/traefik/dynamic.yml — Traefik dynamic configuration
+## PATCH_002_SYNTHIA_CONTROL_ROOM_PRODUCTION
+##
+
 http:
-  routers: {}
+  middlewares:
+    # ForwardAuth middleware — delegates auth check to oauth2-proxy
+    oauth2-proxy-forwardauth:
+      forwardAuth:
+        address: "http://oauth2-proxy:4180/oauth2/auth"
+        trustForwardHeader: true
+        authResponseHeaders:
+          - "X-Auth-Request-User"
+          - "X-Auth-Request-Email"
+          - "X-Auth-Request-Access-Token"
+
+    # Security headers middleware
+    secure-headers:
+      headers:
+        stsSeconds: 63072000
+        stsIncludeSubdomains: true
+        stsPreload: true
+        forceSTSHeader: true
+        contentTypeNosniff: true
+        browserXssFilter: true
+        referrerPolicy: "strict-origin-when-cross-origin"
+        frameDeny: true

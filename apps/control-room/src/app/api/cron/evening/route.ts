@@ -1,3 +1,4 @@
+import { requireCron, toErrorResponse } from '@/lib/auth/guards';
 // Legacy route — replaced by /api/council/heartbeat cron
 /**
  * Cron: Evening Wrap-Up — 17:00 CDMX
