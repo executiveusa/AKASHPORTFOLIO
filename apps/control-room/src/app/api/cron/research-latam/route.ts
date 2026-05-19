@@ -1,3 +1,4 @@
+import { requireCron, toErrorResponse } from '@/lib/auth/guards';
 /**
  * /api/cron/research-latam — Pauli Auto-Research Loop (LATAM sweep)
  *

@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe, PLANS, PlanId } from "@/lib/stripe";
+import { requireUser, toErrorResponse } from "@/lib/auth/guards";
 
 export async function POST(req: NextRequest) {
   try {
+    await requireUser();
     const { planId, email, successUrl, cancelUrl } = await req.json() as {
       planId: PlanId;
       email?: string;

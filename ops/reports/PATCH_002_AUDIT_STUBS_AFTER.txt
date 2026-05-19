@@ -1,0 +1,9 @@
+/bin/sh: 1: rg: not found
+/bin/sh: 1: rg: not found
+/bin/sh: 1: rg: not found
+/bin/sh: 1: rg: not found
+/bin/sh: 1: rg: not found
+/bin/sh: 1: rg: not found
+/bin/sh: 1: rg: not found
+/bin/sh: 1: rg: not found
+[audit-stubs] No stub markers found. OK.

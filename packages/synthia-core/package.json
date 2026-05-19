@@ -1,0 +1,14 @@
+{
+  "name": "@synthia/core",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Synthia Core — A2A-inspired internal types and contracts",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5"
+  }
+}

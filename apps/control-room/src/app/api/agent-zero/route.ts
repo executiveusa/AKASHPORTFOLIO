@@ -5,6 +5,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAdmin, toErrorResponse } from '@/lib/auth/guards';
+import { assertDangerousToolsEnabled } from '@/lib/security/tool-policy';
 
 export const runtime = 'nodejs';
 
@@ -17,6 +19,8 @@ interface AgentZeroTask {
 
 export async function POST(req: NextRequest) {
   try {
+    await requireAdmin();
+    assertDangerousToolsEnabled();
     const body: AgentZeroTask = await req.json();
 
     if (!body.task) {

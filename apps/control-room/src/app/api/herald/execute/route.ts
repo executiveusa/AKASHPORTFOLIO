@@ -8,8 +8,11 @@ import { executeRoute } from '@/lib/herald/router';
 import { getAllTools } from '@/lib/herald/tool-registry';
 import type { SphereAgentId } from '@/shared/council-events';
 import type { ExecutorKind } from '@/lib/herald/tool-registry';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
+import { assertToolAllowed } from '@/lib/security/tool-policy';
 
 export async function POST(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
   const body = await req.json() as {
     tool_id?: string;
     args?: Record<string, unknown>;

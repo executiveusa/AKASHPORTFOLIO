@@ -1,0 +1,6 @@
+/bin/sh: 1: rg: not found
+/bin/sh: 1: rg: not found
+/bin/sh: 1: rg: not found
+/bin/sh: 1: rg: not found
+/bin/sh: 1: rg: not found
+No stub markers found.

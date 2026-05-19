@@ -22,12 +22,15 @@ import {
   type CLITool,
   type WorkflowStep,
 } from '@/lib/cli-anything';
+import { requireAdmin, toErrorResponse } from '@/lib/auth/guards';
+import { assertDangerousToolsEnabled } from '@/lib/security/tool-policy';
 
 export const runtime = 'nodejs';
 
 // ─── GET ──────────────────────────────────────────────────────────────────────
 
 export async function GET(request: NextRequest) {
+  try { await requireAdmin(); } catch (e) { return toErrorResponse(e); }
   const { searchParams } = new URL(request.url);
   const tool = searchParams.get('tool');
 
@@ -63,6 +66,7 @@ export async function GET(request: NextRequest) {
 // ─── POST ─────────────────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
+  try { await requireAdmin(); assertDangerousToolsEnabled(); } catch (e) { return toErrorResponse(e); }
   let body: Record<string, unknown>;
   try {
     body = await request.json();

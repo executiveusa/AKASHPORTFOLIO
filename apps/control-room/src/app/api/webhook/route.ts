@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { synthiaObservability } from '@/lib/observability';
+import { requireWebhookSignature, toErrorResponse } from '@/lib/auth/guards';
 
 /**
  * Global Webhook for Synthia 3.0
@@ -7,6 +8,7 @@ import { synthiaObservability } from '@/lib/observability';
  */
 export async function POST(req: Request) {
     try {
+        requireWebhookSignature(req);
         const payload = await req.json();
 
         // standard format: { type, summary, data, source }
