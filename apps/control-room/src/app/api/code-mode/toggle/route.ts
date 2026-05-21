@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCodeModeClient } from '@/lib/code-mode-client';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 /**
  * POST /api/code-mode/toggle
@@ -21,6 +22,7 @@ import { getCodeModeClient } from '@/lib/code-mode-client';
  * }
  */
 export async function POST(request: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
   try {
     const client = getCodeModeClient();
     const previousMode = client.getMode();

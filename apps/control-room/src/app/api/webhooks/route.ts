@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireWebhookSignature, toErrorResponse } from '@/lib/auth/guards';
 
 export const runtime = 'nodejs';
 
@@ -15,6 +16,7 @@ const webhookLog: WebhookEvent[] = [];
 
 // POST: Receive webhooks from WhatsApp or TikTok
 export async function POST(req: NextRequest) {
+  try { requireWebhookSignature(req); } catch (e) { return toErrorResponse(e); }
   try {
     const body = await req.json();
     const source = req.nextUrl.searchParams.get('source') as 'whatsapp' | 'tiktok';

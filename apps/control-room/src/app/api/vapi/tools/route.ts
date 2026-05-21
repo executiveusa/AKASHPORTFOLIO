@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { sanitizeForLLM, sanitizeText, hasPathTraversal } from '@/lib/sanitize';
+import { requireWebhookSignature, toErrorResponse } from '@/lib/auth/guards';
 
 interface VapiToolCall {
   toolCallId: string;
@@ -21,6 +22,7 @@ interface VapiWebhookBody {
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
+  try { requireWebhookSignature(req); } catch (e) { return toErrorResponse(e); }
   let body: VapiWebhookBody;
   try {
     body = await req.json();

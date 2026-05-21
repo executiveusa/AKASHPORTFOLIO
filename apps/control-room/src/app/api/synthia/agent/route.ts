@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireOperatorOrAdmin, toErrorResponse } from "@/lib/auth/guards";
 
 /**
  * POST /api/synthia/agent — Hermes single-entry agent
@@ -21,6 +22,8 @@ function routeToSphere(message: string): string {
 }
 
 export async function POST(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   let body: { message?: string; context?: string };
   try {
     body = await req.json();
