@@ -1,0 +1,12 @@
+{
+  "env": {
+    "NVIDIA_NIM_BASE_URL": "http://31.220.58.212:8082",
+    "NVIDIA_NIM_API_KEY": "dummy",
+    "NVIDIA_NIM_MODEL": "moonshotai/kimi-k2-thinking"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(curl http://31.220.58.212:8082/*)"
+    ]
+  }
+}
