@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 import { Anthropic } from '@anthropic-ai/sdk';
 import { osTools } from '@/lib/os-tools';
 import { agentState, telemetry, memoryStore } from '@/lib/supabase-client';
@@ -21,6 +22,7 @@ interface ToolCall {
 }
 
 export async function POST(req: Request) {
+    try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
     const sessionId = `session-${Date.now()}`;
 
     try {

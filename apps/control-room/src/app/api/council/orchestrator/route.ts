@@ -22,6 +22,7 @@ import {
 } from '@/lib/council-engine';
 import { SPHERE_FREQUENCY_MAP } from '@/shared/sphere-state';
 import type { SphereAgentId, CouncilEvent } from '@/shared/council-events';
+import { requireAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 // Ã¢â€â‚¬Ã¢â€â‚¬ Input sanitization Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
@@ -49,6 +50,7 @@ function sanitizeBrief(brief: CouncilBrief): CouncilBrief {
 // ---------------------------------------------------------------------------
 
 export async function POST(req: NextRequest) {
+  try { await requireAdmin(); } catch (e) { return toErrorResponse(e); }
   let body: {
     brief?: Partial<CouncilBrief>;
     /** Legacy: plain topic string (backward compat) */
@@ -165,6 +167,7 @@ export async function POST(req: NextRequest) {
 // ---------------------------------------------------------------------------
 
 export async function GET(req: NextRequest) {
+  try { await requireAdmin(); } catch (e) { return toErrorResponse(e); }
   const meetingId =
     req.nextUrl.searchParams.get('meetingId') ??
     req.nextUrl.searchParams.get('briefId');

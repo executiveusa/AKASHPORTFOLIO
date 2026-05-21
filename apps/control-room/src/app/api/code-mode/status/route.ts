@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getCodeModeClient, formatCodeModeStatus } from '@/lib/code-mode-client';
+import { requireUser, toErrorResponse } from '@/lib/auth/guards';
 
 /**
  * GET /api/code-mode/status
@@ -22,6 +23,7 @@ import { getCodeModeClient, formatCodeModeStatus } from '@/lib/code-mode-client'
  * }
  */
 export async function GET() {
+  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
   try {
     const client = getCodeModeClient();
     const status = await client.getStatus();
