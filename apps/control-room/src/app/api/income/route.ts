@@ -7,6 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 import {
   createStripeInvoice,
   createPayPalInvoice,
@@ -17,6 +18,7 @@ import {
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
   try {
     const body = await req.json() as {
       provider: 'stripe' | 'paypal' | 'crypto';

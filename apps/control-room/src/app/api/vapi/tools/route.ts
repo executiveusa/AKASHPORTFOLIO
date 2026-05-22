@@ -21,7 +21,7 @@ interface VapiWebhookBody {
   };
 }
 
-export async function POST(req: NextRequest): Promise<NextResponse> {
+export async function POST(req: NextRequest): Promise<NextResponse | Response> {
   try { requireWebhookSignature(req); } catch (e) { return toErrorResponse(e); }
   let body: VapiWebhookBody;
   try {

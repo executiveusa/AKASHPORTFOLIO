@@ -1,0 +1,152 @@
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/agent-zero/route.ts:8:import { requireAdmin, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/agent-zero/route.ts:22:    await requireAdmin();
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/memory/route.ts:2:import { requireUser, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/memory/route.ts:8:  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/memory/route.ts:20:  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/integrations/route.ts:2:import { requireUser, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/integrations/route.ts:8:  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/integrations/route.ts:20:  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/execute/route.ts:2:import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/execute/route.ts:9:  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/billing/route.ts:2:import { requireUser, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/billing/route.ts:8:  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/thread/[id]/route.ts:2:import { requireUser, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/thread/[id]/route.ts:11:  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/thread/[id]/route.ts:25:  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/thread/route.ts:2:import { requireUser, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/thread/route.ts:8:  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/thread/route.ts:28:  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/agent/route.ts:2:import { requireOperatorOrAdmin, toErrorResponse } from "@/lib/auth/guards";
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/agent/route.ts:25:  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/assets/route.ts:2:import { requireUser, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/assets/route.ts:8:  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/assets/route.ts:23:  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/agents/route.ts:2:import { requireUser, requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/agents/route.ts:8:  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/agents/route.ts:20:  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/projects/route.ts:2:import { requireUser, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/projects/route.ts:8:  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/projects/route.ts:20:  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/route.ts:2:import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/route.ts:25:    try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/integrations/status/route.ts:6:import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/integrations/status/route.ts:11:    await requireOperatorOrAdmin();
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/teams/route.ts:2:import { requireAdmin, requireUser, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/teams/route.ts:8:  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/teams/route.ts:20:  try { await requireAdmin(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/skills/route.ts:2:import { requireUser, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/synthia/skills/route.ts:19:  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/stripe/checkout/route.ts:3:import { requireUser, toErrorResponse } from "@/lib/auth/guards";
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/stripe/checkout/route.ts:7:    await requireUser();
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/webhooks/route.ts:2:import { requireWebhookSignature, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/webhooks/route.ts:19:  try { requireWebhookSignature(req); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/approvals/[id]/decision/route.ts:6:import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/approvals/[id]/decision/route.ts:15:    const session = await requireOperatorOrAdmin();
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/approvals/route.ts:7:import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/approvals/route.ts:13:    await requireOperatorOrAdmin();
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/approvals/route.ts:38:    const session = await requireOperatorOrAdmin();
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/swarm/route.ts:3:import { requireAdmin, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/swarm/route.ts:7:    await requireAdmin();
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/swarm/route.ts:16:    await requireAdmin();
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/council/orchestrator/route.ts:25:import { requireAdmin, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/council/orchestrator/route.ts:53:  try { await requireAdmin(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/council/orchestrator/route.ts:170:  try { await requireAdmin(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/a2a/agent-card/route.ts:9:import { requireAdmin, requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/a2a/agent-card/route.ts:14:    await requireOperatorOrAdmin();
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/a2a/agent-card/route.ts:37:    await requireAdmin();
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/workflows/launch/route.ts:6:import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/workflows/launch/route.ts:13:    const session = await requireOperatorOrAdmin();
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/workflows/route.ts:5:import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/workflows/route.ts:10:    await requireOperatorOrAdmin();
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/code-mode/status/route.ts:3:import { requireUser, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/code-mode/status/route.ts:26:  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/a2a/registry/route.ts:8:import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/a2a/registry/route.ts:13:    await requireOperatorOrAdmin();
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/code-mode/toggle/route.ts:3:import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/code-mode/toggle/route.ts:25:  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/a2a/task-report/route.ts:9:import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/a2a/task-report/route.ts:15:    await requireOperatorOrAdmin();
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/a2a/task-report/route.ts:39:    const session = await requireOperatorOrAdmin();
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/workers/pay/route.ts:13:import { requireAdmin, toErrorResponse } from "@/lib/auth/guards";
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/workers/pay/route.ts:26:    await requireAdmin();
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/workers/pay/route.ts:50:    await requireAdmin();
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/cli/route.ts:25:import { requireAdmin, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/cli/route.ts:33:  try { await requireAdmin(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/cli/route.ts:69:  try { await requireAdmin(); assertDangerousToolsEnabled(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/vapi/tools/route.ts:9:import { requireWebhookSignature, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/vapi/tools/route.ts:25:  try { requireWebhookSignature(req); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/migrate/route.ts:18:import { requireAdmin, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/migrate/route.ts:117:  try { await requireAdmin(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/social/route.ts:11:import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/social/route.ts:15:  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/social/route.ts:35:    const session = await requireOperatorOrAdmin();
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/social/route.ts:63:    await requireOperatorOrAdmin();
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/mail/route.ts:10:import { requireUser, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/mail/route.ts:13:  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/mail/route.ts:39:    await requireUser();
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/mail/route.ts:56:    await requireUser();
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/blog/generate/route.ts:3:import { requireUser, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/blog/generate/route.ts:25:  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/webhook/route.ts:3:import { requireWebhookSignature, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/webhook/route.ts:11:        requireWebhookSignature(req);
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/cron/midday/route.ts:1:import { requireCron, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/cron/research-cycle/route.ts:1:import { requireCron, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/cron/research-cycle/route.ts:19:  try { requireCron(req); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/cron/research-latam/route.ts:1:import { requireCron, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/herald/execute/route.ts:11:import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/herald/execute/route.ts:15:  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/cron/evening/route.ts:1:import { requireCron, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/cron/nightly-summary/route.ts:1:import { requireCron, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/cron/evening-research/route.ts:1:import { requireCron, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/cron/evening-research/route.ts:20:  try { requireCron(req); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/cron/self-improvement/route.ts:1:import { requireCron, toErrorResponse } from '@/lib/auth/guards';
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/cron/self-improvement/route.ts:27:  try { requireCron(req); } catch (e) { return toErrorResponse(e); }
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/cron/morning/route.ts:1:import { requireCron, toErrorResponse } from '@/lib/auth/guards';
+=== ROUTES WITHOUT GUARDS ===
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/herald/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/beta/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/revenue/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/creem/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/agent-mail/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/telemetry/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/alex/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/meetings/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/openfang/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/repos/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/coach/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/arbitrage/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/voice/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/meeting/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/daily-brief/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/dashboard/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/stream/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/council/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/analytics/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/vibe/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/income/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/state/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/workers/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/fleet/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/herald/init/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/herald/dispatch/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/pomelli/analyze/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/alex/voice/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/telemetry/stream/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/panorama/projects/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/panorama/expenses/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/agents/budgets/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/auth/[...nextauth]/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/design/dispatch/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/meeting/live/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/council/cron/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/spheres/voice/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/spheres/chat/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/spheres/status/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/theater/stream/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/workers/jobs/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/workers/verify/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/video/watch/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/webhooks/stripe/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/panorama/expenses/ocr/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/clients/[clientId]/resume/route.ts
+UNGUARDED: /home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/clients/[clientId]/pause/route.ts

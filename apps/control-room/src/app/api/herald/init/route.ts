@@ -6,7 +6,8 @@
  * Safe to re-run (upsert on tool_id).
  */
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { requireAdmin, toErrorResponse } from '@/lib/auth/guards';
 import { bootstrapHeraldRegistry, ingestMCPServers } from '@/lib/herald/tool-registry';
 import { convertAndRegisterMCPServer } from '@/lib/herald/mcp-cli-converter';
 
@@ -26,7 +27,8 @@ const KNOWN_MCP_SERVERS: Record<string, Record<string, unknown>> = {
   'paypal':           { url: 'https://mcp.paypal.com/mcp',               type: 'url' },
 };
 
-export async function POST() {
+export async function POST(_req: NextRequest) {
+  try { await requireAdmin(); } catch (e) { return toErrorResponse(e); }
   const results: Record<string, unknown> = {};
 
   // 1. Bootstrap local tools (marketingskills CLIs, CLI-Anything, Postiz)

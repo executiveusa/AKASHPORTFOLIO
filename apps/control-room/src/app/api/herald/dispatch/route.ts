@@ -4,10 +4,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { requireUser, toErrorResponse } from '@/lib/auth/guards';
 import { routeIntent, executeRoute } from '@/lib/herald/router';
 import type { SphereAgentId } from '@/shared/council-events';
 
 export async function POST(req: NextRequest) {
+  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
   const body = await req.json() as {
     intent?: string;
     agent_id?: string;

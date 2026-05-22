@@ -7,6 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { requireUser, toErrorResponse } from '@/lib/auth/guards';
 import { vibeIngest, getVibeContext, vibeInvalidate } from '@/lib/vibe-graph';
 import type { SphereAgentId } from '@/shared/council-events';
 import type { NodeKind } from '@/lib/vibe-graph';
@@ -15,6 +16,7 @@ const VALID_AGENTS = ['synthia','synthia-design','alex','cazadora','forjadora','
 const VALID_NODE_KINDS: NodeKind[] = ['agent','task','fact','memory','goal','resource','relationship'];
 
 export async function POST(req: NextRequest) {
+  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
   let body: {
     agentId?: string;
     kind?: string;
@@ -55,6 +57,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
   const agentId = req.nextUrl.searchParams.get('agent');
 
   if (!agentId || !VALID_AGENTS.includes(agentId as typeof VALID_AGENTS[number])) {

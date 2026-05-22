@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireUser, toErrorResponse } from '@/lib/auth/guards';
 
 export const runtime = 'nodejs';
 
 // POST: Track event
 export async function POST(req: NextRequest) {
+  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
   try {
     const body = await req.json();
     const { eventType, userId, platform = 'web', data } = body;

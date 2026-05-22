@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { requireUser, toErrorResponse } from "@/lib/auth/guards";
 import { createClient } from "@supabase/supabase-js";
 
 function getSupabase() {
@@ -11,7 +12,8 @@ function getSupabase() {
 /**
  * GET /api/fleet — Aggregate fleet status from all agents
  */
-export async function GET() {
+export async function GET(_req: NextRequest) {
+  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
   try {
     const supabase = getSupabase();
     if (!supabase) throw new Error("No Supabase config");
