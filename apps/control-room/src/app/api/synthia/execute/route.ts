@@ -34,11 +34,10 @@ export async function POST(req: NextRequest) {
 
   let result = '';
   try {
-    const completion = await nimChat(
+    result = await nimChat(
       [{ role: 'user', content: task }],
-      { system: systemPrompt },
+      { systemPrompt },
     );
-    result = completion.choices[0]?.message?.content ?? '';
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Unknown error';
     return NextResponse.json({ error: `NIM error: ${msg}` }, { status: 502 });

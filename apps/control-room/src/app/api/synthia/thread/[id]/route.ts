@@ -57,10 +57,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
   let assistantContent = '';
   try {
-    const completion = await nimChat(nimMessages, {
-      system: `Eres Synthia, una IA de operaciones empresariales. Agente activo: ${thread?.agent_id ?? 'synthia'}. Modo: ${thread?.execution_mode ?? 'auto'}. Responde siempre en español.`,
+    assistantContent = await nimChat(nimMessages, {
+      systemPrompt: `Eres Synthia, una IA de operaciones empresariales. Agente activo: ${thread?.agent_id ?? 'synthia'}. Modo: ${thread?.execution_mode ?? 'auto'}. Responde siempre en español.`,
     });
-    assistantContent = completion.choices[0]?.message?.content ?? 'Sin respuesta del modelo.';
   } catch {
     assistantContent = 'Hubo un error al procesar tu solicitud. Por favor intenta de nuevo.';
   }
