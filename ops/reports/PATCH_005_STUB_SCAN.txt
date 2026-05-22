@@ -1,0 +1,147 @@
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:11:  placeholder?: string;
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:144:      { name: 'message', type: 'text', required: true, placeholder: 'El mensaje del cliente' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:145:      { name: 'business_context', type: 'text', required: true, placeholder: 'Qué hace tu negocio' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:162:      { name: 'business_type', type: 'text', required: true, placeholder: 'Coach, agencia, tienda' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:163:      { name: 'target_audience', type: 'text', required: true, placeholder: 'Mujeres 30-50' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:164:      { name: 'platforms', type: 'text', required: true, placeholder: 'Instagram, TikTok' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:181:      { name: 'name', type: 'text', required: true, placeholder: 'Tu nombre' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:182:      { name: 'business_type', type: 'text', required: true, placeholder: 'Tipo de negocio' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:198:      { name: 'lead_info', type: 'text', required: true, placeholder: 'Info del cliente' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:199:      { name: 'ideal_customer', type: 'text', required: true, placeholder: 'Tu cliente ideal' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:200:      { name: 'ticket_average', type: 'number', required: true, placeholder: '5000' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:216:      { name: 'meeting_notes', type: 'text', required: true, placeholder: 'Tus notas de junta' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:234:      { name: 'product', type: 'text', required: true, placeholder: 'Tu producto' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:235:      { name: 'price', type: 'number', required: true, placeholder: '5000' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:236:      { name: 'lead_persona', type: 'text', required: true, placeholder: 'Descripción del cliente' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:252:      { name: 'client_name', type: 'text', required: true, placeholder: 'Nombre cliente' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:253:      { name: 'project_description', type: 'text', required: true, placeholder: 'Qué necesita' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:254:      { name: 'budget', type: 'number', required: true, placeholder: '15000' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:270:      { name: 'lead_name', type: 'text', required: true, placeholder: 'Nombre del lead' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:271:      { name: 'current_status', type: 'text', required: true, placeholder: 'Interesado/Dudoso' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:287:      { name: 'company_name', type: 'text', required: true, placeholder: 'Tu empresa' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:288:      { name: 'client_name', type: 'text', required: true, placeholder: 'Cliente' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:289:      { name: 'unit_price', type: 'number', required: true, placeholder: '1000' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:305:      { name: 'product', type: 'text', required: true, placeholder: 'Tu producto' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:306:      { name: 'price', type: 'number', required: true, placeholder: '5000' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:324:      { name: 'task_description', type: 'text', required: true, placeholder: 'Qué necesita hacerse' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:325:      { name: 'team_member', type: 'text', required: true, placeholder: 'Nombre del equipo' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:342:      { name: 'project_name', type: 'text', required: true, placeholder: 'Nombre proyecto' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:343:      { name: 'completion_percentage', type: 'number', required: true, placeholder: '45' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:359:      { name: 'process_name', type: 'text', required: true, placeholder: 'Nombre del proceso' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:360:      { name: 'step_by_step_description', type: 'text', required: true, placeholder: 'Cómo lo haces' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:376:      { name: 'available_times', type: 'text', required: true, placeholder: 'Lun-Vie 10am-5pm' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:377:      { name: 'meeting_duration', type: 'number', required: false, placeholder: '30' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:393:      { name: 'expense', type: 'text', required: true, placeholder: 'Descripción del gasto' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:412:      { name: 'post_type', type: 'text', required: true, placeholder: 'Carrusel/Reel/Post' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:413:      { name: 'topic', type: 'text', required: true, placeholder: 'Tema' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:429:      { name: 'topic', type: 'text', required: true, placeholder: 'Idea TikTok' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:430:      { name: 'niche', type: 'text', required: true, placeholder: 'Tu nicho' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:446:      { name: 'topic', type: 'text', required: true, placeholder: 'Tema del post' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:447:      { name: 'your_insight', type: 'text', required: true, placeholder: 'Tu insight' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:463:      { name: 'main_keyword', type: 'text', required: true, placeholder: 'Keyword principal' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:479:      { name: 'topic', type: 'text', required: true, placeholder: 'Tema' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:480:      { name: 'platform', type: 'text', required: true, placeholder: 'Instagram/TikTok' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:496:      { name: 'main_topic', type: 'text', required: true, placeholder: 'Tema newsletter' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:497:      { name: 'audience', type: 'text', required: true, placeholder: 'Tu audiencia' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:513:      { name: 'topic', type: 'text', required: true, placeholder: 'Tema video' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:514:      { name: 'duration', type: 'number', required: false, placeholder: '10' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:530:      { name: 'episode_theme', type: 'text', required: true, placeholder: 'Tema episodio' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:546:      { name: 'news_headline', type: 'text', required: true, placeholder: 'Tu noticia' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:547:      { name: 'company_name', type: 'text', required: true, placeholder: 'Empresa' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:563:      { name: 'product', type: 'text', required: true, placeholder: 'Tu producto' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:564:      { name: 'price', type: 'number', required: true, placeholder: '99' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:582:      { name: 'your_business', type: 'text', required: true, placeholder: 'Tu negocio' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:583:      { name: 'competitor1_name', type: 'text', required: true, placeholder: 'Competidor 1' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:599:      { name: 'industry', type: 'text', required: true, placeholder: 'Tu industria' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:615:      { name: 'your_idea', type: 'text', required: true, placeholder: 'Tu idea' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:616:      { name: 'target_market', type: 'text', required: true, placeholder: 'Mercado objetivo' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:632:      { name: 'your_business', type: 'text', required: true, placeholder: 'Tu negocio' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:633:      { name: 'product', type: 'text', required: true, placeholder: 'Tu producto' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:649:      { name: 'industry', type: 'text', required: true, placeholder: 'Tu industria' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:768:      { name: 'target_countries', type: 'text', required: true, placeholder: 'Colombia, Chile' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:804:      { name: 'demo_type', type: 'text', required: true, placeholder: 'whatsapp_demo' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:821:      { name: 'demo_type', type: 'text', required: true, placeholder: 'content_calendar' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills-registry.ts:838:      { name: 'demo_type', type: 'text', required: true, placeholder: 'overnight_worker' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/remotion-skill.ts:176:        if (!this.apiKey || this.apiKey.includes('placeholder')) {
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/observability/langfuse.ts:2: * Langfuse observability wrapper — env-gated, no fake traces.
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/supabase-client.ts:19:        return createClient('https://placeholder.supabase.co', 'placeholder-key', {
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/herald/router.ts:44:        'Authorization': `Bearer ${process.env.LITELLM_MASTER_KEY ?? 'sk-placeholder'}`,
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/revenue-agent.ts:91:      monthUsd: todayRevenue * 15.5, // extrapolation placeholder
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/hermes/hermes-client.ts:8: * that surface clearly as "not configured" — never fake success.
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills/video-watch.ts:93:    { name: 'url', type: 'url' as const, required: true, placeholder: 'https://youtube.com/watch?v=...' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills/video-watch.ts:94:    { name: 'question', type: 'text' as const, required: false, placeholder: '¿Qué hook usaron?' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills/video-watch.ts:95:    { name: 'startTime', type: 'text' as const, required: false, placeholder: '0:30' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/lib/skills/video-watch.ts:96:    { name: 'endTime', type: 'text' as const, required: false, placeholder: '1:00' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/agents/alex/IDENTITY.md:57:  voice_id: process.env.ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB', // "Rachel" as placeholder — swap for CDMX voice
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/onboarding/page.tsx:36:  { id: 'biz', label: '¿Qué tipo de negocio tienes?', placeholder: 'Ej: Restaurante, tienda online, agencia de marketing...' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/onboarding/page.tsx:37:  { id: 'revenue', label: '¿Cómo generas ingresos hoy?', placeholder: 'Ej: Ventas directas, servicios profesionales, e-commerce...' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/onboarding/page.tsx:38:  { id: 'team', label: '¿Cuántas personas trabajan contigo?', placeholder: 'Ej: Solo yo, 2-5 personas, 6-20 personas...' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/onboarding/page.tsx:39:  { id: 'pain', label: '¿Cuál es tu mayor dolor operativo?', placeholder: 'Ej: No tengo tiempo para marketing, se me escapan clientes...' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/onboarding/page.tsx:40:  { id: 'goal', label: '¿Cuál es tu meta de crecimiento para los próximos 6 meses?', placeholder: 'Ej: Duplicar clientes, lanzar producto, automatizar ventas...' },
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/onboarding/page.tsx:256:                        placeholder={q.placeholder}
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/SocialMediaManager.tsx:129:              placeholder="Escribe tu post aquí..."
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/cockpit/workers/verify/page.tsx:268:                  placeholder="Notas opcionales para el trabajador..."
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/cockpit/workers/directory/page.tsx:219:          placeholder="Buscar por nombre, colonia o especialidad..."
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/synthia/ThreadView.tsx:99:          placeholder="Continuar la conversación…"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/SynthiaTerminal.tsx:87:                    placeholder="Escriba un comando para la CEO..."
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/SynthiaTerminal.tsx:88:                    className="flex-1 bg-transparent border-none outline-none text-zinc-100 placeholder:text-zinc-600 font-mono text-sm"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/synthia/AgentCreationWizard.tsx:97:              placeholder="Ej. Mi Asistente de Ventas"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/synthia/AgentCreationWizard.tsx:107:              placeholder="¿Para qué sirve este agente?"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/synthia/AgentCreationWizard.tsx:183:      {/* Generic placeholder for steps 2, 4, 5 */}
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/synthia/AgentCreationWizard.tsx:186:          Configuración avanzada — próximamente
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/synthia/ThreadComposer.tsx:7:  placeholder?: string;
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/synthia/ThreadComposer.tsx:19:export function ThreadComposer({ placeholder, agentId = "synthia", executionMode, onSubmit }: ThreadComposerProps) {
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/synthia/ThreadComposer.tsx:68:        placeholder={placeholder ?? "¿Qué quieres que Synthia haga hoy?"}
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/cockpit/webhooks/page.tsx:118:              <input type="text" placeholder="Mi Webhook" style={{
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/cockpit/webhooks/page.tsx:125:              <input type="text" placeholder="https://..." style={{
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/AlexChat.tsx:261:          placeholder="Escribe algo…"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/HeraldToolLibrary.tsx:360:          placeholder="Search tools, capabilities..."
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/cockpit/payments/page.tsx:250:                    placeholder="Nombre del producto"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/cockpit/payments/page.tsx:266:                    placeholder="49"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/spheres/page.tsx:127:              className="w-full bg-zinc-900/80 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-500 resize-none focus:outline-none focus:border-violet-500 transition-colors"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/spheres/page.tsx:129:              placeholder={t.topicPlaceholder}
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/AgentMailbox.tsx:148:              <input value={draft.subject} onChange={e => setDraft(d => ({ ...d, subject: e.target.value }))} placeholder="Asunto" className="bg-zinc-800 text-zinc-300 text-xs rounded px-2 py-1 border border-zinc-700 outline-none" />
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/AgentMailbox.tsx:157:              <textarea value={draft.body} onChange={e => setDraft(d => ({ ...d, body: e.target.value }))} placeholder="Mensaje..." rows={4} className="bg-zinc-800 text-zinc-300 text-xs rounded px-2 py-1 border border-zinc-700 outline-none resize-none flex-1" />
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/TaskDelegation.tsx:95:              placeholder="Título de la tarea"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/TaskDelegation.tsx:112:            placeholder="Descripción de la tarea"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/cockpit/cazadora/page.tsx:235:                placeholder="https://restaurante.mx"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/newspaper/page.tsx:329:                  placeholder="tu@correo.com"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/OrgoConsole.tsx:64:                    placeholder="Escribir comando para Orgo..."
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/OrgoConsole.tsx:65:                    className="w-full bg-transparent border-none outline-none text-zinc-300 placeholder:text-zinc-700 text-xs"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/cockpit/spheres/page.tsx:391:            placeholder={`Mensaje para ${SPHERES.find(s => s.id === selectedSphere)?.name ?? selectedSphere}...`}
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/cockpit/spheres/page.tsx:467:            placeholder="Tema del consejo..."
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/CouncilRoom.tsx:113:              placeholder="Pregunta para el Consejo..."
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/CouncilRoom.tsx:119:              placeholder="Contexto, datos relevantes, opciones consideradas..."
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/InviteGate.tsx:10:    placeholder: 'INTRODUZCA CÓDIGO DE AGENCIA',
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/InviteGate.tsx:18:    placeholder: 'ENTER AGENCY CODE',
+/home/user/AKASHPORTFOLIO/apps/control-room/src/components/InviteGate.tsx:90:                        placeholder={t.placeholder}
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/blog/page.tsx:48:          <p className="text-zinc-500 text-sm">Artículos próximamente...</p>
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/cockpit/social/page.tsx:82:        placeholder="Escribe el contenido del post..."
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/cockpit/skills/page.tsx:147:          placeholder="Search skills..."
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/library/page.tsx:54:          placeholder="Buscar activos…"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/proyecto/new/page.tsx:75:    // TODO: In production, POST to /api/projects/create
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/proyecto/new/page.tsx:199:                      placeholder="Ej: Plataforma de Marketing Digital"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/proyecto/new/page.tsx:219:                      placeholder="Describe brevemente qué harás con este proyecto"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/proyecto/new/page.tsx:322:                      placeholder="Ej: 50000"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/settings/profile/page.tsx:29:            placeholder="Tu nombre"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/watcher/page.tsx:307:        className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/watcher/page.tsx:308:        placeholder="Enviar alerta manual…"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/chat/page.tsx:172:            placeholder="Escribe en español..."
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/panorama/equipo/page.tsx:7:      <p style={{ color: "var(--color-muted)", fontSize: 13 }}>Matriz de responsabilidades — próximamente.</p>
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/newsletter/subscribe/route.ts:34:    if (!supabaseUrl || supabaseUrl.includes('placeholder')) {
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/api/newsletter/subscribe/route.ts:93:  const configured = !!(supabaseUrl && !supabaseUrl.includes('placeholder'));
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/projects/page.tsx:85:            placeholder="Nombre del proyecto"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/projects/page.tsx:91:            placeholder="Descripción (opcional)"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/panorama/gastos/page.tsx:151:            <input type="number" placeholder="0.00" value={form.amount} onChange={set("amount")} style={inputStyle} />
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/panorama/gastos/page.tsx:155:            <input type="text" placeholder="Nombre del proveedor" value={form.vendor} onChange={set("vendor")} style={inputStyle} />
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/panorama/gastos/page.tsx:171:            <textarea value={form.notes} onChange={set("notes")} rows={2} placeholder="Descripción opcional" style={{ ...inputStyle, resize: "none" }} />
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/teams/page.tsx:74:            placeholder="correo@empresa.com"
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/panorama/riesgos/page.tsx:7:      <p style={{ color: "var(--color-muted)", fontSize: 13 }}>Risk register PMBOK — próximamente.</p>
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/panorama/proyecto/nuevo/page.tsx:169:              <input value={data.name} onChange={set("name")} placeholder="Ej: Culture Shock Temporada 2" style={inputStyle} />
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/panorama/proyecto/nuevo/page.tsx:173:              <input value={data.sponsor} onChange={set("sponsor")} placeholder="Ivette Milo" style={inputStyle} />
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/panorama/proyecto/nuevo/page.tsx:177:              <textarea value={data.business_case} onChange={set("business_case")} rows={3} placeholder="¿Por qué este proyecto tiene valor para el negocio?" style={{ ...inputStyle, resize: "none" }} />
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/panorama/proyecto/nuevo/page.tsx:181:              <textarea value={data.objectives} onChange={set("objectives")} rows={3} placeholder="• Incrementar audiencia 30%&#10;• Publicar 12 episodios&#10;• Monetizar con 2 sponsors" style={{ ...inputStyle, resize: "none" }} />
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/panorama/proyecto/nuevo/page.tsx:196:              placeholder={"Ivette Milo · Fundadora · Alta\nEquipo CDMX · Ejecutores · Media\nAnunciantes · Financiadores · Alta\nAudiencia · Usuarios finales · Baja"}
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/panorama/proyecto/nuevo/page.tsx:212:                <input value={item} onChange={(e) => setWBS(i, e.target.value)} placeholder={`Entregable ${i + 1}`} style={{ ...inputStyle, flex: 1 }} />
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/panorama/proyecto/nuevo/page.tsx:230:                <input value={m.label} onChange={(e) => setMilestone(i, "label", e.target.value)} placeholder="Hito" style={{ ...inputStyle, flex: 1 }} />
+/home/user/AKASHPORTFOLIO/apps/control-room/src/app/panorama/proyecto/[id]/page.tsx:12:      <p style={{ color: "var(--color-muted)", fontSize: 13 }}>WBS, cronograma y riesgos — vista detallada próximamente.</p>

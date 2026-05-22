@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { requireUser, toErrorResponse } from '@/lib/auth/guards';
 import { callLLM } from '@/lib/litellm-gateway';
 import type { SphereAgentId } from '@/shared/council-events';
 
@@ -85,6 +86,7 @@ const SPHERE_PERSONAS: Record<string, { name: string; locale: string; systemProm
 };
 
 export async function POST(req: NextRequest) {
+  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
   let body: { sphereId?: string; message?: string; history?: Array<{ role: string; content: string }> };
   try {
     body = await req.json();

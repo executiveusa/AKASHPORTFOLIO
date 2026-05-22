@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireUser, toErrorResponse } from '@/lib/auth/guards';
 
 export const runtime = 'nodejs';
 
@@ -39,6 +40,7 @@ function ensureDefaultAgents() {
 
 // GET: Fetch agent state
 export async function GET(req: NextRequest) {
+  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
   try {
     ensureDefaultAgents();
 
@@ -62,6 +64,7 @@ export async function GET(req: NextRequest) {
 
 // POST: Create or initialize agent state
 export async function POST(req: NextRequest) {
+  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
   try {
     const body = await req.json();
     const { agentId, persona, memory, mood, context } = body;
@@ -90,6 +93,7 @@ export async function POST(req: NextRequest) {
 
 // PUT: Update agent state
 export async function PUT(req: NextRequest) {
+  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
   try {
     const body = await req.json();
     const { agentId, ...updates } = body;

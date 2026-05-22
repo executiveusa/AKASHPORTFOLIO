@@ -1,0 +1,127 @@
+apps/control-room/src/proxy.ts:12:    signInUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
+apps/control-room/src/proxy.ts:13:    return NextResponse.redirect(signInUrl);
+apps/control-room/src/components/synthia/AssetDock.tsx:62:              href={a.url}
+apps/control-room/src/components/Footer.tsx:84:                          href={link.href}
+apps/control-room/src/components/Footer.tsx:101:                        href={link.href}
+apps/control-room/src/components/synthia/Sidebar.tsx:22:  const pathname = usePathname();
+apps/control-room/src/components/synthia/Sidebar.tsx:25:    href === "/threads/new" ? pathname === href : pathname.startsWith(href);
+apps/control-room/src/components/synthia/Sidebar.tsx:55:            href={item.href}
+apps/control-room/src/components/synthia/Sidebar.tsx:82:            href={item.href}
+apps/control-room/src/components/synthia/RecentThreads.tsx:51:          href={`/thread/${t.id}`}
+apps/control-room/src/app/featured/[slug]/page.tsx:127:          <Link href="/threads/new" style={{ color: "#0d0d0d", fontWeight: 600 }}>
+apps/control-room/src/app/featured/[slug]/page.tsx:138:        <Link href="/threads/new" style={{ fontSize: 12, color: "#888", textDecoration: "none", display: "block", marginBottom: 24 }}>
+apps/control-room/src/app/featured/[slug]/page.tsx:168:          href={`/threads/new?agent=${example.agent_id}&prompt=${encodeURIComponent(example.prompt)}`}
+apps/control-room/src/components/synthia/AgentCreationWizard.tsx:4:import { useRouter } from "next/navigation";
+apps/control-room/src/components/synthia/AgentCreationWizard.tsx:35:  const router = useRouter();
+apps/control-room/src/components/synthia/AgentCreationWizard.tsx:57:      if (res.ok) router.push("/agents");
+apps/control-room/src/components/synthia/ThreadComposer.tsx:4:import { useRouter, useSearchParams } from "next/navigation";
+apps/control-room/src/components/synthia/ThreadComposer.tsx:20:  const router = useRouter();
+apps/control-room/src/components/synthia/ThreadComposer.tsx:46:          if (id) router.push(`/thread/${id}`);
+apps/control-room/src/components/synthia/FeaturedExamplesGrid.tsx:32:          href={`/featured/${ex.slug}`}
+apps/control-room/src/components/PublicNav.tsx:14:  const pathname = usePathname();
+apps/control-room/src/components/PublicNav.tsx:39:        <Link href="/landing" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+apps/control-room/src/components/PublicNav.tsx:51:            const isActive = pathname === link.href || pathname?.startsWith(link.href + '/');
+apps/control-room/src/components/PublicNav.tsx:55:                href={link.href}
+apps/control-room/src/components/PublicNav.tsx:74:          href="/cockpit"
+apps/control-room/src/components/Breadcrumb.tsx:40:  const pathname = usePathname();
+apps/control-room/src/components/Breadcrumb.tsx:43:  let breadcrumbs = PAGE_BREADCRUMBS[pathname];
+apps/control-room/src/components/Breadcrumb.tsx:48:      (key) => pathname.startsWith(key) && key !== '/'
+apps/control-room/src/components/Breadcrumb.tsx:65:            <Link href={item.href} className="text-slate-400 hover:text-slate-300 transition">
+apps/control-room/src/app/landing/page.tsx:415:              href="/cockpit"
+apps/control-room/src/app/landing/page.tsx:450:              href="/auth/signin?callbackUrl=/onboarding"
+apps/control-room/src/app/landing/page.tsx:460:              href="/synthia"
+apps/control-room/src/app/landing/page.tsx:575:              href="/cockpit/spheres"
+apps/control-room/src/app/landing/page.tsx:634:                  href="/cockpit"
+apps/control-room/src/app/landing/page.tsx:691:            href="/auth/signin?callbackUrl=/onboarding"
+apps/control-room/src/app/landing/page.tsx:726:            href={process.env.NEXT_PUBLIC_DIRECTORY_URL || 'https://directorio-kupuri.vercel.app'}
+apps/control-room/src/app/cockpit/subscriptions/page.tsx:434:                href={tier.stripe_link}
+apps/control-room/src/app/cockpit/subscriptions/page.tsx:633:              href="/cockpit/vault"
+apps/control-room/src/app/cockpit/subscriptions/page.tsx:648:              href="https://dashboard.stripe.com/products"
+apps/control-room/src/app/settings/security/page.tsx:9:      <Link href="/settings" style={{ fontSize: 12, color: "#888", textDecoration: "none", display: "block", marginBottom: 24 }}>
+apps/control-room/src/app/cockpit/layout.tsx:115:  const pathname = usePathname();
+apps/control-room/src/app/cockpit/layout.tsx:166:                const isActive = pathname === item.href || (item.href !== "/cockpit" && pathname.startsWith(item.href));
+apps/control-room/src/app/cockpit/layout.tsx:170:                    href={item.href}
+apps/control-room/src/app/cockpit/layout.tsx:222:                const isActive = pathname === item.href;
+apps/control-room/src/app/cockpit/layout.tsx:224:                  <Link key={item.href} href={item.href} className={`nav-item ${isActive ? "nav-item-active" : ""}`} onClick={() => setMobileOpen(false)}>
+apps/control-room/src/app/settings/personalization/page.tsx:26:      <Link href="/settings" style={{ fontSize: 12, color: "#888", textDecoration: "none", display: "block", marginBottom: 24 }}>
+apps/control-room/src/app/synthia/page.tsx:17:          href="/"
+apps/control-room/src/app/synthia/page.tsx:72:              href="/auth/signin?callbackUrl=/onboarding"
+apps/control-room/src/app/synthia/page.tsx:78:              href="/landing"
+apps/control-room/src/app/synthia/page.tsx:190:            href="/auth/signin?callbackUrl=/onboarding"
+apps/control-room/src/app/synthia/page.tsx:202:          <Link href="/" className="text-purple-400 hover:text-purple-300">
+apps/control-room/src/app/settings/integrations/page.tsx:10:      <Link href="/settings" style={{ fontSize: 12, color: "#888", textDecoration: "none", display: "block", marginBottom: 24 }}>
+apps/control-room/src/app/settings/billing/page.tsx:10:      <Link href="/settings" style={{ fontSize: 12, color: "#888", textDecoration: "none", display: "block", marginBottom: 24 }}>
+apps/control-room/src/app/casos/page.tsx:159:          <Link href="/chat" style={{ fontSize: 12, padding: "7px 14px", background: "var(--color-accent)", color: "#fff", borderRadius: 7, fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap" }}>
+apps/control-room/src/app/settings/notifications/page.tsx:31:      <Link href="/settings" style={{ fontSize: 12, color: "#888", textDecoration: "none", display: "block", marginBottom: 24 }}>
+apps/control-room/src/app/cockpit/workers/page.tsx:140:            <Link href="/cockpit/workers/jobs" style={{ fontSize: 12, color: "var(--color-gold-400)", textDecoration: "none" }}>
+apps/control-room/src/app/cockpit/workers/page.tsx:188:                <Link key={a.href} href={a.href} style={{
+apps/control-room/src/app/cockpit/workers/page.tsx:209:              <Link href="/cockpit/workers/directory" style={{ fontSize: 12, color: "var(--color-gold-400)", textDecoration: "none" }}>Directorio →</Link>
+apps/control-room/src/app/cockpit/workers/page.tsx:237:            <Link href="/cockpit/workers/pay" style={{ fontSize: 12, color: "#22c55e", textDecoration: "none" }}>Aprobar pagos →</Link>
+apps/control-room/src/app/blog/page.tsx:27:            <Link href={`/blog/${post.slug}`} className="group">
+apps/control-room/src/app/settings/page.tsx:27:            href={s.href}
+apps/control-room/src/app/blog/[slug]/page.tsx:31:          <Link href="/blog" style={{ color: 'var(--color-gold-400)', textDecoration: 'none', fontWeight: 600 }}>
+apps/control-room/src/app/blog/[slug]/page.tsx:45:            <Link href="/blog" style={{ fontSize: 13, color: 'var(--color-cream-400)', textDecoration: 'none', marginBottom: 16, display: 'inline-block' }}>
+apps/control-room/src/app/blog/[slug]/page.tsx:80:            <Link href="/newspaper" style={{ display: 'inline-block', marginTop: 16, padding: '8px 20px', background: 'var(--color-gold-600)', color: 'var(--color-charcoal-900)', borderRadius: 8, textDecoration: 'none', fontWeight: 600 }}>
+apps/control-room/src/app/settings/profile/page.tsx:18:      <Link href="/settings" style={{ fontSize: 12, color: "#888", textDecoration: "none", display: "block", marginBottom: 24 }}>
+apps/control-room/src/app/dashboard/page.tsx:91:          <Link key={item.href} href={item.href} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2, padding: "10px 4px", color: isActive ? "var(--color-accent)" : "var(--color-muted)", fontSize: 9, fontWeight: isActive ? 600 : 400, textDecoration: "none", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+apps/control-room/src/app/dashboard/page.tsx:196:            <Link href="/chat" style={{ flex: 1, display: "block", textAlign: "center", padding: "10px 8px", background: "var(--color-accent)", color: "#fff", borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: "none" }}>
+apps/control-room/src/app/dashboard/page.tsx:199:            <Link href="/panorama" style={{ flex: 1, display: "block", textAlign: "center", padding: "10px 8px", background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-text)", borderRadius: 8, fontSize: 13, fontWeight: 500, textDecoration: "none" }}>
+apps/control-room/src/app/dashboard/page.tsx:202:            <Link href="/panorama/gastos" style={{ flex: 1, display: "block", textAlign: "center", padding: "10px 8px", background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-text)", borderRadius: 8, fontSize: 13, fontWeight: 500, textDecoration: "none" }}>
+apps/control-room/src/app/cockpit/onboarding/page.tsx:90:          href="/cockpit"
+apps/control-room/src/app/cockpit/onboarding/page.tsx:144:          href={current.href}
+apps/control-room/src/app/not-found.tsx:11:          href="/landing"
+apps/control-room/src/app/alex/page.tsx:503:            <Link href="/dashboard" className="text-[10px] uppercase tracking-widest text-slate-400 hover:text-white transition-colors border border-slate-700 hover:border-slate-500 px-3 py-1.5 rounded">
+apps/control-room/src/app/alex/page.tsx:512:            <Link href="/dashboard" className="px-4 py-2 text-sm font-semibold bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors">
+apps/control-room/src/app/alex/page.tsx:667:                <a href="/dashboard" className="w-full py-3 bg-amber-600 hover:bg-amber-700 font-bold rounded-lg transition-colors text-sm block text-center">
+apps/control-room/src/app/alex/page.tsx:694:          <a href="/dashboard" className="inline-block px-8 py-4 bg-amber-600 hover:bg-amber-700 font-bold rounded-lg transition-colors text-lg">
+apps/control-room/src/app/onboarding/page.tsx:85:        <Link href="/landing" style={{ fontSize: 16, fontWeight: 800, color: 'var(--color-cream-100)', textDecoration: 'none', letterSpacing: '-0.02em' }}>
+apps/control-room/src/app/onboarding/page.tsx:89:          href="/cockpit"
+apps/control-room/src/app/onboarding/page.tsx:155:                href="/onboarding/"
+apps/control-room/src/app/onboarding/page.tsx:231:                    href="/cockpit"
+apps/control-room/src/app/error.tsx:69:          <Link href="/landing" style={{
+apps/control-room/src/app/threads/page.tsx:48:          href="/threads/new"
+apps/control-room/src/app/threads/page.tsx:82:          <Link href="/threads/new" style={{ color: "#0d0d0d", fontWeight: 600 }}>
+apps/control-room/src/app/threads/page.tsx:92:            href={`/thread/${t.id}`}
+apps/control-room/src/app/library/page.tsx:121:                href={item.url}
+apps/control-room/src/app/panorama/page.tsx:66:    <Link href={`/panorama/proyecto/${project.id}`} style={{ textDecoration: "none", display: "block" }}>
+apps/control-room/src/app/panorama/page.tsx:131:          href="/panorama/proyecto/nuevo"
+apps/control-room/src/app/panorama/page.tsx:149:            <Link key={l.href} href={l.href} style={{ flex: 1, textAlign: "center", padding: "8px 4px", background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-muted)", borderRadius: 6, fontSize: 12, textDecoration: "none" }}>
+apps/control-room/src/app/panorama/page.tsx:182:            <Link href="/chat" style={{ display: "block", textAlign: "center", padding: "12px", background: "var(--color-accent)", color: "#fff", borderRadius: 8, fontWeight: 600, fontSize: 14, textDecoration: "none" }}>
+apps/control-room/src/app/landing-index/page.tsx:10:            <Link href="/landing" style={{ fontSize: 16, color: 'var(--color-gold-400)', textDecoration: 'none', fontWeight: 600 }}>
+apps/control-room/src/app/landing-index/page.tsx:15:            <Link href="/synthia" style={{ fontSize: 16, color: 'var(--color-gold-400)', textDecoration: 'none', fontWeight: 600 }}>
+apps/control-room/src/app/landing-index/page.tsx:20:            <Link href="/onboarding" style={{ fontSize: 16, color: 'var(--color-gold-400)', textDecoration: 'none', fontWeight: 600 }}>
+apps/control-room/src/app/landing-index/page.tsx:25:            <Link href="/blog" style={{ fontSize: 16, color: 'var(--color-gold-400)', textDecoration: 'none', fontWeight: 600 }}>
+apps/control-room/src/app/landing-index/page.tsx:30:            <Link href="/newspaper" style={{ fontSize: 16, color: 'var(--color-gold-400)', textDecoration: 'none', fontWeight: 600 }}>
+apps/control-room/src/app/proyecto/new/page.tsx:5:import { useRouter } from 'next/navigation';
+apps/control-room/src/app/proyecto/new/page.tsx:43:  const router = useRouter();
+apps/control-room/src/app/proyecto/new/page.tsx:81:      router.push('/cockpit');
+apps/control-room/src/app/proyecto/new/page.tsx:89:        <Link href="/cockpit" style={{ fontSize: 16, fontWeight: 800, color: 'var(--color-cream-100)', textDecoration: 'none', letterSpacing: '-0.02em' }}>
+apps/control-room/src/app/proyecto/new/page.tsx:93:          href="/cockpit"
+apps/control-room/src/app/theater/page.tsx:106:          href="/dashboard"
+apps/control-room/src/app/auth/denied/page.tsx:15:          <Link href="/" className="block bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 px-6 rounded-lg transition">
+apps/control-room/src/app/auth/denied/page.tsx:18:          <a href="/api/auth/signout" className="block text-slate-400 hover:text-slate-300 font-semibold">
+apps/control-room/src/app/panorama/proyecto/nuevo/page.tsx:3:import { useRouter } from "next/navigation";
+apps/control-room/src/app/panorama/proyecto/nuevo/page.tsx:115:  const router = useRouter();
+apps/control-room/src/app/panorama/proyecto/nuevo/page.tsx:145:    router.push("/panorama");
+apps/control-room/src/app/panorama/proyecto/nuevo/page.tsx:157:        <button onClick={() => router.push("/panorama")} style={{ background: "none", border: "none", color: "var(--color-muted)", fontSize: 22, cursor: "pointer" }}>✕</button>
+apps/control-room/src/app/auth/signin/page.tsx:4:import { useSearchParams, useRouter } from 'next/navigation';
+apps/control-room/src/app/auth/signin/page.tsx:10:  const router = useRouter();
+apps/control-room/src/app/auth/signin/page.tsx:29:        router.push(callbackUrl);
+apps/control-room/src/app/auth/signin/page.tsx:100:          <a href="/" className="text-slate-400 hover:text-slate-300 text-sm">
+apps/control-room/src/app/cockpit/page.tsx:302:                  href={qa.action}
+apps/control-room/src/app/panorama/proyecto/[id]/page.tsx:9:        <Link href="/panorama" style={{ color: "var(--color-muted)", fontSize: 13, textDecoration: "none" }}>← Panorama</Link>
+apps/control-room/src/app/newspaper/page.tsx:209:                href={`/newspaper/${b.slug}`}
+apps/control-room/src/app/newspaper/page.tsx:366:              href="/landing"
+apps/control-room/src/app/auth/error/page.tsx:28:          <Link href="/auth/signin" className="block bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 px-6 rounded-lg transition">
+apps/control-room/src/app/auth/error/page.tsx:31:          <Link href="/" className="block text-slate-400 hover:text-slate-300 font-semibold">
+apps/control-room/src/app/page.tsx:10:  redirect('/dashboard');
+apps/control-room/src/app/newspaper/[slug]/page.tsx:279:          <Link href="/newspaper" style={{ color: 'var(--color-gold-400)', textDecoration: 'none', fontWeight: 600 }}>
+apps/control-room/src/app/newspaper/[slug]/page.tsx:293:            <Link href="/newspaper" style={{ fontSize: 13, color: 'var(--color-cream-400)', textDecoration: 'none', marginBottom: 16, display: 'inline-block' }}>
+apps/control-room/src/app/newspaper/[slug]/page.tsx:324:            <Link href="/newspaper" style={{ display: 'inline-block', marginTop: 16, padding: '8px 20px', background: 'var(--color-gold-600)', color: 'var(--color-charcoal-900)', borderRadius: 8, textDecoration: 'none', fontWeight: 600 }}>
+apps/control-room/src/app/agents/page.tsx:58:          href="/agents/new"
+apps/control-room/src/app/agents/page.tsx:102:                  href={`/threads/new?agent=${a.id}`}
+apps/control-room/src/app/agents/page.tsx:113:                    href={`/agents/${a.id}/settings`}
+apps/control-room/src/app/projects/page.tsx:125:            href={`/threads?project=${p.id}`}
+apps/control-room/src/app/skills/page.tsx:123:            <Link href="/dashboard" className="text-[10px] uppercase tracking-widest text-slate-400 hover:text-white transition-colors border border-slate-700 hover:border-slate-500 px-3 py-1.5 rounded">
+apps/control-room/src/app/skills/page.tsx:132:            <Link href="/alex" className="px-4 py-2 text-sm font-semibold bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors">
+apps/control-room/src/app/skills/page.tsx:268:          <Link href="/alex">

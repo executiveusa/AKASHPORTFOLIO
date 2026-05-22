@@ -5,10 +5,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { requireUser, toErrorResponse } from '@/lib/auth/guards';
 import { bootstrapHeraldRegistry, getAllTools } from '@/lib/herald/tool-registry';
 import type { ExecutorKind } from '@/lib/herald/tool-registry';
 
 export async function GET(req: NextRequest) {
+  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
   const { searchParams } = new URL(req.url);
   const executor = searchParams.get('executor') as ExecutorKind | null;
   const capability = searchParams.get('capability') ?? undefined;
@@ -23,6 +25,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
   const body = await req.json().catch(() => ({})) as { action?: string };
 
   if (body.action === 'bootstrap') {

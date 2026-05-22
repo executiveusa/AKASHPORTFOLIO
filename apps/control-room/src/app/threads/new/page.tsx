@@ -7,10 +7,16 @@ import { FeaturedExamplesGrid } from "@/components/synthia/FeaturedExamplesGrid"
 import { AgentPicker } from "@/components/synthia/AgentPicker";
 import { ExecutionModePicker } from "@/components/synthia/ExecutionModePicker";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function NewThreadPage() {
+  const router = useRouter();
   const [agent, setAgent] = useState("synthia");
   const [mode, setMode] = useState("auto");
+
+  const handleQuickAction = (prompt: string) => {
+    router.push(`/threads/new?prompt=${encodeURIComponent(prompt)}`);
+  };
 
   return (
     <AppShell>
@@ -45,7 +51,7 @@ export default function NewThreadPage() {
           <div style={{ fontSize: 11, fontWeight: 600, color: "#888", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
             Acciones rápidas
           </div>
-          <QuickActionChips />
+          <QuickActionChips onSelect={handleQuickAction} />
         </div>
 
         <div style={{ marginTop: 40 }}>

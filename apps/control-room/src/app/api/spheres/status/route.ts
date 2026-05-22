@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { requireUser, toErrorResponse } from "@/lib/auth/guards";
 
 /**
  * GET /api/spheres/status — live sphere status feed
@@ -18,7 +19,8 @@ const SPHERES = [
   { id: "teknos",    name: "ING. TEKNOS",  role: "Ingeniero de Sistemas",   color: "#06b6d4" },
 ];
 
-export async function GET() {
+export async function GET(_req: NextRequest) {
+  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
   // In production: query DB / agent state store
   // For now: return stable standby state so the UI has something to show
   const spheres = SPHERES.map((s) => ({
