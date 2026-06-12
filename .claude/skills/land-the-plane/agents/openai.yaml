@@ -1,0 +1,3 @@
+display_name: Land The Plane
+short_description: Finish a branch, clear reviews, and merge it safely to main.
+default_prompt: Land the plane for the current branch.
