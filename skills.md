@@ -662,6 +662,32 @@ POST /api/openfang { mode: "query_memory" }  # Semantic search in agent memory
 - Added Skill 14: OpenFang Agent OS (autonomous Hands + 40 channel adapters + Ivette approval loop)
 - Updated agent training matrix
 
+### 15. Land The Plane
+
+**Skill Name**: `land-the-plane`
+**Type**: Release / Merge Closeout
+**Status**: Active (2026-06-12)
+**Location**: `.claude/skills/land-the-plane/SKILL.md`
+
+#### Pattern
+
+1. Read the repo `AGENTS.md` chain.
+2. Check the current branch, PR state, and mergeability.
+3. Resolve blocking review comments and merge conflicts.
+4. Run verification until green.
+5. Apply low-risk nitpicks and simplification only after green.
+6. Run a security review for secret leakage and unsafe diffs.
+7. Merge only when all gates pass.
+8. Verify the merge landed on `main`.
+
+#### Training Points
+
+- Never merge with red checks or blocking comments.
+- Stop after three repeats of the same blocker.
+- Use a post-merge verify step before reporting success.
+- Keep unrelated user work out of the merge.
+- Treat the workflow as a closeout gate, not a shortcut.
+
 ### 2026-03-03
 - Created skills.md
 - Documented 10 core skills
