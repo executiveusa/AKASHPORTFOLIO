@@ -668,6 +668,8 @@ POST /api/openfang { mode: "query_memory" }  # Semantic search in agent memory
 **Type**: Release / Merge Closeout
 **Status**: Active (2026-06-12)
 **Location**: `.claude/skills/land-the-plane/SKILL.md`
+**Shareable Copy**: `DOCS/architecture/land-the-plane.md`
+**Command Wrapper**: `.claude/commands/land-the-plane.md`
 
 #### Pattern
 
