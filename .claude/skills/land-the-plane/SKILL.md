@@ -15,6 +15,7 @@ Merge only when the branch is green, review-clean, conflict-free, and free of se
 
 - Read the repo `AGENTS.md` chain before touching files.
 - Use Dox-style docs traversal for the nearest folder rules.
+- Use `DOCS/architecture/land-the-plane.md` as the shareable canonical copy of this skill.
 - If PR review tooling is available, use a Greptile-style loop to check comments, status checks, and description completeness.
 - If a simplifier agent is available, use it only after the branch is green and only on recently changed code.
 - Treat the closeout as an Optio-style task-to-PR-to-merge flow, not as a free-form chat.
@@ -43,7 +44,7 @@ Merge only when the branch is green, review-clean, conflict-free, and free of se
 
 ## Verification
 
-Run the repo’s required checks first. If the repo is MAXX-related, default to:
+Run the repo's required checks first. If the repo does not clearly document them, default to the common build and lint pair for the stack you are working in. For JavaScript and TypeScript repos, that usually means:
 
 ```powershell
 npm run lint

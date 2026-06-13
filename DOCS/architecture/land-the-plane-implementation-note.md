@@ -6,7 +6,8 @@ Implemented on 2026-06-12.
 
 - `.claude/skills/land-the-plane/SKILL.md`
 - `.claude/skills/land-the-plane/agents/openai.yaml`
-- `docs/architecture/land-the-plane.md`
+- `.claude/commands/land-the-plane.md`
+- `DOCS/architecture/land-the-plane.md`
 - `skills.md` inventory entry
 
 ## Summary
@@ -24,3 +25,5 @@ The new skill formalizes the merge-and-close workflow for any agent:
 ## Intent
 
 This is meant to be reusable by any agent that can read `SKILL.md` files and GitHub PR state, while still keeping the merge gates explicit.
+
+The canonical shareable markdown copy now lives at `DOCS/architecture/land-the-plane.md`, and the local command wrapper lives at `.claude/commands/land-the-plane.md`.
