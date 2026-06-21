@@ -813,7 +813,7 @@ document.addEventListener('keydown', (e) => {
    CTA BUTTON
 ========================================================================= */
 btnCont.addEventListener('click', () => {
-    localStorage.setItem('kupuri_onboarding_seen', 'true');
+    localStorage.setItem('synthia_onboarding_seen', 'true');
     beacon('complete');
     window.dispatchEvent(new CustomEvent('onboarding:complete', {
         bubbles: true, detail: { ts: Date.now() },

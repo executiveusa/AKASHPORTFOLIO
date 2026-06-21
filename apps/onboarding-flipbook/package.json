@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "3D Interactive Onboarding Wasm App",
   "scripts": {
+    "build:wasm": "wasm-pack build --target web --out-dir out",
+    "build": "npm run build:wasm",
     "test:e2e": "playwright test",
     "serve": "npx serve ."
   },

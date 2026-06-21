@@ -141,7 +141,7 @@ test.describe('onboarding-flipbook WASM sidecar', () => {
 
     // localStorage key set
     const stored = await page.evaluate(
-      () => localStorage.getItem('kupuri_onboarding_seen'),
+      () => localStorage.getItem('synthia_onboarding_seen'),
     );
     expect(stored).toBe('true');
   });
