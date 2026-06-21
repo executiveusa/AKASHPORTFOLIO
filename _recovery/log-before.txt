@@ -1,0 +1,17 @@
+c6c8961 PATCH_005: Fix broken footer links, remove duplicate footer, harden 12 API routes (#23)
+dfe7b32 fix(synthia): update nimChat calls to use new Promise<string> signature
+7461a3d fix(build): add openai package dependency for nvidia-nim client
+2ec24a0 feat(synthia): PATCH_004/005 — HyperAgent rebuild with Hermes adapter (#22)
+231ea1e feat: wire NVIDIA NIM free inference proxy (#21)
+d60a3ee PATCH_002: Synthia Control Room production — auth/DB/A2A/observability/infra hardening (#20)
+b53227f chore: PATCH_001 Synthia control-room foundation scaffolding (#19)
+14682b0 feat: Land the Plane™ + CODE_MODE — Autonomous CI/CD & Zero-Cost Dev (#18)
+4d15951 feat(skills): Land the Plane™ — Autonomous CI/CD Workflow (#17)
+e0b0f3b fix: apply SYNTHIA 3.0 complete production fix package (#16)
+4f5f220 fix: unblock production build and tighten footer ecosystem links (#15)
+c6a7c0e fix: remove middleware.ts - use proxy.ts only (fixes Vercel build error)
+5999e8e New task (zenflow) (#14)
+575343b Add opencli-rs-skill defaults and agent law wiring (#13)
+e13ee77 feat: wire Synthia Design Studio — POST /api/design/dispatch + sphere missions + Vibe Graph
+ccb466b [ZTE][ZTE-20260330-FINAL] feat: Synthia 3.0 — 9 screens complete + workflow protocol locked (#12)
+18b7cfc [ZTE v3.0] Production deploy: kupuri-media-cdmx (squashed, no secrets)

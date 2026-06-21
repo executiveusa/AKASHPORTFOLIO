@@ -2,9 +2,10 @@
 /**
  * audit-routes.mjs — Enumerate and classify all API routes.
  * Produces machine-readable output listing every route.ts in apps/control-room/src/app/api.
+ * Uses Node.js fs traversal (cross-platform; no shell `find` dependency).
  */
-import { execSync } from 'node:child_process';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
+import { join } from 'node:path';
 
 const API_BASE = 'apps/control-room/src/app/api';
 
@@ -13,8 +14,20 @@ if (!existsSync(API_BASE)) {
   process.exit(1);
 }
 
-const out = execSync(`find ${API_BASE} -type f -name 'route.ts'`, { encoding: 'utf8' });
-const routes = out.trim().split('\n').filter(Boolean).sort();
+function findRouteFiles(dir) {
+  const results = [];
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry);
+    if (statSync(full).isDirectory()) {
+      results.push(...findRouteFiles(full));
+    } else if (entry === 'route.ts') {
+      results.push(full.replace(/\\/g, '/'));
+    }
+  }
+  return results;
+}
+
+const routes = findRouteFiles(API_BASE).sort();
 
 console.log(`[audit-routes] Found ${routes.length} API route files\n`);
 
@@ -24,10 +37,10 @@ for (const routeFile of routes) {
     .replace('apps/control-room/src/app', '')
     .replace('/route.ts', '')
     || '/';
-  
+
   let content = '';
   try { content = readFileSync(routeFile, 'utf8'); } catch {}
-  
+
   const methods = [];
   if (content.match(/export\s+(async\s+)?function\s+GET/)) methods.push('GET');
   if (content.match(/export\s+(async\s+)?function\s+POST/)) methods.push('POST');
@@ -41,7 +54,7 @@ for (const routeFile of routes) {
   const hasRequireCron = content.includes('requireCron');
   const hasRequireWebhook = content.includes('requireWebhookSignature');
   const hasToolPolicy = content.includes('tool-policy') || content.includes('assertToolAllowed');
-  
+
   let guard = 'none';
   if (hasRequireAdmin) guard = 'requireAdmin';
   else if (hasRequireOperator) guard = 'requireOperatorOrAdmin';
