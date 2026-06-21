@@ -47,3 +47,36 @@ tools/mcp-blender/renders/
 tools/mcp-worlds/renders/
 *.blend1
 *.glb.tmp
+
+# Agent working directories — runtime state, not source
+memory/
+beads/
+.beads/
+.emerald-tablets-tm/
+openclaw-logic/
+agents/memory/
+agents/logs/
+
+# Rust build artifacts
+backend/target/
+backend/Cargo.lock
+
+# AI session dumps & one-time deploy scripts
+sync_session.bat
+DEPLOY_NOW.md
+EXECUTE_DEPLOY.txt
+OVERNIGHT_BUILD_SUMMARY.md
+BUILD_SUMMARY*.md
+IMPLEMENTATION_SUMMARY.md
+CLEANUP_PLAN.md
+PHASE_2*.md
+PHASE_2_7*.md
+DEPLOYMENT.md
+DEPLOY*.md
+SETUP_GUIDE.md
+PROJECT_SETUP.md
+
+# AI prompt artifacts that leaked into source
+*.txt
+!apps/web/**/*.txt
+kupuri_krug_aaa_*.md
