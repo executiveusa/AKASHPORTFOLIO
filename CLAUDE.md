@@ -1,17 +1,17 @@
-# CLAUDE.md — Kupuri Media™ / SYNTHIA™ Workspace Root
+# CLAUDE.md — Kupuri Media™ / SYNTHIA™ Workspace
 
-> This file is the entry point for all AI agents working in this repository.
 > Read this FIRST before any other file.
 
-## Prime Directive
+## Agent Operating Rules
 
-All agents operating in this workspace are governed by the **EMERALD TABLETS™**:
+Follow the global Antigravity agent rules. Work under a strict token budget. Inspect existing repo patterns before editing. Make the smallest correct change. Validate with build/lint/test where available. Update `/docs/agent-context.md` after meaningful changes. Do not make unrelated changes. Do not expose secrets. Do not deploy, delete data, or run destructive commands without explicit approval. Final output must include summary, files changed, validation results, risks, and next step.
 
-```
-.emerald-tablets-tm/PRIME_DIRECTIVE.md
-```
+---
 
-Read and internalize all 9 tablets before beginning work.
+## Repo Context
+
+See [`/docs/agent-context.md`](./docs/agent-context.md) for current stack, conventions, known issues, and last task state.
+See [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the 3-app ecosystem map.
 
 ---
 
@@ -19,41 +19,50 @@ Read and internalize all 9 tablets before beginning work.
 
 | What | Where |
 |------|-------|
-| Agent framework | `agents.md` |
+| Landing page | `apps/web/index.html` |
+| Synthia platform | `apps/control-room/src/` |
 | Sphere OS | `apps/control-room/src/shared/sphere-state.ts` |
-| HERALD tool topology | `apps/control-room/src/lib/herald/` |
-| DB schema (run once) | `apps/control-room/src/lib/herald-schema.sql` |
+| Agent framework | `apps/control-room/src/agents/` |
+| DB schema | `apps/control-room/src/lib/herald-schema.sql` |
 | Cockpit UI | `apps/control-room/src/app/cockpit/` |
 | Backend (Rust) | `backend/src/` |
-| Task tracker | `.beads/issues.jsonl` (via `bd` CLI) |
-| Memory | `memory/memory.md` |
+| Directory app | `C:\kupuri-media-cdmx\cult-directory-template\` |
+| Skills | `.claude/skills/` |
 
 ---
 
 ## Quick Commands
 
 ```bash
-# Dev server
+# Landing page dev
+cd apps/web && npm run dev
+
+# Synthia platform dev
 cd apps/control-room && npm run dev
 
 # Type check
 cd apps/control-room && npx tsc --noEmit
 
-# Task list
-bd list
-
 # Build
 cd apps/control-room && npm run build
+
+# Directory app
+cd C:\kupuri-media-cdmx\cult-directory-template && pnpm dev
 ```
 
 ---
 
-## Active Sprint
+## Skills Available
 
-**ZTE-20260319-0001** — HERALD Tool Topology + Full Phase Completion
-
-Sprint board: `.beads/issues.jsonl`
+| Skill | File | Use When |
+|-------|------|----------|
+| Ponytail | `.claude/skills/ponytail.md` | Before adding any new file |
+| Adam's Review | `.claude/skills/adamsreview.md` | Before any PR / merge |
+| Understand-Anything | `.claude/skills/understand-anything.md` | Before touching agent systems |
+| Beads | `.claude/skills/beads/` | For long multi-session builds |
 
 ---
 
-*Root truth: `.emerald-tablets-tm/PRIME_DIRECTIVE.md`*
+## What's Gitignored (by design)
+
+`memory/`, `beads/`, `.beads/`, `.emerald-tablets-tm/`, `backend/target/`, one-time deploy scripts.
