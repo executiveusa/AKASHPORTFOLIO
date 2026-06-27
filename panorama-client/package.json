@@ -1,0 +1,20 @@
+{
+  "name": "panorama-client",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "isolation-check": "grep -r 'AKASHPORTFOLIO\\|control-room\\|akashportfolio' apps/ services/ --include='*.ts' --include='*.tsx' --include='*.rs' && echo 'FAIL: isolation violated' || echo 'OK: isolation clean'",
+    "gastos-check": "grep -r 'gastos' apps/ services/ --include='*.ts' --include='*.tsx' --include='*.rs' && echo 'FAIL: gastos found' || echo 'OK: no gastos'"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  }
+}
