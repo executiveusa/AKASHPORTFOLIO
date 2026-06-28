@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { useSessionStore } from "@/lib/session-store";
 import { resolveAction } from "@/lib/synthia-chat";
 import { QuickActionChips } from "./QuickActionChips";
@@ -19,8 +19,10 @@ interface Props {
 
 export function SynthiaChatPane({ onClose }: Props) {
   const { locale } = useParams<{ locale: string }>();
+  const pathname = usePathname();
   const { tenantId } = useSessionStore();
   const router = useRouter();
+  const navigateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [messages, setMessages] = useState<Message[]>([
     { id: "0", role: "synthia", text: "¡Hola! ¿En qué te ayudo hoy?", timestamp: new Date() },
   ]);
@@ -28,6 +30,15 @@ export function SynthiaChatPane({ onClose }: Props) {
   const [busy, setBusy] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Derive boardId from current URL so chat works in context of open board
+  const boardId = pathname.includes("/kanban/") ? pathname.split("/kanban/")[1]?.split("/")[0] : undefined;
+
+  useEffect(() => {
+    return () => {
+      if (navigateTimerRef.current) clearTimeout(navigateTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -49,26 +60,37 @@ export function SynthiaChatPane({ onClose }: Props) {
   const send = useCallback(async (text: string) => {
     if (!text.trim() || busy) return;
     const userMsg: Message = { id: Date.now().toString(), role: "user", text: text.trim(), timestamp: new Date() };
-    setMessages((m) => [...m, userMsg]);
+    setMessages((prev) => {
+      // Build history for API from current messages before adding userMsg
+      const historyForApi = prev.slice(-6).map((m) => ({
+        role: (m.role === "synthia" ? "assistant" : "user") as "user" | "assistant",
+        content: m.text,
+      }));
+      // Kick off async work with the snapshot
+      (async () => {
+        try {
+          const { action, reply } = await resolveAction(text.trim(), {
+            tenantId: tenantId ?? "",
+            locale: locale ?? "es",
+            boardId,
+            history: historyForApi,
+          });
+          const synthiaMsg: Message = { id: (Date.now() + 1).toString(), role: "synthia", text: reply, timestamp: new Date() };
+          setMessages((m) => [...m, synthiaMsg]);
+          setBusy(false);
+          if (action.type === "navigate") {
+            navigateTimerRef.current = setTimeout(() => { onClose(); router.push(action.path); }, 800);
+          }
+        } catch {
+          setMessages((m) => [...m, { id: (Date.now() + 1).toString(), role: "synthia", text: "Error al procesar. Intenta de nuevo.", timestamp: new Date() }]);
+          setBusy(false);
+        }
+      })();
+      return [...prev, userMsg];
+    });
     setInput("");
     setBusy(true);
-
-    try {
-      const { action, reply } = await resolveAction(text.trim(), {
-        tenantId: tenantId ?? "",
-        locale: locale ?? "es",
-      });
-      const synthiaMsg: Message = { id: (Date.now() + 1).toString(), role: "synthia", text: reply, timestamp: new Date() };
-      setMessages((m) => [...m, synthiaMsg]);
-      if (action.type === "navigate") {
-        setTimeout(() => { onClose(); router.push(action.path); }, 800);
-      }
-    } catch {
-      setMessages((m) => [...m, { id: (Date.now() + 1).toString(), role: "synthia", text: "Error al procesar. Intenta de nuevo.", timestamp: new Date() }]);
-    } finally {
-      setBusy(false);
-    }
-  }, [busy, tenantId, locale]);
+  }, [busy, tenantId, locale, boardId, onClose, router]);
 
   return (
     <>

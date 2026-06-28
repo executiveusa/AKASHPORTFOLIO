@@ -10,14 +10,22 @@ export function ChatTrigger() {
 
   return (
     <>
+      <style>{`
+        .chat-fab {
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+        }
+        @media (max-width: 768px) {
+          .chat-fab { bottom: 76px; }
+        }
+      `}</style>
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? "Cerrar SYNTHIA" : "Abrir SYNTHIA Chat"}
         aria-expanded={open}
+        className="chat-fab"
         style={{
-          position: "fixed",
-          bottom: 20,
-          right: 20,
           width: 56,
           height: 56,
           borderRadius: "50%",
@@ -31,14 +39,18 @@ export function ChatTrigger() {
           alignItems: "center",
           justifyContent: "center",
           zIndex: 198,
-          boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
           transition: "background var(--motion-swift), border-color var(--motion-swift), color var(--motion-swift)",
+          minHeight: "unset",
         }}
       >
         ◈
       </button>
 
-      {open && <SynthiaChatPane onClose={close} />}
+      {/* Mount once, hide/show to preserve chat history */}
+      <div style={{ display: open ? "contents" : "none" }}>
+        <SynthiaChatPane onClose={close} />
+      </div>
     </>
   );
 }

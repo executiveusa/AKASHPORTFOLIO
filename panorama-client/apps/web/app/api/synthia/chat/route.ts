@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
 const SYSTEM_PROMPT = `Eres SYNTHIA, la asistente de proyectos de Panorama. Tu trabajo es entender lo que el usuario quiere hacer y responder con JSON estructurado.
 
@@ -30,6 +30,26 @@ Ejemplos:
 - "hola, ¿cómo estás?" → action: none, reply: "¡Hola! Estoy lista para ayudarte con tu proyecto."`;
 
 export async function POST(req: NextRequest) {
+  // Auth guard — must be a signed-in user to consume Anthropic credits
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { cookies: { getAll: () => cookieStore.getAll(), setAll: () => {} } }
+  );
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return NextResponse.json(
+      { action: "none", params: {}, reply: "Servicio de IA no configurado." },
+      { status: 503 }
+    );
+  }
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
   try {
     const { message, history } = await req.json() as {
       message: string;
@@ -63,7 +83,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ action: "none", params: {}, reply: text });
     }
 
-    const parsed = JSON.parse(jsonMatch[0]);
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(jsonMatch[0]);
+    } catch {
+      return NextResponse.json({ action: "none", params: {}, reply: text });
+    }
     return NextResponse.json(parsed);
   } catch (err) {
     console.error("[synthia/chat]", err);

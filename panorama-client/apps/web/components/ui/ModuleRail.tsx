@@ -222,7 +222,7 @@ export function ModuleRail() {
             }}
           >
             {mod.icon}
-            <span style={{ fontSize: 9, fontWeight: active ? 600 : 400 }}>{t(mod.key as "dashboard")}</span>
+            <span style={{ fontSize: 11, fontWeight: active ? 600 : 400 }}>{t(mod.key as "dashboard")}</span>
           </Link>
         );
       })}

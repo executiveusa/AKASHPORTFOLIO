@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase";
+import type { Phase } from "./PhaseTabs";
 
-type Phase = "iniciacion" | "planificacion" | "ejecucion" | "cierre";
 type GateStatus = "pending" | "approved" | "blocked";
 
 interface Props {
@@ -30,19 +30,23 @@ const STATUS_CONFIG: Record<GateStatus, { icon: string; label: string; bg: strin
 export function PhaseGate({ boardId, phase, status: initialStatus, approvedAt, onStatusChange }: Props) {
   const [status, setStatus] = useState<GateStatus>(initialStatus);
   const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
   const config = STATUS_CONFIG[status];
   const phaseColor = PHASE_COLORS[phase];
 
   async function requestApproval() {
-    if (status !== "pending" || loading) return;
+    if (loading) return;
     setLoading(true);
     const supabase = createClient();
-    await supabase.from("phase_gates").upsert({
-      board_id: boardId,
-      phase,
-      status: "pending",
-    });
+    const { error } = await supabase.from("phase_gates").upsert(
+      { board_id: boardId, phase, status: "pending" },
+      { onConflict: "board_id,phase" }
+    );
     setLoading(false);
+    if (!error) {
+      setSent(true);
+      onStatusChange?.("pending");
+    }
   }
 
   return (
@@ -92,26 +96,30 @@ export function PhaseGate({ boardId, phase, status: initialStatus, approvedAt, o
       />
 
       {status === "pending" && (
-        <button
-          onClick={requestApproval}
-          disabled={loading}
-          style={{
-            padding: "6px 12px",
-            borderRadius: 6,
-            background: "var(--color-accent)",
-            border: "none",
-            color: "#fff",
-            fontSize: 11,
-            fontWeight: 600,
-            cursor: loading ? "default" : "pointer",
-            opacity: loading ? 0.7 : 1,
-            whiteSpace: "nowrap",
-            minHeight: "unset",
-            height: 32,
-          }}
-        >
-          {loading ? "…" : "Solicitar aprobación"}
-        </button>
+        sent ? (
+          <span style={{ fontSize: 11, color: "#22c55e", fontWeight: 600 }}>Solicitud enviada ✓</span>
+        ) : (
+          <button
+            onClick={requestApproval}
+            disabled={loading}
+            style={{
+              padding: "6px 12px",
+              borderRadius: 6,
+              background: "var(--color-accent)",
+              border: "none",
+              color: "#fff",
+              fontSize: 11,
+              fontWeight: 600,
+              cursor: loading ? "default" : "pointer",
+              opacity: loading ? 0.7 : 1,
+              whiteSpace: "nowrap",
+              minHeight: "unset",
+              height: 32,
+            }}
+          >
+            {loading ? "…" : "Solicitar aprobación"}
+          </button>
+        )
       )}
     </div>
   );

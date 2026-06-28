@@ -1,6 +1,13 @@
 -- PMBOK phase approval gates
-create type pmbok_phase as enum ('iniciacion', 'planificacion', 'ejecucion', 'cierre');
-create type gate_status  as enum ('pending', 'approved', 'blocked');
+do $$ begin
+  create type pmbok_phase as enum ('iniciacion', 'planificacion', 'ejecucion', 'cierre');
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
+  create type gate_status as enum ('pending', 'approved', 'blocked');
+exception when duplicate_object then null;
+end $$;
 
 create table if not exists phase_gates (
   id          uuid primary key default gen_random_uuid(),
@@ -59,6 +66,7 @@ begin
 end;
 $$;
 
+drop trigger if exists phase_gates_updated_at on phase_gates;
 create trigger phase_gates_updated_at
   before update on phase_gates
   for each row execute function set_updated_at();

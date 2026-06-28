@@ -60,8 +60,13 @@ body {
   --color-accent: attr(data-tenant-color);
 }
 
-/* Global touch target enforcement */
-button, [role="button"], a {
+/* Global touch target enforcement — exclude inline text links */
+button, [role="button"] {
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+}
+nav a {
   min-height: var(--touch-min);
   display: inline-flex;
   align-items: center;

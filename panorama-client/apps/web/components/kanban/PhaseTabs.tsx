@@ -1,6 +1,6 @@
 "use client";
 
-type Phase = "iniciacion" | "planificacion" | "ejecucion" | "cierre";
+export type Phase = "iniciacion" | "planificacion" | "ejecucion" | "cierre";
 
 interface Props {
   activePhase: Phase;
@@ -34,7 +34,7 @@ export function PhaseTabs({ activePhase, onChange }: Props) {
             key={phase.key}
             role="tab"
             aria-selected={active}
-            aria-controls={`phase-panel-${phase.key}`}
+            aria-controls={`phase-panel-${activePhase}`}
             onClick={() => onChange(phase.key)}
             style={{
               display: "flex",

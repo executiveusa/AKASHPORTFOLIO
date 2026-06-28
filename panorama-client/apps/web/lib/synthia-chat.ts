@@ -11,6 +11,7 @@ interface ActionContext {
   tenantId: string;
   boardId?: string;
   locale: string;
+  history?: Array<{ role: "user" | "assistant"; content: string }>;
 }
 
 const DEST_MAP: Record<string, string> = {
@@ -35,8 +36,11 @@ export async function resolveAction(
     const res = await fetch("/api/synthia/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message, history: [] }),
+      body: JSON.stringify({ message, history: ctx.history ?? [] }),
     });
+    if (!res.ok) {
+      return { action: { type: "none" }, reply: "Error de conexión. Intenta de nuevo." };
+    }
     parsed = await res.json();
   } catch {
     return { action: { type: "none" }, reply: "Error de conexión. Intenta de nuevo." };
@@ -46,11 +50,24 @@ export async function resolveAction(
 
   switch (actionType) {
     case "create_card": {
+      if (!ctx.boardId) {
+        return { action: { type: "none" }, reply: "Abre un tablero primero para poder crear tareas." };
+      }
+      const { data: firstCol } = await supabase
+        .from("columns")
+        .select("id")
+        .eq("board_id", ctx.boardId)
+        .order("position")
+        .limit(1)
+        .single();
+      if (!firstCol) {
+        return { action: { type: "none" }, reply: "El tablero no tiene columnas. Agrega una columna primero." };
+      }
       const { error } = await supabase.from("cards").insert({
         title: params.title ?? message,
         tenant_id: ctx.tenantId,
-        board_id: ctx.boardId ?? "",
-        column_id: "",
+        board_id: ctx.boardId,
+        column_id: firstCol.id,
         priority: "medium",
         labels: [],
         position: 0,

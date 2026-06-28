@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Board } from "@/components/kanban/Board";
 import { VoiceOrb } from "@/components/voice/VoiceOrb";
 import { PhaseTabs } from "@/components/kanban/PhaseTabs";
+import type { Phase } from "@/components/kanban/PhaseTabs";
 import { PhaseGate } from "@/components/kanban/PhaseGate";
 import { createClient } from "@/lib/supabase";
 import type { Database } from "@/lib/database.types";
@@ -27,7 +28,7 @@ export default function KanbanPage() {
   const [board, setBoard] = useState<BoardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [offlineCount, setOfflineCount] = useState(0);
-  const [activePhase, setActivePhase] = useState<"iniciacion" | "planificacion" | "ejecucion" | "cierre">("ejecucion");
+  const [activePhase, setActivePhase] = useState<Phase>("ejecucion");
   const [phaseGate, setPhaseGate] = useState<{ status: "pending" | "approved" | "blocked"; approved_at: string | null } | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
 
@@ -169,7 +170,13 @@ export default function KanbanPage() {
           onStatusChange={(s) => setPhaseGate((g) => g ? { ...g, status: s } : g)}
         />
       )}
-      <Board board={board} locale={locale as "en" | "es"} onBoardUpdate={setBoard} />
+      <div
+        id={`phase-panel-${activePhase}`}
+        role="tabpanel"
+        aria-label={activePhase}
+      >
+        <Board board={board} locale={locale as "en" | "es"} onBoardUpdate={setBoard} />
+      </div>
       <VoiceOrb locale={locale as "en" | "es"} board={board} onBoardUpdate={setBoard} />
     </div>
   );

@@ -3,27 +3,8 @@
 import { useState, useCallback, useEffect } from "react";
 import { usePathname, useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { parseVoiceCommand } from "@/lib/voice-commands";
-import { createClient } from "@/lib/supabase";
 
 type VoiceState = "idle" | "listening" | "processing";
-
-const NAVIGATION_COMMANDS: Record<string, string> = {
-  "tablero": "kanban",
-  "board": "kanban",
-  "issues": "issues",
-  "problemas": "issues",
-  "metas": "goals",
-  "goals": "goals",
-  "mensajes": "messages",
-  "messages": "messages",
-  "contactos": "contacts",
-  "contacts": "contacts",
-  "inicio": "dashboard",
-  "home": "dashboard",
-  "voz": "voice",
-  "voice": "voice",
-};
 
 export function VoiceLayer() {
   const pathname = usePathname();
@@ -52,15 +33,7 @@ export function VoiceLayer() {
       mediaRecorder.onstop = async () => {
         setState("processing");
         stream.getTracks().forEach((t) => t.stop());
-
-        // Determine context from current path
-        const isKanban = pathname.includes("/kanban/");
-        const boardId = isKanban ? pathname.split("/kanban/")[1] : null;
-
-        // Try navigation command first (no board needed)
-        const transcriptGuess = "placeholder"; // In production: send audio to Whisper/Deepgram
-
-        // For now show feedback that voice was received
+        // TODO: send audio blob to Whisper/Deepgram, then route command via resolveAction
         setFeedback(t("processing"));
         setState("idle");
       };
