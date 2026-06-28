@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase";
+import { useSessionStore } from "@/lib/session-store";
 import type { Database } from "@/lib/database.types";
 
 type Message = Database["public"]["Tables"]["messages"]["Row"];
@@ -11,12 +12,14 @@ type Message = Database["public"]["Tables"]["messages"]["Row"];
 export default function MessagesPage() {
   const { locale } = useParams<{ locale: string }>();
   const t = useTranslations("messages");
+  const { tenantId, loadProfile } = useSessionStore();
   const [messages, setMessages] = useState<Message[]>([]);
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!tenantId) loadProfile();
     loadMessages();
     subscribeToMessages();
   }, []);
@@ -52,11 +55,14 @@ export default function MessagesPage() {
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) { setSending(false); return; }
 
+    const tid = tenantId ?? "";
     await supabase.from("messages").insert({
       sender_id: user.user.id,
       body: body.trim(),
       original_lang: locale as "en" | "es",
-      tenant_id: "",
+      tenant_id: tid,
+      thread_id: tid,
+      pending_translation: locale !== "en",
     });
     setBody("");
     setSending(false);

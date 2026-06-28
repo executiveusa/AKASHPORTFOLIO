@@ -1,15 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 
 type View = "login" | "check-email";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [view, setView] = useState<View>("login");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        const lang = navigator.language.startsWith("es") ? "es" : "en";
+        router.replace(`/${lang}/dashboard`);
+      }
+    });
+  }, []);
 
   async function sendMagicLink(e: React.FormEvent) {
     e.preventDefault();

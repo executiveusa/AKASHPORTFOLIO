@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { Database } from "@/lib/database.types";
 import { createClient } from "@/lib/supabase";
@@ -84,7 +84,7 @@ export function IssueTable({ issues, locale, onUpdate }: Props) {
                 )}
                 {issue.status !== "closed" && <CloseIssueInline onClose={(r) => closeIssue(issue, r)} locale={locale} />}
                 <div style={{ marginTop: 8, fontSize: 11, color: "var(--color-muted)" }}>
-                  {t("raisedBy")}: {issue.raised_by.slice(0, 8)}… · {new Date(issue.created_at).toLocaleDateString()}
+                  {t("raisedBy")}: <UserName id={issue.raised_by} /> · {new Date(issue.created_at).toLocaleDateString()}
                 </div>
               </div>
             )}
@@ -93,6 +93,17 @@ export function IssueTable({ issues, locale, onUpdate }: Props) {
       })}
     </div>
   );
+}
+
+function UserName({ id }: { id: string }) {
+  const [name, setName] = useState<string>(id.slice(0, 8) + "…");
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.from("user_profiles").select("display_name").eq("id", id).single().then(({ data }) => {
+      if (data?.display_name) setName(data.display_name);
+    });
+  }, [id]);
+  return <span>{name}</span>;
 }
 
 function CloseIssueInline({ onClose, locale }: { onClose: (r: string) => void; locale: "en" | "es" }) {

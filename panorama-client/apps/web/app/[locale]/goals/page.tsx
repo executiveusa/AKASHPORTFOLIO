@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase";
 import { emitToSynthia } from "@/lib/synthia-bridge";
+import { useSessionStore } from "@/lib/session-store";
 import type { Database } from "@/lib/database.types";
 
 type Goal = Database["public"]["Tables"]["goals"]["Row"];
@@ -25,8 +26,12 @@ export default function GoalsPage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ title_en: "", title_es: "", target_date: "" });
   const [saving, setSaving] = useState(false);
+  const { tenantId, loadProfile } = useSessionStore();
 
-  useEffect(() => { loadGoals(); }, []);
+  useEffect(() => {
+    if (!tenantId) loadProfile();
+    loadGoals();
+  }, []);
 
   async function loadGoals() {
     const supabase = createClient();
@@ -55,6 +60,7 @@ export default function GoalsPage() {
     setSaving(true);
     const supabase = createClient();
     await supabase.from("goals").insert({
+      tenant_id: tenantId ?? "",
       title_en: form.title_en,
       title_es: form.title_es || form.title_en,
       target_date: form.target_date || null,
@@ -118,7 +124,7 @@ export default function GoalsPage() {
       <main style={{ padding: 16 }}>
         {goals.length === 0 ? (
           <div style={{ textAlign: "center", padding: "40px 20px", color: "var(--color-muted)" }}>
-            <p style={{ fontSize: 14 }}>Sin metas definidas</p>
+            <p style={{ fontSize: 14 }}>{locale === "es" ? "Sin metas definidas" : "No goals defined yet"}</p>
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -162,7 +168,7 @@ function GoalCard({ goal, locale }: { goal: Goal; locale: "en" | "es" }) {
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--color-muted)" }}>
         <span>{goal.percent_complete}%</span>
         {goal.target_date && <span>→ {new Date(goal.target_date).toLocaleDateString()}</span>}
-        <span>{goal.linked_cards.length} tareas</span>
+        <span>{goal.linked_cards.length} {t("linkedCards").toLowerCase()}</span>
       </div>
 
       {isComplete && (

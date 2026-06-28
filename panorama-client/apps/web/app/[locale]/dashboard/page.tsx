@@ -41,7 +41,9 @@ export default function DashboardPage() {
     <div style={{ minHeight: "calc(100vh - 44px)", background: "var(--color-bg)", color: "var(--color-text)", fontFamily: "var(--font-sans)", paddingBottom: 80 }}>
       <header style={{ padding: "16px 16px 12px", borderBottom: "1px solid var(--color-border)" }}>
         <div style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 700 }}>El Panorama™</div>
-        <div style={{ fontSize: 11, color: "var(--color-muted)", marginTop: 2 }}>SYNTHIA™ · PMBOK 7</div>
+        <div style={{ fontSize: 11, color: "var(--color-muted)", marginTop: 2 }}>
+          {locale === "es" ? "Portal de proyectos · Kupuri Media" : "Project portal · Kupuri Media"}
+        </div>
       </header>
 
       <main style={{ padding: 16 }}>

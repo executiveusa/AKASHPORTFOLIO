@@ -39,12 +39,10 @@ export function Column({ column, locale, onCardAdded }: Props) {
         board_id: column.board_id,
         tenant_id: column.tenant_id,
         title: newTitle.trim(),
-        body_en: "",
-        body_es: "",
+        description: null,
         priority: "medium",
         labels: [],
         position: column.cards.length,
-        pending_translation: false,
       })
       .select()
       .single();

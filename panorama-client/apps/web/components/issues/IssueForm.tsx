@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase";
 import { emitToSynthia } from "@/lib/synthia-bridge";
+import { useSessionStore } from "@/lib/session-store";
 
 type Severity = "low" | "medium" | "high" | "critical";
 
@@ -31,6 +32,7 @@ export function IssueForm({ locale, onClose, onCreated }: Props) {
   const [description, setDescription] = useState("");
   const [severity, setSeverity] = useState<Severity>("medium");
   const [saving, setSaving] = useState(false);
+  const { tenantId } = useSessionStore();
 
   async function submit() {
     if (!title.trim()) return;
@@ -50,7 +52,7 @@ export function IssueForm({ locale, onClose, onCreated }: Props) {
       severity,
       raised_by: user.user.id,
       status: "open",
-      tenant_id: "", // set by RLS / server
+      tenant_id: tenantId ?? "",
     }).select().single();
 
     if (data && severity === "critical") {

@@ -14,6 +14,11 @@ export function NavBar() {
 
   const base = `/${locale}`;
 
+  function switchLocale(to: string) {
+    // Replace only the leading locale segment, never a UUID or slug that contains the locale string
+    return pathname.replace(new RegExp(`^/${locale}(/|$)`), `/${to}$1`);
+  }
+
   const links = [
     { href: `${base}/dashboard`,  label: t("dashboard"), key: "dashboard" },
     { href: `${base}/issues`,     label: t("issues"),    key: "issues" },
@@ -102,8 +107,8 @@ export function NavBar() {
       {/* Right side: locale toggle + sign out */}
       <div style={{ display: "flex", gap: 4, padding: "0 12px", flexShrink: 0, alignItems: "center" }}>
         <Link
-          href={pathname.replace(`/${locale}/`, "/es/")}
-          aria-label="Español"
+          href={switchLocale("es")}
+          aria-label="Cambiar a español"
           style={{
             fontSize: 11,
             padding: "4px 8px",
@@ -117,8 +122,8 @@ export function NavBar() {
           ES
         </Link>
         <Link
-          href={pathname.replace(`/${locale}/`, "/en/")}
-          aria-label="English"
+          href={switchLocale("en")}
+          aria-label="Switch to English"
           style={{
             fontSize: 11,
             padding: "4px 8px",
@@ -133,20 +138,20 @@ export function NavBar() {
         </Link>
         <button
           onClick={signOut}
-          aria-label="Sign out"
-          title="Sign out"
+          aria-label="Cerrar sesión"
           style={{
             marginLeft: 4,
-            padding: "4px 8px",
+            padding: "4px 10px",
             background: "none",
             border: "1px solid var(--color-border)",
             color: "var(--color-muted)",
             borderRadius: 4,
             fontSize: 11,
             cursor: "pointer",
+            whiteSpace: "nowrap",
           }}
         >
-          ↩
+          {t("signOut")}
         </button>
       </div>
     </nav>
