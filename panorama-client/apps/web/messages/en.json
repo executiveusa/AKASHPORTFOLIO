@@ -1,0 +1,128 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "kanban": "Board",
+    "issues": "Issues",
+    "goals": "Goals",
+    "contacts": "Contacts",
+    "messages": "Messages",
+    "voice": "Voice"
+  },
+  "kanban": {
+    "addCard": "Add task",
+    "wipLimit": "WIP limit reached ({limit})",
+    "moveCard": "Move task",
+    "loading": "Loading board...",
+    "noCards": "No tasks",
+    "columns": {
+      "backlog": "Backlog",
+      "inPlanning": "In Planning",
+      "inProgress": "In Progress",
+      "inReview": "In Review",
+      "done": "Done"
+    },
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "critical": "Critical"
+    },
+    "cardMoved": "Task moved to {column}",
+    "offlineSynced": "Your edit was synced",
+    "conflictResolved": "Conflict resolved — server version applied"
+  },
+  "issues": {
+    "register": "Issue Register",
+    "raise": "Raise Issue",
+    "title": "Title",
+    "description": "Description",
+    "severity": {
+      "label": "Severity",
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "critical": "Critical"
+    },
+    "status": {
+      "open": "Open",
+      "in_progress": "In Progress",
+      "resolved": "Resolved",
+      "closed": "Closed"
+    },
+    "resolution": "Resolution",
+    "raisedBy": "Raised by",
+    "assignedTo": "Assigned to",
+    "closedAt": "Closed at",
+    "noIssues": "No open issues",
+    "auditTrail": "Audit trail",
+    "criticalAlert": "Critical issue detected"
+  },
+  "goals": {
+    "milestones": "Goals & Milestones",
+    "createGoal": "Create Goal",
+    "titleEn": "Title (EN)",
+    "titleEs": "Title (ES)",
+    "targetDate": "Target date",
+    "progress": "Progress",
+    "status": {
+      "not_started": "Not started",
+      "in_progress": "In progress",
+      "completed": "Completed",
+      "at_risk": "At risk"
+    },
+    "linkedCards": "Linked tasks",
+    "celebration": "Goal completed! 🎉",
+    "atRisk": "At risk — past target date"
+  },
+  "contacts": {
+    "directory": "Directory",
+    "addContact": "Add contact",
+    "kupuriStaff": "Kupuri Team",
+    "clientTeam": "Client Team"
+  },
+  "messages": {
+    "send": "Send",
+    "placeholder": "Write a message...",
+    "unread": "{count} unread",
+    "autoTranslated": "🌐 Auto-translated",
+    "pendingTranslation": "Translation pending..."
+  },
+  "voice": {
+    "activate": "Talk to SYNTHIA",
+    "listening": "Listening...",
+    "processing": "Processing...",
+    "unknown": "I didn't understand that command. Try: 'mark [task] as done'",
+    "examples": [
+      "Mark [task] as done",
+      "Add issue: [description]",
+      "Show overdue tasks"
+    ],
+    "commandHistory": "Command history",
+    "confidence": "Confidence: {pct}%"
+  },
+  "translation": {
+    "autoTranslated": "🌐 Auto-translated",
+    "pendingTranslation": "Translation pending...",
+    "retryPending": "Retrying translation..."
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "magicLink": "Send magic link",
+    "email": "Email",
+    "checkEmail": "Check your email for the access link",
+    "unauthorized": "You don't have access to this project"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Unexpected error",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "confirm": "Confirm",
+    "back": "Back"
+  }
+}

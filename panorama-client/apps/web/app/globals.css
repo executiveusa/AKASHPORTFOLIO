@@ -1,0 +1,29 @@
+:root {
+  --color-bg: #0a0a0f;
+  --color-surface: #13131a;
+  --color-border: #1e1e2a;
+  --color-text: #e8e8f0;
+  --color-muted: #6b6b7e;
+  --color-accent: #7c3aed;
+  --color-gold: #d4af37;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tenant branding — overridden via JS from branding_json */
+[data-tenant-color] {
+  --color-accent: attr(data-tenant-color);
+}

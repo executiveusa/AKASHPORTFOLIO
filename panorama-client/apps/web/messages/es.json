@@ -1,0 +1,128 @@
+{
+  "nav": {
+    "dashboard": "Inicio",
+    "kanban": "Tablero",
+    "issues": "Issues",
+    "goals": "Metas",
+    "contacts": "Contactos",
+    "messages": "Mensajes",
+    "voice": "Voz"
+  },
+  "kanban": {
+    "addCard": "Agregar tarea",
+    "wipLimit": "Límite de WIP alcanzado ({limit})",
+    "moveCard": "Mover tarea",
+    "loading": "Cargando tablero...",
+    "noCards": "Sin tareas",
+    "columns": {
+      "backlog": "Pendiente",
+      "inPlanning": "En planificación",
+      "inProgress": "En progreso",
+      "inReview": "En revisión",
+      "done": "Completado"
+    },
+    "priority": {
+      "low": "Bajo",
+      "medium": "Medio",
+      "high": "Alto",
+      "critical": "Crítico"
+    },
+    "cardMoved": "Tarea movida a {column}",
+    "offlineSynced": "Tu edición fue sincronizada",
+    "conflictResolved": "Conflicto resuelto — versión del servidor aplicada"
+  },
+  "issues": {
+    "register": "Registro de Issues",
+    "raise": "Reportar Issue",
+    "title": "Título",
+    "description": "Descripción",
+    "severity": {
+      "label": "Severidad",
+      "low": "Bajo",
+      "medium": "Medio",
+      "high": "Alto",
+      "critical": "Crítico"
+    },
+    "status": {
+      "open": "Abierto",
+      "in_progress": "En progreso",
+      "resolved": "Resuelto",
+      "closed": "Cerrado"
+    },
+    "resolution": "Resolución",
+    "raisedBy": "Reportado por",
+    "assignedTo": "Asignado a",
+    "closedAt": "Cerrado el",
+    "noIssues": "Sin issues abiertos",
+    "auditTrail": "Historial de cambios",
+    "criticalAlert": "Issue crítico detectado"
+  },
+  "goals": {
+    "milestones": "Metas y Hitos",
+    "createGoal": "Crear Meta",
+    "titleEn": "Título (EN)",
+    "titleEs": "Título (ES)",
+    "targetDate": "Fecha objetivo",
+    "progress": "Progreso",
+    "status": {
+      "not_started": "Sin iniciar",
+      "in_progress": "En progreso",
+      "completed": "Completado",
+      "at_risk": "En riesgo"
+    },
+    "linkedCards": "Tareas vinculadas",
+    "celebration": "¡Meta completada! 🎉",
+    "atRisk": "En riesgo — fecha vencida"
+  },
+  "contacts": {
+    "directory": "Directorio",
+    "addContact": "Agregar contacto",
+    "kupuriStaff": "Equipo Kupuri",
+    "clientTeam": "Equipo del cliente"
+  },
+  "messages": {
+    "send": "Enviar",
+    "placeholder": "Escribe un mensaje...",
+    "unread": "{count} sin leer",
+    "autoTranslated": "🌐 Traducido automáticamente",
+    "pendingTranslation": "Traducción pendiente..."
+  },
+  "voice": {
+    "activate": "Hablar con SYNTHIA",
+    "listening": "Escuchando...",
+    "processing": "Procesando...",
+    "unknown": "No entendí ese comando. Prueba: 'mover [tarea] a revisión'",
+    "examples": [
+      "Mover [tarea] a en progreso",
+      "Agregar issue: [descripción]",
+      "Mostrar tareas atrasadas"
+    ],
+    "commandHistory": "Historial de comandos",
+    "confidence": "Confianza: {pct}%"
+  },
+  "translation": {
+    "autoTranslated": "🌐 Traducido automáticamente",
+    "pendingTranslation": "Traducción pendiente...",
+    "retryPending": "Reintentando traducción..."
+  },
+  "auth": {
+    "signIn": "Iniciar sesión",
+    "signOut": "Cerrar sesión",
+    "magicLink": "Enviar enlace mágico",
+    "email": "Correo electrónico",
+    "checkEmail": "Revisa tu correo para el enlace de acceso",
+    "unauthorized": "No tienes acceso a este proyecto"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error inesperado",
+    "retry": "Reintentar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "back": "Volver"
+  }
+}
