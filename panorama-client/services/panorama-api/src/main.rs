@@ -2,6 +2,7 @@ mod middleware;
 mod realtime;
 mod routes;
 mod synthia;
+mod translation_worker;
 mod voice;
 
 use axum::{Router, routing::get};
@@ -19,6 +20,9 @@ async fn main() {
         .expect("Failed to connect to database");
 
     let broadcast_hub = realtime::BroadcastHub::new();
+
+    // Spawn background translation flush worker
+    tokio::spawn(translation_worker::run_translation_flush(db.clone()));
 
     let app = Router::new()
         .route("/health", get(|| async { "ok" }))

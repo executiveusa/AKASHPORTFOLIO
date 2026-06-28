@@ -111,7 +111,19 @@ export function Board({ board, locale, onBoardUpdate }: Props) {
 
       <div style={{ display: "flex", gap: 12, padding: "12px 16px", overflowX: "auto", minHeight: "calc(100vh - 100px)" }}>
         {board.columns.map((col) => (
-          <Column key={col.id} column={col} locale={locale} />
+          <Column
+            key={col.id}
+            column={col}
+            locale={locale}
+            onCardAdded={(card) => {
+              onBoardUpdate({
+                ...board,
+                columns: board.columns.map((c) =>
+                  c.id === col.id ? { ...c, cards: [...c.cards, card] } : c
+                ),
+              });
+            }}
+          />
         ))}
       </div>
 

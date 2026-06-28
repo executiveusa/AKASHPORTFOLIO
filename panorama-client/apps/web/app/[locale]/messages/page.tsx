@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase";
+import { useSessionStore } from "@/lib/session-store";
 import type { Database } from "@/lib/database.types";
 
 type Message = Database["public"]["Tables"]["messages"]["Row"];
@@ -11,12 +12,14 @@ type Message = Database["public"]["Tables"]["messages"]["Row"];
 export default function MessagesPage() {
   const { locale } = useParams<{ locale: string }>();
   const t = useTranslations("messages");
+  const { tenantId, loadProfile } = useSessionStore();
   const [messages, setMessages] = useState<Message[]>([]);
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!tenantId) loadProfile();
     loadMessages();
     subscribeToMessages();
   }, []);
@@ -52,20 +55,23 @@ export default function MessagesPage() {
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) { setSending(false); return; }
 
+    const tid = tenantId ?? "";
     await supabase.from("messages").insert({
       sender_id: user.user.id,
       body: body.trim(),
       original_lang: locale as "en" | "es",
-      tenant_id: "",
+      tenant_id: tid,
+      thread_id: tid,
+      pending_translation: locale !== "en",
     });
     setBody("");
     setSending(false);
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "var(--color-bg)", color: "var(--color-text)" }}>
-      <header style={{ padding: "12px 16px", borderBottom: "1px solid var(--color-border)", fontWeight: 700 }}>
-        Mensajes
+    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 44px)", background: "var(--color-bg)", color: "var(--color-text)" }}>
+      <header style={{ padding: "12px 16px", borderBottom: "1px solid var(--color-border)", fontWeight: 700, fontSize: 15 }}>
+        {locale === "es" ? "Mensajes" : "Messages"}
       </header>
 
       <div style={{ flex: 1, overflowY: "auto", padding: "12px 16px", display: "flex", flexDirection: "column", gap: 8 }}>

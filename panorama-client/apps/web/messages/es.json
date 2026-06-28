@@ -6,10 +6,13 @@
     "goals": "Metas",
     "contacts": "Contactos",
     "messages": "Mensajes",
-    "voice": "Voz"
+    "voice": "Voz",
+    "admin": "Admin",
+    "signOut": "Salir"
   },
   "kanban": {
     "addCard": "Agregar tarea",
+    "cardTitlePlaceholder": "Título de la tarea…",
     "wipLimit": "Límite de WIP alcanzado ({limit})",
     "moveCard": "Mover tarea",
     "loading": "Cargando tablero...",

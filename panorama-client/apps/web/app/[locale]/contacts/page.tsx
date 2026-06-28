@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useSessionStore } from "@/lib/session-store";
 import { createClient } from "@/lib/supabase";
 import type { Database } from "@/lib/database.types";
 
@@ -11,6 +12,7 @@ type Contact = Database["public"]["Tables"]["contacts"]["Row"];
 export default function ContactsPage() {
   const { locale } = useParams<{ locale: string }>();
   const t = useTranslations("contacts");
+  const tc = useTranslations("common");
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -28,12 +30,12 @@ export default function ContactsPage() {
   const client = contacts.filter((c) => !c.is_kupuri_staff);
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--color-bg)", color: "var(--color-text)", fontFamily: "var(--font-sans)" }}>
+    <div style={{ minHeight: "calc(100vh - 44px)", background: "var(--color-bg)", color: "var(--color-text)", fontFamily: "var(--font-sans)" }}>
       <header style={{ padding: "12px 16px", borderBottom: "1px solid var(--color-border)" }}>
         <div style={{ fontWeight: 700, fontSize: 16 }}>{t("directory")}</div>
       </header>
       <main style={{ padding: 16 }}>
-        {loading ? <p style={{ color: "var(--color-muted)" }}>Loading...</p> : (
+        {loading ? <p style={{ color: "var(--color-muted)" }}>{tc("loading")}</p> : (
           <>
             <Section title={t("kupuriStaff")} contacts={kupuri} />
             <Section title={t("clientTeam")} contacts={client} />

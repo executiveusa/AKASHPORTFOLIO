@@ -6,10 +6,13 @@
     "goals": "Goals",
     "contacts": "Contacts",
     "messages": "Messages",
-    "voice": "Voice"
+    "voice": "Voice",
+    "admin": "Admin",
+    "signOut": "Sign out"
   },
   "kanban": {
     "addCard": "Add task",
+    "cardTitlePlaceholder": "Task title…",
     "wipLimit": "WIP limit reached ({limit})",
     "moveCard": "Move task",
     "loading": "Loading board...",
