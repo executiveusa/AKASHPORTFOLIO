@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useSessionStore } from "@/lib/session-store";
 import { resolveAction } from "@/lib/synthia-chat";
 import { QuickActionChips } from "./QuickActionChips";
@@ -20,6 +20,7 @@ interface Props {
 export function SynthiaChatPane({ onClose }: Props) {
   const { locale } = useParams<{ locale: string }>();
   const { tenantId } = useSessionStore();
+  const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([
     { id: "0", role: "synthia", text: "¡Hola! ¿En qué te ayudo hoy?", timestamp: new Date() },
   ]);
@@ -53,12 +54,15 @@ export function SynthiaChatPane({ onClose }: Props) {
     setBusy(true);
 
     try {
-      const { reply } = await resolveAction(text.trim(), {
+      const { action, reply } = await resolveAction(text.trim(), {
         tenantId: tenantId ?? "",
         locale: locale ?? "es",
       });
       const synthiaMsg: Message = { id: (Date.now() + 1).toString(), role: "synthia", text: reply, timestamp: new Date() };
       setMessages((m) => [...m, synthiaMsg]);
+      if (action.type === "navigate") {
+        setTimeout(() => { onClose(); router.push(action.path); }, 800);
+      }
     } catch {
       setMessages((m) => [...m, { id: (Date.now() + 1).toString(), role: "synthia", text: "Error al procesar. Intenta de nuevo.", timestamp: new Date() }]);
     } finally {

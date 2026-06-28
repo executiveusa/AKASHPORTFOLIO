@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Board } from "@/components/kanban/Board";
 import { VoiceOrb } from "@/components/voice/VoiceOrb";
 import { PhaseTabs } from "@/components/kanban/PhaseTabs";
+import { PhaseGate } from "@/components/kanban/PhaseGate";
 import { createClient } from "@/lib/supabase";
 import type { Database } from "@/lib/database.types";
 import { flushQueue } from "@/lib/offline-queue";
@@ -27,6 +28,7 @@ export default function KanbanPage() {
   const [loading, setLoading] = useState(true);
   const [offlineCount, setOfflineCount] = useState(0);
   const [activePhase, setActivePhase] = useState<"iniciacion" | "planificacion" | "ejecucion" | "cierre">("ejecucion");
+  const [phaseGate, setPhaseGate] = useState<{ status: "pending" | "approved" | "blocked"; approved_at: string | null } | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
@@ -36,6 +38,21 @@ export default function KanbanPage() {
 
     return () => wsRef.current?.close();
   }, [boardId]);
+
+  useEffect(() => {
+    loadPhaseGate();
+  }, [boardId, activePhase]);
+
+  async function loadPhaseGate() {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("phase_gates")
+      .select("status, approved_at")
+      .eq("board_id", boardId)
+      .eq("phase", activePhase)
+      .maybeSingle();
+    setPhaseGate(data ? { status: data.status as "pending" | "approved" | "blocked", approved_at: data.approved_at } : { status: "pending", approved_at: null });
+  }
 
   async function loadBoard() {
     const supabase = createClient();
@@ -143,6 +160,15 @@ export default function KanbanPage() {
       </header>
 
       <PhaseTabs activePhase={activePhase} onChange={setActivePhase} />
+      {phaseGate && (
+        <PhaseGate
+          boardId={boardId}
+          phase={activePhase}
+          status={phaseGate.status}
+          approvedAt={phaseGate.approved_at}
+          onStatusChange={(s) => setPhaseGate((g) => g ? { ...g, status: s } : g)}
+        />
+      )}
       <Board board={board} locale={locale as "en" | "es"} onBoardUpdate={setBoard} />
       <VoiceOrb locale={locale as "en" | "es"} board={board} onBoardUpdate={setBoard} />
     </div>

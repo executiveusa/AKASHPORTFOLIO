@@ -39,8 +39,11 @@ export function ModuleRail() {
   const currentLocale = locale as string;
 
   return (
+    <>
+    {/* Desktop: left rail */}
     <nav
       aria-label="Module navigation"
+      className="desktop-rail"
       style={{
         position: "fixed",
         left: 0,
@@ -172,5 +175,58 @@ export function ModuleRail() {
         </button>
       </div>
     </nav>
+
+    {/* Mobile: bottom tab bar (<768px) */}
+    <nav
+      aria-label="Module navigation"
+      style={{
+        display: "none",
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: "var(--nav-height)",
+        background: "var(--color-surface)",
+        borderTop: "1px solid var(--color-border)",
+        zIndex: 100,
+      }}
+      // @ts-ignore — inline media query trick via a CSS class
+      className="mobile-bottom-nav"
+    >
+      <style>{`
+        @media (max-width: 768px) {
+          .mobile-bottom-nav { display: flex !important; }
+          .desktop-rail { display: none !important; }
+          main { padding-left: 0 !important; padding-bottom: var(--nav-height) !important; }
+        }
+      `}</style>
+      {MODULES.slice(0, 5).map((mod) => {
+        const active = isActive(mod.matchPrefix);
+        const href = `/${currentLocale}${mod.matchPrefix === "/kanban" ? "/dashboard" : mod.matchPrefix}`;
+        return (
+          <Link
+            key={mod.key}
+            href={href}
+            aria-label={t(mod.key as "dashboard")}
+            style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 3,
+              fontSize: 18,
+              color: active ? mod.color : "var(--color-muted)",
+              textDecoration: "none",
+              minHeight: "var(--touch-min)",
+            }}
+          >
+            {mod.icon}
+            <span style={{ fontSize: 9, fontWeight: active ? 600 : 400 }}>{t(mod.key as "dashboard")}</span>
+          </Link>
+        );
+      })}
+    </nav>
+    </>
   );
 }

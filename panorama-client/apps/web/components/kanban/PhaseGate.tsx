@@ -58,6 +58,7 @@ export function PhaseGate({ boardId, phase, status: initialStatus, approvedAt, o
         display: "flex",
         alignItems: "center",
         gap: 10,
+        position: "relative",
       }}
     >
       <span
