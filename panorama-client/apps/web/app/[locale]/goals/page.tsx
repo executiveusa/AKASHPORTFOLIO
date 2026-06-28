@@ -22,6 +22,9 @@ export default function GoalsPage() {
   const tc = useTranslations("common");
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ title_en: "", title_es: "", target_date: "" });
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => { loadGoals(); }, []);
 
@@ -46,6 +49,25 @@ export default function GoalsPage() {
     setLoading(false);
   }
 
+  async function createGoal(e: React.FormEvent) {
+    e.preventDefault();
+    if (!form.title_en.trim()) return;
+    setSaving(true);
+    const supabase = createClient();
+    await supabase.from("goals").insert({
+      title_en: form.title_en,
+      title_es: form.title_es || form.title_en,
+      target_date: form.target_date || null,
+      linked_cards: [],
+      percent_complete: 0,
+      status: "not_started",
+    });
+    setSaving(false);
+    setShowForm(false);
+    setForm({ title_en: "", title_es: "", target_date: "" });
+    loadGoals();
+  }
+
   if (loading) {
     return (
       <div style={{ minHeight: "100vh", background: "var(--color-bg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -56,9 +78,42 @@ export default function GoalsPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--color-bg)", color: "var(--color-text)", fontFamily: "var(--font-sans)", paddingBottom: 80 }}>
-      <header style={{ padding: "12px 16px", borderBottom: "1px solid var(--color-border)" }}>
+      <header style={{ padding: "12px 16px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ fontWeight: 700, fontSize: 16 }}>{t("milestones")}</div>
+        <button
+          onClick={() => setShowForm(!showForm)}
+          style={{ padding: "8px 14px", background: "var(--color-accent)", color: "#fff", border: "none", borderRadius: 7, fontSize: 13, fontWeight: 600, cursor: "pointer" }}
+        >
+          + {t("createGoal")}
+        </button>
       </header>
+
+      {showForm && (
+        <form onSubmit={createGoal} style={{ padding: 16, borderBottom: "1px solid var(--color-border)", display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div>
+              <label style={{ fontSize: 11, color: "var(--color-muted)", display: "block", marginBottom: 4 }}>{t("titleEn")} *</label>
+              <input value={form.title_en} onChange={(e) => setForm((f) => ({ ...f, title_en: e.target.value }))} required style={{ width: "100%", background: "var(--color-bg)", border: "1px solid var(--color-border)", color: "var(--color-text)", borderRadius: 6, padding: "9px 12px", fontSize: 13, boxSizing: "border-box" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: "var(--color-muted)", display: "block", marginBottom: 4 }}>{t("titleEs")}</label>
+              <input value={form.title_es} onChange={(e) => setForm((f) => ({ ...f, title_es: e.target.value }))} style={{ width: "100%", background: "var(--color-bg)", border: "1px solid var(--color-border)", color: "var(--color-text)", borderRadius: 6, padding: "9px 12px", fontSize: 13, boxSizing: "border-box" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: "var(--color-muted)", display: "block", marginBottom: 4 }}>{t("targetDate")}</label>
+              <input type="date" value={form.target_date} onChange={(e) => setForm((f) => ({ ...f, target_date: e.target.value }))} style={{ width: "100%", background: "var(--color-bg)", border: "1px solid var(--color-border)", color: "var(--color-text)", borderRadius: 6, padding: "9px 12px", fontSize: 13, boxSizing: "border-box" }} />
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button type="submit" disabled={saving} style={{ padding: "9px 18px", background: "var(--color-accent)", color: "#fff", border: "none", borderRadius: 7, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+              {saving ? "…" : tc("save")}
+            </button>
+            <button type="button" onClick={() => setShowForm(false)} style={{ padding: "9px 14px", background: "var(--color-border)", color: "var(--color-text)", border: "none", borderRadius: 7, fontSize: 13, cursor: "pointer" }}>
+              {tc("cancel")}
+            </button>
+          </div>
+        </form>
+      )}
 
       <main style={{ padding: 16 }}>
         {goals.length === 0 ? (

@@ -1,6 +1,6 @@
 import createMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { createServerClient } from "@supabase/ssr";
 
 const LOCALES = ["en", "es"] as const;
 const DEFAULT_LOCALE = "es";
@@ -14,7 +14,7 @@ const intlMiddleware = createMiddleware({
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip auth routes and API
+  // Skip auth routes and Next.js internals
   if (
     pathname.startsWith("/api/") ||
     pathname.startsWith("/_next/") ||
@@ -31,29 +31,49 @@ export async function middleware(request: NextRequest) {
       ? subdomain
       : null;
 
-  // Auth guard — redirect to login if no session
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET,
-  });
+  const isAuthPage = pathname === "/";
 
-  const isAuthPage = pathname.includes("/auth") || pathname === "/";
+  // Check Supabase session via cookie
+  let session = null;
+  try {
+    const response = NextResponse.next();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              response.cookies.set(name, value, options)
+            );
+          },
+        },
+      }
+    );
+    const { data } = await supabase.auth.getSession();
+    session = data.session;
+  } catch {
+    // Non-fatal — let request through to page which will handle redirect
+  }
 
-  if (!token && !isAuthPage) {
+  if (!session && !isAuthPage) {
     const loginUrl = new URL("/", request.url);
-    loginUrl.searchParams.set("callbackUrl", pathname);
+    loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
   // Handle intl routing
   const response = intlMiddleware(request);
 
-  // Attach tenant slug header for server components
+  // Attach tenant context headers for server components
   if (tenantSlug) {
     response.headers.set("x-tenant-slug", tenantSlug);
   }
-  if (token?.tenantId) {
-    response.headers.set("x-tenant-id", String(token.tenantId));
+  if (session?.user?.id) {
+    response.headers.set("x-user-id", session.user.id);
   }
 
   return response;

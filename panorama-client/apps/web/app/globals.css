@@ -27,3 +27,46 @@ body {
 [data-tenant-color] {
   --color-accent: attr(data-tenant-color);
 }
+
+/* Mobile-first adjustments at 375px */
+@media (max-width: 390px) {
+  body {
+    font-size: 14px;
+  }
+
+  /* Kanban: full-width columns on mobile, horizontal scroll */
+  .kanban-scroll {
+    flex-direction: column !important;
+    padding: 8px !important;
+  }
+
+  /* Cards touch target */
+  button {
+    min-height: 40px;
+  }
+
+  /* Inputs */
+  input, textarea, select {
+    font-size: 16px !important; /* Prevent iOS zoom on focus */
+  }
+}
+
+/* Skip-to-main for accessibility */
+.skip-to-main {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.skip-to-main:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 8px 16px;
+  background: var(--color-accent);
+  color: #fff;
+  font-weight: 600;
+  z-index: 999;
+}

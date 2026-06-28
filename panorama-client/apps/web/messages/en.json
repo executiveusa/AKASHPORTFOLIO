@@ -10,6 +10,7 @@
   },
   "kanban": {
     "addCard": "Add task",
+    "cardTitlePlaceholder": "Task title…",
     "wipLimit": "WIP limit reached ({limit})",
     "moveCard": "Move task",
     "loading": "Loading board...",
