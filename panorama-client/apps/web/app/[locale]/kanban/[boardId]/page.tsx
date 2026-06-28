@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Board } from "@/components/kanban/Board";
 import { VoiceOrb } from "@/components/voice/VoiceOrb";
+import { PhaseTabs } from "@/components/kanban/PhaseTabs";
 import { createClient } from "@/lib/supabase";
 import type { Database } from "@/lib/database.types";
 import { flushQueue } from "@/lib/offline-queue";
@@ -25,6 +26,7 @@ export default function KanbanPage() {
   const [board, setBoard] = useState<BoardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [offlineCount, setOfflineCount] = useState(0);
+  const [activePhase, setActivePhase] = useState<"iniciacion" | "planificacion" | "ejecucion" | "cierre">("ejecucion");
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
@@ -140,6 +142,7 @@ export default function KanbanPage() {
         )}
       </header>
 
+      <PhaseTabs activePhase={activePhase} onChange={setActivePhase} />
       <Board board={board} locale={locale as "en" | "es"} onBoardUpdate={setBoard} />
       <VoiceOrb locale={locale as "en" | "es"} board={board} onBoardUpdate={setBoard} />
     </div>

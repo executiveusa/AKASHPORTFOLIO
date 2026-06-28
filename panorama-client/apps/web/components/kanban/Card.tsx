@@ -14,6 +14,13 @@ const PRIORITY_COLORS = {
   critical: { bg: "rgba(220,38,38,0.2)",   text: "#dc2626" },
 };
 
+const PHASE_COLORS: Record<string, string> = {
+  iniciacion:    "var(--phase-iniciacion)",
+  planificacion: "var(--phase-planificacion)",
+  ejecucion:     "var(--phase-ejecucion)",
+  cierre:        "var(--phase-cierre)",
+};
+
 interface Props {
   card: Card;
   locale: "en" | "es";
@@ -32,6 +39,7 @@ export function CardItem({ card, locale, isDragging = false }: Props) {
 
   const priorityStyle = PRIORITY_COLORS[card.priority];
   const isOverdue = card.due_date && new Date(card.due_date) < new Date();
+  const phaseColor = card.pmi_phase ? PHASE_COLORS[card.pmi_phase] : null;
 
   return (
     <div
@@ -42,12 +50,29 @@ export function CardItem({ card, locale, isDragging = false }: Props) {
         border: `1px solid ${isDragging ? "var(--color-accent)" : "var(--color-border)"}`,
         borderRadius: 6,
         padding: "10px 12px",
+        paddingLeft: phaseColor ? 14 : 12,
         cursor: "grab",
         boxShadow: isDragging ? "0 8px 24px rgba(0,0,0,0.4)" : "none",
+        position: "relative",
+        overflow: "hidden",
       }}
       {...attributes}
       {...listeners}
     >
+      {phaseColor && (
+        <span
+          aria-hidden
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: 3,
+            background: phaseColor,
+            borderRadius: "3px 0 0 3px",
+          }}
+        />
+      )}
       <div style={{ fontSize: 13, fontWeight: 500, color: "var(--color-text)", marginBottom: 6, lineHeight: 1.4 }}>
         {card.title}
       </div>
