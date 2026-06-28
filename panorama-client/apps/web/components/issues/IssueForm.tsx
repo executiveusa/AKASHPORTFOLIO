@@ -68,7 +68,7 @@ export function IssueForm({ locale, onClose, onCreated }: Props) {
   }
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "flex-end", zIndex: 200 }} onClick={onClose}>
+    <div role="dialog" aria-modal="true" aria-label={t("raise")} onKeyDown={(e) => e.key === "Escape" && onClose()} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "flex-end", zIndex: 200 }} onClick={onClose}>
       <div style={{ width: "100%", background: "var(--color-surface)", borderTop: "1px solid var(--color-border)", borderRadius: "16px 16px 0 0", padding: 20 }} onClick={(e) => e.stopPropagation()}>
         <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>{t("raise")}</h3>
 

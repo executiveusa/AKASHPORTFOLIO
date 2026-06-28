@@ -18,10 +18,12 @@ export default function LoginPage() {
     setError("");
 
     const supabase = createClient();
+    const browserLang = navigator.language.startsWith("es") ? "es" : "en";
+    const next = new URLSearchParams(window.location.search).get("next") ?? `/${browserLang}/dashboard`;
     const { error: authError } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: {
-        emailRedirectTo: `${window.location.origin}/api/auth/callback`,
+        emailRedirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(next)}`,
       },
     });
 

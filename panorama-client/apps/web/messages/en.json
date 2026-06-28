@@ -6,7 +6,9 @@
     "goals": "Goals",
     "contacts": "Contacts",
     "messages": "Messages",
-    "voice": "Voice"
+    "voice": "Voice",
+    "admin": "Admin",
+    "signOut": "Sign out"
   },
   "kanban": {
     "addCard": "Add task",

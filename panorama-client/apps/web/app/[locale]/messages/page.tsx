@@ -63,9 +63,9 @@ export default function MessagesPage() {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "var(--color-bg)", color: "var(--color-text)" }}>
-      <header style={{ padding: "12px 16px", borderBottom: "1px solid var(--color-border)", fontWeight: 700 }}>
-        Mensajes
+    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 44px)", background: "var(--color-bg)", color: "var(--color-text)" }}>
+      <header style={{ padding: "12px 16px", borderBottom: "1px solid var(--color-border)", fontWeight: 700, fontSize: 15 }}>
+        {locale === "es" ? "Mensajes" : "Messages"}
       </header>
 
       <div style={{ flex: 1, overflowY: "auto", padding: "12px 16px", display: "flex", flexDirection: "column", gap: 8 }}>

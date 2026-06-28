@@ -28,7 +28,7 @@ export default function ContactsPage() {
   const client = contacts.filter((c) => !c.is_kupuri_staff);
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--color-bg)", color: "var(--color-text)", fontFamily: "var(--font-sans)" }}>
+    <div style={{ minHeight: "calc(100vh - 44px)", background: "var(--color-bg)", color: "var(--color-text)", fontFamily: "var(--font-sans)" }}>
       <header style={{ padding: "12px 16px", borderBottom: "1px solid var(--color-border)" }}>
         <div style={{ fontWeight: 700, fontSize: 16 }}>{t("directory")}</div>
       </header>

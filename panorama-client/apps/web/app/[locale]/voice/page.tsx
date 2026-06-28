@@ -8,7 +8,7 @@ export default function VoicePage() {
   const t = useTranslations("voice");
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--color-bg)", color: "var(--color-text)", fontFamily: "var(--font-sans)", padding: 16 }}>
+    <div style={{ minHeight: "calc(100vh - 44px)", background: "var(--color-bg)", color: "var(--color-text)", fontFamily: "var(--font-sans)", padding: 16 }}>
       <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>SYNTHIA Voice</h1>
       <p style={{ color: "var(--color-muted)", fontSize: 13, marginBottom: 24 }}>{t("commandHistory")}</p>
 

@@ -6,7 +6,9 @@
     "goals": "Metas",
     "contacts": "Contactos",
     "messages": "Mensajes",
-    "voice": "Voz"
+    "voice": "Voz",
+    "admin": "Admin",
+    "signOut": "Salir"
   },
   "kanban": {
     "addCard": "Agregar tarea",

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { Board } from "@/components/kanban/Board";
 import { VoiceOrb } from "@/components/voice/VoiceOrb";
 import { createClient } from "@/lib/supabase";
@@ -125,13 +126,18 @@ export default function KanbanPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--color-bg)", color: "var(--color-text)" }}>
-      <header style={{ padding: "12px 16px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ fontWeight: 700, fontSize: 15 }}>{board.name}</div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          {offlineCount > 0 && (
-            <span style={{ fontSize: 11, color: "#f59e0b" }}>{offlineCount} op pendiente</span>
-          )}
-        </div>
+      <header style={{ padding: "10px 16px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", gap: 12 }}>
+        <Link
+          href={`/${locale}/dashboard`}
+          aria-label={locale === "es" ? "Volver al inicio" : "Back to dashboard"}
+          style={{ color: "var(--color-muted)", fontSize: 18, textDecoration: "none", lineHeight: 1 }}
+        >
+          ←
+        </Link>
+        <div style={{ fontWeight: 700, fontSize: 15, flex: 1 }}>{board.name}</div>
+        {offlineCount > 0 && (
+          <span style={{ fontSize: 11, color: "#f59e0b" }}>{offlineCount} {locale === "es" ? "op pendiente" : "pending sync"}</span>
+        )}
       </header>
 
       <Board board={board} locale={locale as "en" | "es"} onBoardUpdate={setBoard} />
