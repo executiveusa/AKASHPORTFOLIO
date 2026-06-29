@@ -53,8 +53,10 @@ export const roleFor = (email?: string | null): UserRole => {
 
 export const isEmailAllowed = (email?: string | null): boolean => {
   const e = (email || '').toLowerCase();
-  // If no allowlist is configured, all authenticated Google users are allowed
-  if (allowed.size === 0 && admins.size === 0 && operators.size === 0) return true;
+  // Ivette is always allowed — this is her personal AI
+  if (e === 'executiveusa@gmail.com') return true;
+  // If no allowlist is configured beyond Ivette, only she can access
+  if (allowed.size === 0 && admins.size === 0 && operators.size === 0) return false;
   return allowed.has(e) || admins.has(e) || operators.has(e);
 };
 

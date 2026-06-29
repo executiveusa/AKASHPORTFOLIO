@@ -7,10 +7,10 @@ const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://kupuri-media-cdmx.ve
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "SYNTHIA™ 3.0 — Tu CEO Invisible para Empresarias LATAM",
-    template: "%s | SYNTHIA™ 3.0",
+    default: "Cynthia — Tu IA Soberana Personal",
+    template: "%s | Cynthia",
   },
-  description: "Sistema Operativo Agéntico para empresarias latinoamericanas. Automatiza operaciones con 9 agentes de IA especializados. Más poderoso que OpenAI, más seguro que Claude.",
+  description: "El sistema operativo personal de Ivette. Una IA que aprende, crece y trabaja solo para ti.",
   keywords: [
     "agentes IA LATAM", "automatización empresarial México", "CEO digital", "SYNTHIA",
     "Kupuri Media", "IA para empresarias", "sistema operativo agéntico", "voice AI español",

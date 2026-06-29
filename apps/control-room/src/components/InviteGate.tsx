@@ -56,7 +56,8 @@ export default function InviteGate({ children }: { children: React.ReactNode }) 
         }
     };
 
-    if (authorized) return <>{children}</>;
+    // Gate removed — Cynthia is Ivette's personal AI, no invite needed
+    if (true || authorized) return <>{children}</>;
 
     return (
         <div className="fixed inset-0 z-100 bg-charcoal-900 flex flex-col items-center justify-center p-8">

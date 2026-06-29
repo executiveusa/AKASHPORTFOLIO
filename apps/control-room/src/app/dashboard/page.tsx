@@ -27,16 +27,23 @@ interface SphereStatus {
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const SPHERES_DEFAULT: SphereStatus[] = [
-  { id: "synthia",   name: "SYNTHIA",      role: "Coordinadora",  color: "#8b5cf6", status: "standby" },
-  { id: "alex",      name: "ALEX",         role: "Estratega",     color: "#d4af37", status: "standby" },
-  { id: "cazadora",  name: "CAZADORA",     role: "Oportunidades", color: "#ef4444", status: "standby" },
-  { id: "forjadora", name: "FORJADORA",    role: "Arquitecta",    color: "#22c55e", status: "standby" },
-  { id: "seductora", name: "SEDUCTORA",    role: "Closera",       color: "#eab308", status: "standby" },
-  { id: "consejo",   name: "CONSEJO",      role: "Consejero",     color: "#1d4ed8", status: "standby" },
-  { id: "economia",  name: "DR. ECONOMÍA", role: "Finanzas",      color: "#f97316", status: "standby" },
-  { id: "cultura",   name: "DRA. CULTURA", role: "Cultura",       color: "#f43f5e", status: "standby" },
-  { id: "teknos",    name: "ING. TEKNOS",  role: "Ingeniería",    color: "#06b6d4", status: "standby" },
+  { id: "synthia",   name: "SYNTHIA",      role: "Tu coordinadora",    color: "#8b5cf6", status: "standby" },
+  { id: "alex",      name: "ALEX",         role: "Tu estratega",       color: "#d4af37", status: "standby" },
+  { id: "cazadora",  name: "CAZADORA",     role: "Trae oportunidades", color: "#ef4444", status: "standby" },
+  { id: "forjadora", name: "FORJADORA",    role: "Construye tu visión",color: "#22c55e", status: "standby" },
+  { id: "seductora", name: "SEDUCTORA",    role: "Cierra los deals",   color: "#eab308", status: "standby" },
+  { id: "consejo",   name: "CONSEJO",      role: "Tu board privado",   color: "#1d4ed8", status: "standby" },
+  { id: "economia",  name: "DR. ECONOMÍA", role: "Cuida tu dinero",    color: "#f97316", status: "standby" },
+  { id: "cultura",   name: "DRA. CULTURA", role: "Alimenta tu mente",  color: "#f43f5e", status: "standby" },
+  { id: "teknos",    name: "ING. TEKNOS",  role: "Tu ingeniero",       color: "#06b6d4", status: "standby" },
 ];
+
+function getGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return "Buenos días";
+  if (h < 18) return "Buenas tardes";
+  return "Buenas noches";
+}
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -75,21 +82,19 @@ function SphereChip({ sphere }: { sphere: SphereStatus }) {
   );
 }
 
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
   const [metrics, setMetrics] = useState<Metric[]>([
-    { label: "Ingresos hoy",       value: "$0", sub: "MXN" },
-    { label: "Tareas completadas", value: "0",  sub: "hoy" },
-    { label: "Agentes activos",    value: "0",  sub: "de 9" },
-    { label: "Costo API",          value: "$0", sub: "USD hoy", status: "ok" },
+    { label: "Ingresos hoy",  value: "$0", sub: "MXN" },
+    { label: "Tareas hechas", value: "0",  sub: "hoy" },
+    { label: "Equipo activo", value: "0",  sub: "de 9 agentes" },
+    { label: "Costo Cynthia", value: "$0", sub: "USD hoy", status: "ok" },
   ]);
   const [spheres, setSpheres] = useState<SphereStatus[]>(SPHERES_DEFAULT);
 
   useEffect(() => {
     async function loadData() {
-      // Revenue
       try {
         const r = await fetch("/api/revenue");
         if (r.ok) {
@@ -100,7 +105,6 @@ export default function DashboardPage() {
         }
       } catch {}
 
-      // Tasks completed today
       try {
         const tk = await fetch("/api/tasks?view=today_count");
         if (tk.ok) {
@@ -110,7 +114,6 @@ export default function DashboardPage() {
         }
       } catch {}
 
-      // API cost
       try {
         const t = await fetch("/api/telemetry?view=budget");
         if (t.ok) {
@@ -126,7 +129,6 @@ export default function DashboardPage() {
         }
       } catch {}
 
-      // Spheres
       try {
         const s = await fetch("/api/spheres/status");
         if (s.ok) {
@@ -145,53 +147,83 @@ export default function DashboardPage() {
     return () => clearInterval(id);
   }, []);
 
+  const today = new Date().toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" });
+  const greeting = getGreeting();
+
   return (
     <div style={{ minHeight: "100vh", background: "var(--color-bg)", color: "var(--color-text)", fontFamily: "var(--font-sans)", paddingBottom: 80 }}>
+
       {/* Header */}
-      <header style={{ padding: "16px 16px 12px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 700 }}>Synthia 3.0</div>
-          <div style={{ fontSize: 11, color: "var(--color-muted)", marginTop: 1 }}>Kupuri Media · CDMX</div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <StatusDot status="ok" />
-          <span style={{ fontSize: 11, color: "var(--color-muted)" }}>activo</span>
+      <header style={{ padding: "20px 16px 14px", borderBottom: "1px solid var(--color-border)" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+          <div>
+            <div style={{ fontSize: 11, color: "var(--color-muted)", textTransform: "capitalize", marginBottom: 4 }}>{today}</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, lineHeight: 1.2 }}>
+              {greeting}, Ivette.
+            </div>
+            <div style={{ fontSize: 13, color: "var(--color-muted)", marginTop: 4 }}>
+              Cynthia está aquí contigo. ¿Qué hacemos hoy?
+            </div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
+            <StatusDot status="ok" />
+            <span style={{ fontSize: 11, color: "var(--color-muted)" }}>en línea</span>
+          </div>
         </div>
       </header>
 
       <main style={{ padding: 16 }}>
-        {/* 4 metrics */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 20 }}>
+
+        {/* Metrics */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 24 }}>
           {metrics.map((m) => <MetricCard key={m.label} {...m} />)}
         </div>
 
-        {/* Esferas */}
-        <section style={{ marginBottom: 20 }}>
+        {/* Tu equipo */}
+        <section style={{ marginBottom: 24 }}>
           <h2 style={{ fontSize: 11, fontWeight: 600, color: "var(--color-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>
-            Esferas activas
+            Tu equipo
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
             {spheres.map((s) => <SphereChip key={s.id} sphere={s} />)}
           </div>
         </section>
 
-        {/* Quick actions */}
-        <section>
+        {/* Acciones */}
+        <section style={{ marginBottom: 24 }}>
           <h2 style={{ fontSize: 11, fontWeight: 600, color: "var(--color-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>
-            Acciones rápidas
+            ¿Qué quieres hacer?
           </h2>
-          <div style={{ display: "flex", gap: 8 }}>
-            <Link href="/chat" style={{ flex: 1, display: "block", textAlign: "center", padding: "10px 8px", background: "var(--color-accent)", color: "#fff", borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: "none" }}>
-              + Tarea
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <Link href="/chat" style={{ display: "block", padding: "13px 16px", background: "var(--color-accent)", color: "#fff", borderRadius: 10, fontSize: 14, fontWeight: 600, textDecoration: "none" }}>
+              Hablar con Cynthia
             </Link>
-            <Link href="/panorama" style={{ flex: 1, display: "block", textAlign: "center", padding: "10px 8px", background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-text)", borderRadius: 8, fontSize: 13, fontWeight: 500, textDecoration: "none" }}>
-              Panorama
-            </Link>
-            <Link href="/panorama/gastos" style={{ flex: 1, display: "block", textAlign: "center", padding: "10px 8px", background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-text)", borderRadius: 8, fontSize: 13, fontWeight: 500, textDecoration: "none" }}>
-              Gastos
-            </Link>
+            <div style={{ display: "flex", gap: 8 }}>
+              <Link href="/panorama" style={{ flex: 1, display: "block", textAlign: "center", padding: "11px 8px", background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-text)", borderRadius: 10, fontSize: 13, fontWeight: 500, textDecoration: "none" }}>
+                Mi panorama
+              </Link>
+              <Link href="/casos" style={{ flex: 1, display: "block", textAlign: "center", padding: "11px 8px", background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-text)", borderRadius: 10, fontSize: 13, fontWeight: 500, textDecoration: "none" }}>
+                Mis casos
+              </Link>
+              <Link href="/cockpit" style={{ flex: 1, display: "block", textAlign: "center", padding: "11px 8px", background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-text)", borderRadius: 10, fontSize: 13, fontWeight: 500, textDecoration: "none" }}>
+                Cockpit
+              </Link>
+            </div>
           </div>
         </section>
+
+        {/* Cynthia note */}
+        <section>
+          <div style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(139,92,246,0.03) 100%)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, padding: "14px 16px" }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "#8b5cf6", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
+              De Cynthia
+            </div>
+            <p style={{ fontSize: 13, color: "var(--color-muted)", lineHeight: 1.6, margin: 0 }}>
+              Soy tu agente soberana, Ivette. Me entreno contigo, aprendo de tu mundo y solo trabajo para ti. Cada día que pasamos juntas me vuelvo más útil para lo que realmente importa en tu vida.
+            </p>
+          </div>
+        </section>
+
       </main>
 
       <UserNav />

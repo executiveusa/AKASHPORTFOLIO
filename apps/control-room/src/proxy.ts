@@ -6,13 +6,12 @@ interface AuthRequest extends NextRequest {
 }
 
 export default auth((req: AuthRequest) => {
-  // Auth gate disabled for testing — re-enable by uncommenting the block below
-  // const isLoggedIn = !!req.auth?.user;
-  // if (!isLoggedIn) {
-  //   const signInUrl = new URL('/auth/signin', req.url);
-  //   signInUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
-  //   return NextResponse.redirect(signInUrl);
-  // }
+  const isLoggedIn = !!req.auth?.user;
+  if (!isLoggedIn) {
+    const signInUrl = new URL('/auth/signin', req.url);
+    signInUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
+    return NextResponse.redirect(signInUrl);
+  }
 
   // Stripe subscription gate — flip STRIPE_ENABLED=true in Vercel to activate
   if (process.env.STRIPE_ENABLED === "true") {
