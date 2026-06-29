@@ -1,12 +1,12 @@
 "use client";
 
+import { Suspense, useState } from "react";
 import { AppShell } from "@/components/synthia/AppShell";
 import { ThreadComposer } from "@/components/synthia/ThreadComposer";
 import { QuickActionChips } from "@/components/synthia/QuickActionChips";
 import { FeaturedExamplesGrid } from "@/components/synthia/FeaturedExamplesGrid";
 import { AgentPicker } from "@/components/synthia/AgentPicker";
 import { ExecutionModePicker } from "@/components/synthia/ExecutionModePicker";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export function NewThreadContent() {
@@ -44,7 +44,9 @@ export function NewThreadContent() {
           <ExecutionModePicker value={mode} onChange={setMode} />
         </div>
 
-        <ThreadComposer agentId={agent} executionMode={mode} />
+        <Suspense fallback={null}>
+          <ThreadComposer agentId={agent} executionMode={mode} />
+        </Suspense>
 
         <div style={{ marginTop: 32 }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: "#888", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
