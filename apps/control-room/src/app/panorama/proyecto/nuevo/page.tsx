@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { UserNav } from "@/components/UserNav";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -310,6 +311,7 @@ export default function NuevoProyectoPage() {
           </button>
         )}
       </div>
+      <UserNav />
     </div>
   );
 }

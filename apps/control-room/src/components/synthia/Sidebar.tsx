@@ -13,6 +13,13 @@ const NAV = [
   { href: "/teams",       icon: "⬡", label: "Equipos" },
 ];
 
+const APP_SHORTCUTS = [
+  { href: "/dashboard",  icon: "◈", label: "Dashboard" },
+  { href: "/panorama",   icon: "◎", label: "Panorama" },
+  { href: "/chat",       icon: "✦", label: "Chat" },
+  { href: "/cockpit",    icon: "⊞", label: "Cockpit" },
+];
+
 const BOTTOM_NAV = [
   { href: "/integraciones", icon: "⟳", label: "Integraciones" },
   { href: "/settings",      icon: "⚙", label: "Ajustes" },
@@ -73,6 +80,32 @@ export function Sidebar() {
           </Link>
         ))}
       </nav>
+
+      {/* App shortcuts */}
+      <div style={{ padding: "0 8px", borderTop: "1px solid #e5e3df", paddingTop: 12, marginBottom: 4 }}>
+        <div style={{ fontSize: 10, color: "#aaa", textTransform: "uppercase", letterSpacing: "0.08em", padding: "4px 12px 6px" }}>App</div>
+        {APP_SHORTCUTS.map(item => (
+          <Link
+            key={item.href}
+            href={item.href}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "7px 12px",
+              borderRadius: 8,
+              marginBottom: 2,
+              textDecoration: "none",
+              fontSize: 12,
+              color: "#666",
+              background: "transparent",
+            }}
+          >
+            <span style={{ fontSize: 13, width: 18, textAlign: "center" }}>{item.icon}</span>
+            {item.label}
+          </Link>
+        ))}
+      </div>
 
       {/* Bottom nav */}
       <div style={{ padding: "0 8px", borderTop: "1px solid #e5e3df", paddingTop: 12 }}>
