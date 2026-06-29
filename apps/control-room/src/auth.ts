@@ -77,7 +77,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const { data } = await supabase
             .from('subscriptions')
             .select('plan_id, status')
-            .eq('email', token.email ?? '')
+            .eq('user_id', token.sub ?? '')
             .order('updated_at', { ascending: false })
             .limit(1)
             .maybeSingle();
