@@ -175,7 +175,7 @@ export default function KanbanPage() {
         role="tabpanel"
         aria-label={activePhase}
       >
-        <Board board={board} locale={locale as "en" | "es"} onBoardUpdate={setBoard} />
+        <Board board={board} locale={locale as "en" | "es"} onBoardUpdate={setBoard} activePhase={activePhase} />
       </div>
       <VoiceOrb locale={locale as "en" | "es"} board={board} onBoardUpdate={setBoard} />
     </div>

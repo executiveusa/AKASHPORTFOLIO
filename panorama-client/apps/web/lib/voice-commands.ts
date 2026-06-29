@@ -4,6 +4,7 @@ export type VoiceAction =
   | { kind: "add_comment"; card_ref: string; body: string }
   | { kind: "filter_by"; filter: string }
   | { kind: "read_aloud"; subject: string }
+  | { kind: "navigate"; destination: string }
   | { kind: "unknown" };
 
 export interface VoiceIntent {
@@ -19,6 +20,11 @@ export function parseVoiceCommand(transcript: string, locale: "en" | "es"): Voic
 }
 
 function matchEs(t: string): { action: VoiceAction; confidence: number } {
+  const navMatch = t.match(/ir a (tablero|inicio|dashboard|issues|problemas|metas|objetivos|contactos|mensajes)/);
+  if (navMatch) {
+    return { action: { kind: "navigate", destination: navMatch[1] }, confidence: 0.95 };
+  }
+
   const moveMatch = t.match(/mover (.+?) a (.+)/);
   if (moveMatch) {
     return { action: { kind: "move_card", target: moveMatch[1], to_column: moveMatch[2] }, confidence: 0.92 };
@@ -47,6 +53,11 @@ function matchEs(t: string): { action: VoiceAction; confidence: number } {
 }
 
 function matchEn(t: string): { action: VoiceAction; confidence: number } {
+  const navMatch = t.match(/go to (dashboard|home|issues|goals|contacts|messages)/);
+  if (navMatch) {
+    return { action: { kind: "navigate", destination: navMatch[1] }, confidence: 0.95 };
+  }
+
   const markMatch = t.match(/mark (.+?) as (done|review|in review|progress|in progress|planning)/);
   if (markMatch) {
     return { action: { kind: "move_card", target: markMatch[1], to_column: markMatch[2] }, confidence: 0.92 };
@@ -72,6 +83,19 @@ function matchEn(t: string): { action: VoiceAction; confidence: number } {
   }
 
   return { action: { kind: "unknown" }, confidence: 0.0 };
+}
+
+// Map voice navigation destinations to app route segments
+const NAV_DEST_MAP: Record<string, string> = {
+  tablero: "dashboard", inicio: "dashboard", dashboard: "dashboard", home: "dashboard",
+  issues: "issues", problemas: "issues",
+  metas: "goals", objetivos: "goals", goals: "goals",
+  contactos: "contacts", contacts: "contacts",
+  mensajes: "messages", messages: "messages",
+};
+
+export function resolveNavDestination(voice: string): string {
+  return NAV_DEST_MAP[voice.toLowerCase()] ?? voice;
 }
 
 // Map voice column names to actual column title_en values

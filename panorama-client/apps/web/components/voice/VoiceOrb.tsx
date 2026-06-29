@@ -2,8 +2,9 @@
 
 import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { CommandBubble } from "./CommandBubble";
-import { parseVoiceCommand, resolveColumnName, type VoiceIntent } from "@/lib/voice-commands";
+import { parseVoiceCommand, resolveColumnName, resolveNavDestination, type VoiceIntent } from "@/lib/voice-commands";
 import type { BoardData } from "@/app/[locale]/kanban/[boardId]/page";
 
 type VoiceState = "idle" | "listening" | "processing";
@@ -18,6 +19,7 @@ interface Props {
 
 export function VoiceOrb({ locale, board, onBoardUpdate }: Props) {
   const t = useTranslations("voice");
+  const router = useRouter();
   const [state, setState] = useState<VoiceState>("idle");
   const [lastIntent, setLastIntent] = useState<VoiceIntent | null>(null);
 
@@ -49,7 +51,7 @@ export function VoiceOrb({ locale, board, onBoardUpdate }: Props) {
     } catch {
       setState("idle");
     }
-  }, [locale, board]);
+  }, [locale, board, router]);
 
   async function executeIntent(intent: VoiceIntent) {
     const apiUrl = process.env.NEXT_PUBLIC_PANORAMA_API_URL;
@@ -83,6 +85,11 @@ export function VoiceOrb({ locale, board, onBoardUpdate }: Props) {
           severity: intent.action.severity,
         }),
       });
+    }
+
+    if (intent.action.kind === "navigate") {
+      const dest = resolveNavDestination(intent.action.destination);
+      router.push(`/${locale}/${dest}`);
     }
   }
 
