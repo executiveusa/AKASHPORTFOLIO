@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { UserNav } from "@/components/UserNav";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -168,6 +169,7 @@ export default function CasosPage() {
           filtered.map((c) => <CaseCard key={c.id} caso={c} />)
         )}
       </main>
+      <UserNav />
     </div>
   );
 }

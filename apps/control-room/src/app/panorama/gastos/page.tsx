@@ -3,6 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useRef, useState } from "react";
+import { SubPageHeader, UserNav } from "@/components/UserNav";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -221,6 +222,7 @@ export default function GastosPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--color-bg)", color: "var(--color-text)", fontFamily: "var(--font-sans)", paddingBottom: 80 }}>
+      <SubPageHeader title="Gastos" backHref="/panorama" backLabel="←" />
       <header style={{ padding: "16px 16px 12px", borderBottom: "1px solid var(--color-border)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
           <div>
@@ -266,6 +268,7 @@ export default function GastosPage() {
       </button>
 
       {showAdd && <AddModal jurisdiction={jurisdiction} onClose={() => setShowAdd(false)} onSave={saveExpense} />}
+      <UserNav />
     </div>
   );
 }

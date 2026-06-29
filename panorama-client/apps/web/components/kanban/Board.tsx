@@ -17,6 +17,7 @@ import { PresenceBar } from "./PresenceBar";
 import { createClient } from "@/lib/supabase";
 import { enqueue } from "@/lib/offline-queue";
 import type { BoardData } from "@/app/[locale]/kanban/[boardId]/page";
+import type { Phase } from "./PhaseTabs";
 import type { Database } from "@/lib/database.types";
 
 type Card = Database["public"]["Tables"]["cards"]["Row"];
@@ -25,9 +26,10 @@ interface Props {
   board: BoardData;
   locale: "en" | "es";
   onBoardUpdate: (board: BoardData) => void;
+  activePhase?: Phase;
 }
 
-export function Board({ board, locale, onBoardUpdate }: Props) {
+export function Board({ board, locale, onBoardUpdate, activePhase }: Props) {
   const t = useTranslations("kanban");
   const [activeCard, setActiveCard] = useState<Card | null>(null);
 
@@ -115,6 +117,7 @@ export function Board({ board, locale, onBoardUpdate }: Props) {
             key={col.id}
             column={col}
             locale={locale}
+            activePhase={activePhase}
             onCardAdded={(card) => {
               onBoardUpdate({
                 ...board,

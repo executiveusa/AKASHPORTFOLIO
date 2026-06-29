@@ -4,6 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { useState } from "react";
 import Link from "next/link";
+import { UserNav } from "@/components/UserNav";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -121,6 +122,7 @@ export default function PanoramaPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--color-bg)", color: "var(--color-text)", fontFamily: "var(--font-sans)", paddingBottom: 80 }}>
+      <UserNav />
       {/* Header */}
       <header style={{ padding: "16px 16px 12px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>

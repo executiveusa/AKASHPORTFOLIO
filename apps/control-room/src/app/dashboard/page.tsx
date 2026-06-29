@@ -4,6 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { UserNav } from "@/components/UserNav";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -35,14 +36,6 @@ const SPHERES_DEFAULT: SphereStatus[] = [
   { id: "economia",  name: "DR. ECONOMÍA", role: "Finanzas",      color: "#f97316", status: "standby" },
   { id: "cultura",   name: "DRA. CULTURA", role: "Cultura",       color: "#f43f5e", status: "standby" },
   { id: "teknos",    name: "ING. TEKNOS",  role: "Ingeniería",    color: "#06b6d4", status: "standby" },
-];
-
-const NAV_ITEMS = [
-  { href: "/dashboard",       label: "Inicio",   icon: "⊡" },
-  { href: "/panorama",        label: "Panorama", icon: "◎" },
-  { href: "/cockpit/tasks",   label: "Tareas",   icon: "✦" },
-  { href: "/panorama/gastos", label: "Gastos",   icon: "₿" },
-  { href: "/cockpit",         label: "Más",      icon: "⋯" },
 ];
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -82,21 +75,6 @@ function SphereChip({ sphere }: { sphere: SphereStatus }) {
   );
 }
 
-function BottomNav({ active }: { active: string }) {
-  return (
-    <nav style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "var(--color-surface)", borderTop: "1px solid var(--color-border)", display: "flex", zIndex: 50, paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
-      {NAV_ITEMS.map((item) => {
-        const isActive = active === item.href;
-        return (
-          <Link key={item.href} href={item.href} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2, padding: "10px 4px", color: isActive ? "var(--color-accent)" : "var(--color-muted)", fontSize: 9, fontWeight: isActive ? 600 : 400, textDecoration: "none", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-            <span style={{ fontSize: 18 }}>{item.icon}</span>
-            {item.label}
-          </Link>
-        );
-      })}
-    </nav>
-  );
-}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -206,7 +184,7 @@ export default function DashboardPage() {
         </section>
       </main>
 
-      <BottomNav active="/dashboard" />
+      <UserNav />
     </div>
   );
 }

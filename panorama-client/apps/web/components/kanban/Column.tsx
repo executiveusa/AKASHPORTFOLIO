@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { CardItem } from "./Card";
 import { createClient } from "@/lib/supabase";
+import type { Phase } from "./PhaseTabs";
 import type { Database } from "@/lib/database.types";
 
 type Column = Database["public"]["Tables"]["columns"]["Row"];
@@ -14,10 +15,11 @@ type Card = Database["public"]["Tables"]["cards"]["Row"];
 interface Props {
   column: Column & { cards: Card[] };
   locale: "en" | "es";
+  activePhase?: Phase;
   onCardAdded: (card: Card) => void;
 }
 
-export function Column({ column, locale, onCardAdded }: Props) {
+export function Column({ column, locale, activePhase, onCardAdded }: Props) {
   const t = useTranslations("kanban");
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
   const title = locale === "es" ? column.title_es : column.title_en;
@@ -70,7 +72,7 @@ export function Column({ column, locale, onCardAdded }: Props) {
       }}
     >
       {/* Column header */}
-      <div style={{ padding: "10px 12px", borderBottom: "1px solid var(--color-border)", display: "flex", alignItems: "center", gap: 6 }}>
+      <div style={{ padding: "10px 12px", borderBottom: "1px solid var(--color-border)", borderTop: activePhase ? `3px solid var(--phase-${activePhase})` : "none", display: "flex", alignItems: "center", gap: 6 }}>
         <span style={{ width: 8, height: 8, borderRadius: "50%", background: column.color, flexShrink: 0 }} />
         <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-muted)", textTransform: "uppercase", letterSpacing: "0.06em", flex: 1 }}>
           {title}

@@ -147,6 +147,9 @@ export default function CockpitLayout({ children }: { children: React.ReactNode 
       >
         {/* Logo */}
         <div style={{ padding: "20px 16px 12px", borderBottom: "1px solid var(--color-charcoal-600)" }}>
+          <Link href="/dashboard" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", marginBottom: 8 }}>
+            <span style={{ fontSize: 11, color: "var(--color-cream-600)" }}>← App</span>
+          </Link>
           <div style={{ fontSize: 18, fontWeight: 600, color: "var(--color-gold-400)", fontFamily: "var(--font-display)" }}>
             SYNTHIA™ 3.0
           </div>
@@ -205,6 +208,7 @@ export default function CockpitLayout({ children }: { children: React.ReactNode 
       >
         <div style={{ padding: "20px 16px 12px", borderBottom: "1px solid var(--color-charcoal-600)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
+            <Link href="/dashboard" style={{ fontSize: 11, color: "var(--color-cream-600)", textDecoration: "none", display: "block", marginBottom: 6 }}>← App</Link>
             <div style={{ fontSize: 18, fontWeight: 600, color: "var(--color-gold-400)", fontFamily: "var(--font-display)" }}>
               SYNTHIA™ 3.0
             </div>

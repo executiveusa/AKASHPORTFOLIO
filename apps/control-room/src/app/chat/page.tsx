@@ -3,6 +3,9 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import { loadICMContext } from "@/lib/icm/context-loader";
+import { UserNav } from "@/components/UserNav";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -81,6 +84,8 @@ const WELCOME: Message = {
 };
 
 export default function ChatPage() {
+  const pathname = usePathname();
+  const icm = loadICMContext(pathname);
   const [messages, setMessages] = useState<Message[]>([WELCOME]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -105,7 +110,7 @@ export default function ChatPage() {
       const res = await fetch("/api/synthia/agent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text }),
+        body: JSON.stringify({ message: text, icm_stage: icm.stage, icm_context: icm.roleInstruction }),
       });
 
       if (res.ok) {
@@ -161,8 +166,21 @@ export default function ChatPage() {
         <div ref={bottomRef} />
       </div>
 
+      {/* ICM Quick Chips */}
+      <div style={{ padding: "8px 16px 0", display: "flex", gap: 6, overflowX: "auto", flexShrink: 0, scrollbarWidth: "none" }}>
+        {icm.quickChips.map((chip) => (
+          <button
+            key={chip.label}
+            onClick={() => { setInput(chip.prompt); inputRef.current?.focus(); }}
+            style={{ fontSize: 11, padding: "5px 10px", background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-muted)", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}
+          >
+            {chip.label}
+          </button>
+        ))}
+      </div>
+
       {/* Input */}
-      <div style={{ padding: "12px 16px", borderTop: "1px solid var(--color-border)", background: "var(--color-surface)", flexShrink: 0, paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}>
+      <div style={{ padding: "12px 16px", borderTop: "1px solid var(--color-border)", background: "var(--color-surface)", flexShrink: 0, paddingBottom: "max(72px, env(safe-area-inset-bottom, 56px))" }}>
         <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
           <textarea
             ref={inputRef}
@@ -216,6 +234,7 @@ export default function ChatPage() {
           30% { transform: scale(1.4); opacity: 0.7; }
         }
       `}</style>
+      <UserNav />
     </div>
   );
 }
