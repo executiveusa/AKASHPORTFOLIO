@@ -60,7 +60,8 @@ const LOG_ISSUE_TOOL = {
   },
 };
 
-const SPHERE_TOOLS: Partial<Record<SphereAgentId, typeof CREATE_TASK_TOOL[]>> = {
+type SphereTool = typeof CREATE_TASK_TOOL | typeof LOG_ISSUE_TOOL;
+const SPHERE_TOOLS: Partial<Record<SphereAgentId, SphereTool[]>> = {
   cazadora: [CREATE_TASK_TOOL, LOG_ISSUE_TOOL],
   forjadora: [CREATE_TASK_TOOL, LOG_ISSUE_TOOL],
 };
@@ -365,7 +366,7 @@ async function callSphereWithTools(
   sphereId: SphereAgentId,
   systemPrompt: string,
   userMessage: string,
-  tools: typeof CREATE_TASK_TOOL[],
+  tools: SphereTool[],
   briefId: string,
 ): Promise<{ content: string; toolsExecuted: string[] }> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
