@@ -5,8 +5,16 @@
  * This file is the single source of truth for auth. auth.ts at root re-exports.
  */
 
-import NextAuth, { type DefaultSession } from 'next-auth';
+import NextAuth, { type DefaultSession, type JWT } from 'next-auth';
 import Google from 'next-auth/providers/google';
+import { createClient } from '@supabase/supabase-js';
+
+function getSupabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_ANON_KEY!,
+  );
+}
 
 // Role type
 export type UserRole = 'admin' | 'operator' | 'viewer';
@@ -17,7 +25,14 @@ declare module 'next-auth' {
     user: DefaultSession['user'] & {
       role: UserRole;
       isAdmin: boolean;
+      planId: string;
+      subStatus: string;
     };
+  }
+  interface JWT {
+    role?: UserRole;
+    planId?: string;
+    subStatus?: string;
   }
 }
 
@@ -55,11 +70,33 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async signIn({ user }) {
       return isEmailAllowed(user.email);
     },
-    async session({ session }) {
+    async jwt({ token, trigger }) {
+      if (trigger === 'signIn' || !token.planId) {
+        try {
+          const supabase = getSupabaseAdmin();
+          const { data } = await supabase
+            .from('subscriptions')
+            .select('plan_id, status')
+            .eq('email', token.email ?? '')
+            .order('updated_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          token.planId = data?.plan_id ?? 'lector';
+          token.subStatus = data?.status ?? 'none';
+        } catch {
+          token.planId = 'lector';
+          token.subStatus = 'none';
+        }
+      }
+      return token;
+    },
+    async session({ session, token }) {
       const role = roleFor(session.user?.email);
       if (session.user) {
         session.user.role = role;
         session.user.isAdmin = role === 'admin';
+        session.user.planId = (token as JWT & { planId?: string }).planId ?? 'lector';
+        session.user.subStatus = (token as JWT & { subStatus?: string }).subStatus ?? 'none';
       }
       return session;
     },

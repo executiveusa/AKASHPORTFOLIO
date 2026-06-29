@@ -30,6 +30,83 @@ import { callLLM, type LLMMessage, type LLMResult } from './litellm-gateway';
 import { supabaseAdmin } from './supabase-client';
 import type { SphereAgentId } from '@/shared/council-events';
 
+// ─── Sphere tool definitions ──────────────────────────────────────────────────
+
+const CREATE_TASK_TOOL = {
+  name: 'create_task',
+  description: 'Create a new task/card in the project backlog when you identify concrete work that must be done.',
+  input_schema: {
+    type: 'object' as const,
+    properties: {
+      title: { type: 'string', description: 'Short task title (action verb + outcome)' },
+      priority: { type: 'string', enum: ['low', 'medium', 'high', 'critical'], description: 'Task urgency' },
+      description: { type: 'string', description: 'What needs to happen and why (optional)' },
+    },
+    required: ['title', 'priority'],
+  },
+};
+
+const LOG_ISSUE_TOOL = {
+  name: 'log_issue',
+  description: 'Log a project risk, blocker, or issue when you identify a specific threat to delivery.',
+  input_schema: {
+    type: 'object' as const,
+    properties: {
+      title: { type: 'string', description: 'What is the risk or problem' },
+      severity: { type: 'string', enum: ['low', 'medium', 'high', 'critical'], description: 'Impact severity' },
+      mitigation: { type: 'string', description: 'Suggested mitigation step (optional)' },
+    },
+    required: ['title', 'severity'],
+  },
+};
+
+type SphereTool = typeof CREATE_TASK_TOOL | typeof LOG_ISSUE_TOOL;
+const SPHERE_TOOLS: Partial<Record<SphereAgentId, SphereTool[]>> = {
+  cazadora: [CREATE_TASK_TOOL, LOG_ISSUE_TOOL],
+  forjadora: [CREATE_TASK_TOOL, LOG_ISSUE_TOOL],
+};
+
+async function executeSphereTool(
+  sphereId: SphereAgentId,
+  toolName: string,
+  toolInput: Record<string, unknown>,
+  briefId: string,
+): Promise<string> {
+  try {
+    if (toolName === 'create_task') {
+      const { data, error } = await supabaseAdmin.from('agent_tasks').insert({
+        sphere_id: sphereId,
+        brief_id: briefId,
+        task_type: 'council_action',
+        title: toolInput.title,
+        priority: toolInput.priority ?? 'medium',
+        description: toolInput.description ?? null,
+        status: 'pending',
+        created_at: new Date().toISOString(),
+      }).select('id').single();
+      if (error) return `error: ${error.message}`;
+      return `task created: ${data?.id}`;
+    }
+    if (toolName === 'log_issue') {
+      const { data, error } = await supabaseAdmin.from('agent_tasks').insert({
+        sphere_id: sphereId,
+        brief_id: briefId,
+        task_type: 'issue',
+        title: toolInput.title,
+        priority: toolInput.severity ?? 'medium',
+        description: toolInput.mitigation ?? null,
+        status: 'open',
+        created_at: new Date().toISOString(),
+      }).select('id').single();
+      if (error) return `error: ${error.message}`;
+      return `issue logged: ${data?.id}`;
+    }
+    return 'unknown tool';
+  } catch (err) {
+    return `tool execution failed: ${String(err)}`;
+  }
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface CouncilBrief {
@@ -283,6 +360,44 @@ async function saveSphereExpertise(
   }
 }
 
+// ─── Tool-augmented LLM call (direct Anthropic SDK — bypasses litellm) ────────
+
+async function callSphereWithTools(
+  sphereId: SphereAgentId,
+  systemPrompt: string,
+  userMessage: string,
+  tools: SphereTool[],
+  briefId: string,
+): Promise<{ content: string; toolsExecuted: string[] }> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return { content: '', toolsExecuted: [] };
+
+  const { default: Anthropic } = await import('@anthropic-ai/sdk');
+  const client = new Anthropic({ apiKey });
+
+  const response = await client.messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 800,
+    system: systemPrompt,
+    tools,
+    messages: [{ role: 'user', content: userMessage }],
+  });
+
+  const toolsExecuted: string[] = [];
+  let textContent = '';
+
+  for (const block of response.content) {
+    if (block.type === 'text') {
+      textContent += block.text;
+    } else if (block.type === 'tool_use') {
+      const result = await executeSphereTool(sphereId, block.name, block.input as Record<string, unknown>, briefId);
+      toolsExecuted.push(`${block.name}(${JSON.stringify(block.input)}) → ${result}`);
+    }
+  }
+
+  return { content: textContent, toolsExecuted };
+}
+
 // ─── Stage 1: Position ────────────────────────────────────────────────────────
 
 export async function runPositionStage(
@@ -304,28 +419,47 @@ export async function runPositionStage(
     const expertise = await loadSphereExpertise(sphereId);
 
     const systemPrompt = buildPositionPrompt(role, brief, expertise);
+    const userMsg = buildBriefUserMessage(brief);
+    const sphereTools = SPHERE_TOOLS[sphereId];
 
-    let result: LLMResult;
-    try {
-      result = await callLLM(
-        [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: buildBriefUserMessage(brief) },
-        ],
-        {
-          model: role.modelOverride,
-          maxTokens: 600,
-          temperature: 0.75,
-          sphereId,
-        },
-      );
-    } catch (err) {
-      console.error(`[council-engine] Stage 1 failed for ${sphereId}:`, err);
-      continue;
+    let positionText: string;
+    let result: LLMResult | null = null;
+
+    if (sphereTools && sphereTools.length > 0) {
+      // Tool-augmented call for action-capable spheres (CAZADORA, FORJADORA)
+      try {
+        const { content, toolsExecuted } = await callSphereWithTools(sphereId, systemPrompt, userMsg, sphereTools, brief.id);
+        positionText = content;
+        if (toolsExecuted.length > 0) {
+          console.info(`[council-engine] ${sphereId} executed tools: ${toolsExecuted.join('; ')}`);
+        }
+      } catch (err) {
+        console.error(`[council-engine] Stage 1 tool-call failed for ${sphereId}:`, err);
+        continue;
+      }
+    } else {
+      try {
+        result = await callLLM(
+          [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userMsg },
+          ],
+          {
+            model: role.modelOverride,
+            maxTokens: 600,
+            temperature: 0.75,
+            sphereId,
+          },
+        );
+        positionText = result.content;
+      } catch (err) {
+        console.error(`[council-engine] Stage 1 failed for ${sphereId}:`, err);
+        continue;
+      }
     }
 
-    tracker.record(result);
-    const position = parsePositionResponse(sphereId, role, result.content);
+    if (result) tracker.record(result);
+    const position = parsePositionResponse(sphereId, role, positionText);
     positions.push(position);
 
     onProgress?.(sphereId, position);
