@@ -1,4 +1,5 @@
 :root {
+  /* Core palette */
   --color-bg: #0a0a0f;
   --color-surface: #13131a;
   --color-border: #1e1e2a;
@@ -6,8 +7,39 @@
   --color-muted: #6b6b7e;
   --color-accent: #7c3aed;
   --color-gold: #d4af37;
+
+  /* Typography */
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --font-display: "Inter", system-ui, -apple-system, sans-serif;
+
+  /* PMBOK phase identity */
+  --phase-iniciacion:    #3b82f6;
+  --phase-planificacion: #8b5cf6;
+  --phase-ejecucion:     #22c55e;
+  --phase-cierre:        #d4af37;
+
+  /* Module identity */
+  --module-panorama: #8b5cf6;
+  --module-chat:     #7c3aed;
+  --module-design:   #ec4899;
+  --module-clients:  #3b82f6;
+  --module-metrics:  #22c55e;
+
+  /* Motion (use sparingly — MOTION_INTENSITY: 2) */
+  --motion-swift:  150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-ease:   300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-spring: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* 8pt spacing grid */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-10: 40px;
+
+  /* Touch targets (Apple HIG) */
+  --touch-min: 44px;
+
+  /* Nav shell */
+  --rail-width: 60px;
+  --nav-height: 56px;
 }
 
 * {
@@ -28,26 +60,65 @@ body {
   --color-accent: attr(data-tenant-color);
 }
 
-/* Mobile-first adjustments at 375px */
-@media (max-width: 390px) {
-  body {
-    font-size: 14px;
-  }
+/* Global touch target enforcement — exclude inline text links */
+button, [role="button"] {
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+}
+nav a {
+  min-height: var(--touch-min);
+  display: inline-flex;
+  align-items: center;
+}
 
-  /* Kanban: full-width columns on mobile, horizontal scroll */
+/* Active press feedback — native feel */
+button:active, [role="button"]:active {
+  opacity: 0.82;
+  transition: opacity 80ms ease;
+}
+
+/* Phase color strips */
+.phase-strip-iniciacion    { background: var(--phase-iniciacion); }
+.phase-strip-planificacion { background: var(--phase-planificacion); }
+.phase-strip-ejecucion     { background: var(--phase-ejecucion); }
+.phase-strip-cierre        { background: var(--phase-cierre); }
+
+/* Chat pane animation */
+.chat-pane-enter {
+  animation: chatSlideIn var(--motion-ease) forwards;
+}
+.chat-pane-exit {
+  animation: chatSlideOut var(--motion-swift) forwards;
+}
+@keyframes chatSlideIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes chatSlideOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(8px) scale(0.98); }
+}
+
+/* Phase gate approval checkmark */
+@keyframes checkPop {
+  0%   { transform: scale(0) rotate(-10deg); opacity: 0; }
+  70%  { transform: scale(1.15) rotate(3deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg);   opacity: 1; }
+}
+.check-pop { animation: checkPop var(--motion-spring) forwards; }
+
+/* Mobile-first adjustments at 390px */
+@media (max-width: 390px) {
+  body { font-size: 14px; }
+
   .kanban-scroll {
     flex-direction: column !important;
     padding: 8px !important;
   }
 
-  /* Cards touch target */
-  button {
-    min-height: 40px;
-  }
-
-  /* Inputs */
   input, textarea, select {
-    font-size: 16px !important; /* Prevent iOS zoom on focus */
+    font-size: 16px !important;
   }
 }
 
