@@ -29,11 +29,21 @@ export default function InviteGate({ children }: { children: React.ReactNode }) 
     const [lang, setLang] = useState<'es' | 'en'>('es');
     const t = GATE_COPY[lang];
 
-    const handleAccess = () => {
-        const validCode = process.env.NEXT_PUBLIC_INVITE_CODE ?? 'KUPURI2026';
-        if (code === validCode) {
-            setAuthorized(true);
-        } else {
+    const handleAccess = async () => {
+        try {
+            const res = await fetch('/api/auth/validate-invite', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: code.trim().toUpperCase() }),
+            });
+            const data = await res.json().catch(() => ({ valid: false }));
+            if (data?.valid) {
+                setAuthorized(true);
+            } else {
+                setShake(true);
+                setTimeout(() => setShake(false), 500);
+            }
+        } catch {
             setShake(true);
             setTimeout(() => setShake(false), 500);
         }

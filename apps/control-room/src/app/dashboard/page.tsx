@@ -80,10 +80,10 @@ function SphereChip({ sphere }: { sphere: SphereStatus }) {
 
 export default function DashboardPage() {
   const [metrics, setMetrics] = useState<Metric[]>([
-    { label: "Ingresos hoy",       value: "—", sub: "MXN" },
-    { label: "Tareas completadas", value: "—", sub: "hoy" },
-    { label: "Agentes activos",    value: "—", sub: "de 9" },
-    { label: "Costo API",          value: "—", sub: "USD hoy", status: "ok" },
+    { label: "Ingresos hoy",       value: "$0", sub: "MXN" },
+    { label: "Tareas completadas", value: "0",  sub: "hoy" },
+    { label: "Agentes activos",    value: "0",  sub: "de 9" },
+    { label: "Costo API",          value: "$0", sub: "USD hoy", status: "ok" },
   ]);
   const [spheres, setSpheres] = useState<SphereStatus[]>(SPHERES_DEFAULT);
 
@@ -97,6 +97,16 @@ export default function DashboardPage() {
           const usd = d?.snapshot?.todayUsd ?? 0;
           const mxn = (usd * 17.5).toLocaleString("es-MX", { maximumFractionDigits: 0 });
           setMetrics((m) => { const u = [...m]; u[0] = { ...u[0], value: `$${mxn}`, status: "ok" }; return u; });
+        }
+      } catch {}
+
+      // Tasks completed today
+      try {
+        const tk = await fetch("/api/tasks?view=today_count");
+        if (tk.ok) {
+          const d = await tk.json();
+          const count = d?.count ?? d?.total ?? 0;
+          setMetrics((m) => { const u = [...m]; u[1] = { ...u[1], value: String(count), status: "ok" }; return u; });
         }
       } catch {}
 
