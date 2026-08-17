@@ -27,13 +27,15 @@ type Dict = {
   appName: string; appSub: string;
   tabs: { home: string; spheres: string; panorama: string; chat: string; settings: string };
   home: {
-    greeting: string; status: string; healthy: string; degraded: string; down: string;
+    greeting: string; greetingMorning: string; greetingAfternoon: string; greetingEvening: string;
+    status: string; healthy: string; degraded: string; down: string;
     supabase: string; connected: string; disconnected: string; agents: string;
     active: string; idle: string; quickActions: string; newProject: string;
     callCouncil: string; viewExpenses: string; recentProjects: string; noProjects: string;
+    loading: string;
   };
   spheres: {
-    title: string; sub: string;
+    title: string; sub: string; subCount: string;
     status: { standby: string; active: string; error: string };
     message: string; placeholder: string; send: string; thinking: string; replyError: string;
   };
@@ -58,6 +60,9 @@ const I18N: Record<Locale, Dict> = {
     tabs: { home: "Inicio", spheres: "Esferas", panorama: "Panorama", chat: "Chat", settings: "Ajustes" },
     home: {
       greeting: "Buenas",
+      greetingMorning: "Buenos días",
+      greetingAfternoon: "Buenas tardes",
+      greetingEvening: "Buenas noches",
       status: "Estado del sistema",
       healthy: "Saludable",
       degraded: "Degradado",
@@ -74,10 +79,12 @@ const I18N: Record<Locale, Dict> = {
       viewExpenses: "Ver gastos",
       recentProjects: "Proyectos recientes",
       noProjects: "Aún no hay proyectos. Crea el primero.",
+      loading: "Cargando…",
     },
     spheres: {
       title: "Esferas",
-      sub: "Tus 9 agentes · toca para conversar",
+      sub: "Tus agentes · toca para conversar",
+      subCount: "Tus {count} agentes · toca para conversar",
       status: { standby: "En espera", active: "Activa", error: "Error" },
       message: "Mensaje",
       placeholder: "Escribe a {name}…",
@@ -121,6 +128,9 @@ const I18N: Record<Locale, Dict> = {
     tabs: { home: "Home", spheres: "Spheres", panorama: "Panorama", chat: "Chat", settings: "Settings" },
     home: {
       greeting: "Hello",
+      greetingMorning: "Good morning",
+      greetingAfternoon: "Good afternoon",
+      greetingEvening: "Good evening",
       status: "System status",
       healthy: "Healthy",
       degraded: "Degraded",
@@ -137,10 +147,12 @@ const I18N: Record<Locale, Dict> = {
       viewExpenses: "View expenses",
       recentProjects: "Recent projects",
       noProjects: "No projects yet. Create the first one.",
+      loading: "Loading…",
     },
     spheres: {
       title: "Spheres",
-      sub: "Your 9 agents · tap to chat",
+      sub: "Your agents · tap to chat",
+      subCount: "Your {count} agents · tap to chat",
       status: { standby: "Standby", active: "Active", error: "Error" },
       message: "Message",
       placeholder: "Message {name}…",
@@ -247,39 +259,44 @@ function MobileTabBar({ tabs, active, onChange }: { tabs: TabItem[]; active: str
 
 // ─── Pages ───────────────────────────────────────────────────────────────────
 
-function HomePage({ t, locale, spheres, health, projects }: { t: Dict; locale: Locale; spheres: SphereStatus[]; health: HealthResponse | null; projects: Project[] }) {
+function HomePage({ t, locale, spheres, health, projects, loading, onTab }: { t: Dict; locale: Locale; spheres: SphereStatus[]; health: HealthResponse | null; projects: Project[]; loading: boolean; onTab: (id: TabId) => void }) {
   const supabaseOk = health?.components?.supabase?.connected ?? false;
   const agents = health?.components?.agents;
   const hour = new Date().getHours();
-  const greet = hour < 12 ? t.home.greeting : hour < 19 ? "Buenas tardes" : "Buenas noches";
-  const greetEn = hour < 12 ? "Good morning" : hour < 19 ? "Good afternoon" : "Good evening";
+  const greet = hour < 12 ? t.home.greetingMorning : hour < 19 ? t.home.greetingAfternoon : t.home.greetingEvening;
   return (
     <div className="mcp-page">
       <div className="mcp-hero">
-        <div className="mcp-hero-greet">{locale === "es-MX" ? `${greet}, Ivette` : `${greetEn}, Ivette`}</div>
+        <div className="mcp-hero-greet">{greet}, Ivette</div>
         <div className="mcp-hero-sub">{t.appSub}</div>
       </div>
 
       <section className="mcp-card">
         <div className="mcp-card-title">{t.home.status}</div>
-        <div className="mcp-status-row">
-          <span className={`mcp-dot ${supabaseOk ? "ok" : "bad"}`} />
-          <span>{t.home.supabase}</span>
-          <span className="mcp-status-val">{supabaseOk ? t.home.connected : t.home.disconnected}</span>
-        </div>
-        <div className="mcp-status-row">
-          <span className={`mcp-dot ${agents && agents.active > 0 ? "ok" : "warn"}`} />
-          <span>{t.home.agents}</span>
-          <span className="mcp-status-val">{agents ? `${agents.active} ${t.home.active} · ${agents.idle} ${t.home.idle}` : "—"}</span>
-        </div>
+        {loading ? (
+          <div className="mcp-skeleton" style={{ height: 36 }} />
+        ) : (
+          <>
+            <div className="mcp-status-row">
+              <span className={`mcp-dot ${supabaseOk ? "ok" : "bad"}`} />
+              <span>{t.home.supabase}</span>
+              <span className="mcp-status-val">{supabaseOk ? t.home.connected : t.home.disconnected}</span>
+            </div>
+            <div className="mcp-status-row">
+              <span className={`mcp-dot ${agents && agents.active > 0 ? "ok" : "warn"}`} />
+              <span>{t.home.agents}</span>
+              <span className="mcp-status-val">{agents ? `${agents.active} ${t.home.active} · ${agents.idle} ${t.home.idle}` : "—"}</span>
+            </div>
+          </>
+        )}
       </section>
 
       <section className="mcp-card">
         <div className="mcp-card-title">{t.home.quickActions}</div>
         <div className="mcp-actions">
-          <Link href="/panorama/proyecto/nuevo" className="mcp-action"><span>📁</span><span>{t.home.newProject}</span></Link>
-          <Link href="/chat" className="mcp-action"><span>🟣</span><span>{t.home.callCouncil}</span></Link>
-          <Link href="/panorama/gastos" className="mcp-action"><span>💸</span><span>{t.home.viewExpenses}</span></Link>
+          <button type="button" className="mcp-action" onClick={() => onTab("panorama")}><span>📁</span><span>{t.home.newProject}</span></button>
+          <button type="button" className="mcp-action" onClick={() => onTab("chat")}><span>🟣</span><span>{t.home.callCouncil}</span></button>
+          <button type="button" className="mcp-action" onClick={() => onTab("panorama")}><span>💸</span><span>{t.home.viewExpenses}</span></button>
         </div>
       </section>
 
@@ -304,13 +321,18 @@ function HomePage({ t, locale, spheres, health, projects }: { t: Dict; locale: L
   );
 }
 
-function SpheresPage({ t, spheres, onChat }: { t: Dict; spheres: SphereStatus[]; onChat: (id: string) => void }) {
+function SpheresPage({ t, spheres, onChat, loading }: { t: Dict; spheres: SphereStatus[]; onChat: (id: string) => void; loading: boolean }) {
   return (
     <div className="mcp-page">
       <div className="mcp-section-head">
         <div className="mcp-section-title">{t.spheres.title}</div>
-        <div className="mcp-section-sub">{t.spheres.sub}</div>
+        <div className="mcp-section-sub">{t.spheres.subCount.replace("{count}", String(spheres.length || 9))}</div>
       </div>
+      {loading ? (
+        <div className="mcp-skeleton" style={{ height: 64 }} />
+      ) : spheres.length === 0 ? (
+        <div className="mcp-empty">{t.home.loading}</div>
+      ) : (
       <ul className="mcp-spheres">
         {spheres.map(s => (
           <li key={s.id} className="mcp-sphere" onClick={() => onChat(s.id)} role="button" tabIndex={0}>
@@ -323,6 +345,7 @@ function SpheresPage({ t, spheres, onChat }: { t: Dict; spheres: SphereStatus[];
           </li>
         ))}
       </ul>
+      )}
     </div>
   );
 }
@@ -373,6 +396,13 @@ function ChatPage({ t, spheres, initialSphere }: { t: Dict; spheres: SphereStatu
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const threadRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to the latest message when msgs change or while thinking.
+  useEffect(() => {
+    const el = threadRef.current;
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }, [msgs, busy]);
   const sphere = spheres.find(s => s.id === sphereId);
 
   async function send() {
@@ -405,7 +435,7 @@ function ChatPage({ t, spheres, initialSphere }: { t: Dict; spheres: SphereStatu
           {spheres.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select>
       </div>
-      <div className="mcp-chat-thread">
+      <div className="mcp-chat-thread" ref={threadRef}>
         {msgs.length === 0 && <div className="mcp-empty">{t.chat.sub}</div>}
         {msgs.map((m, i) => (
           <div key={i} className={`mcp-bubble ${m.role}`}>
@@ -478,6 +508,7 @@ export default function MobileCockpit() {
   const [spheres, setSpheres] = useState<SphereStatus[]>([]);
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const t = I18N[locale];
 
@@ -495,6 +526,7 @@ export default function MobileCockpit() {
         if (hRes) setHealth(hRes);
         if (pRes?.projects) setProjects(pRes.projects);
       } catch { /* keep empty */ }
+      finally { if (!cancelled) setLoading(false); }
     })();
     return () => { cancelled = true; };
   }, []);
@@ -515,8 +547,8 @@ export default function MobileCockpit() {
       </header>
 
       <main className="mcp-main">
-        {tab === "home" && <HomePage t={t} locale={locale} spheres={spheres} health={health} projects={projects} />}
-        {tab === "spheres" && <SpheresPage t={t} spheres={spheres} onChat={(id) => { setChatSphere(id); setTab("chat"); }} />}
+        {tab === "home" && <HomePage t={t} locale={locale} spheres={spheres} health={health} projects={projects} loading={loading} onTab={setTab} />}
+        {tab === "spheres" && <SpheresPage t={t} spheres={spheres} onChat={(id) => { setChatSphere(id); setTab("chat"); }} loading={loading} />}
         {tab === "panorama" && <PanoramaPage t={t} projects={projects} locale={locale} />}
         {tab === "chat" && <ChatPage t={t} spheres={spheres} initialSphere={chatSphere} />}
         {tab === "settings" && <SettingsPage t={t} locale={locale} setLocale={setLocale} />}
