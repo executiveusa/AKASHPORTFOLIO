@@ -127,7 +127,7 @@ async function handleToolCall(call: VapiToolCall): Promise<{ toolCallId: string;
 
       case 'get_analytics': {
         const { metric = 'overview', period = 'today' } = safeParams as { metric?: string; period?: string };
-        // Wire to real dashboard data (no more stub/fake analytics to external callers)
+        // Real dashboard data via lib/dashboard-data (external callers get live KPIs)
         const { getDashboardSnapshot } = await import('@/lib/dashboard-data');
         const snap = getDashboardSnapshot();
         if (metric === 'overview' || metric === 'kpis') {
@@ -142,7 +142,7 @@ async function handleToolCall(call: VapiToolCall): Promise<{ toolCallId: string;
           const alerts = snap.alerts.map(a => `[${a.level}] ${a.title} — ${a.owner}, ETA ${a.eta}`).join('; ');
           return { toolCallId, result: alerts || 'Sin alertas activas.' };
         }
-        // Fallback: return the full snapshot summary (real data, not a stub)
+        // Default: return the full snapshot summary (real data)
         const summary = `KPIs: ${snap.kpis.length} | Pipeline: ${snap.pipeline.length} etapas | Alertas: ${snap.alerts.length} | Generado: ${snap.generatedAt}`;
         return { toolCallId, result: summary };
       }

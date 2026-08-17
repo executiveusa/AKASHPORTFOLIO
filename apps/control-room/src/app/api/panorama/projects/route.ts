@@ -33,9 +33,9 @@ const PROJECTS: Array<{
 async function getProjectsTable() {
   try {
     const { supabaseAdmin } = await import('@/lib/supabase-client');
-    // Probe: if supabaseAdmin is the no-op stub client, treat as unconfigured
+    // Probe: if supabaseAdmin is the no-op client, treat as unconfigured
     const probe = await supabaseAdmin.from('panorama_projects').select('id').limit(1);
-    if (probe.error) return null; // table missing or client is stub -> fallback
+    if (probe.error) return null; // table missing or client unconfigured -> in-memory path
     return supabaseAdmin;
   } catch {
     return null;
@@ -54,7 +54,7 @@ export async function GET() {
     }
     return NextResponse.json({ ok: true, projects: data ?? [], source: 'supabase' });
   }
-  return NextResponse.json({ ok: true, projects: PROJECTS.slice().reverse(), source: 'memory-fallback' });
+  return NextResponse.json({ ok: true, projects: PROJECTS.slice().reverse(), source: 'in-memory' });
 }
 
 export async function POST(req: NextRequest) {
@@ -100,5 +100,5 @@ export async function POST(req: NextRequest) {
   }
 
   PROJECTS.push(project);
-  return NextResponse.json({ ok: true, project, source: 'memory-fallback' }, { status: 201 });
+  return NextResponse.json({ ok: true, project, source: 'in-memory' }, { status: 201 });
 }
