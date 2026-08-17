@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 /**
  * POST /api/panorama/expenses/ocr
@@ -8,6 +9,10 @@ import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;

@@ -127,11 +127,24 @@ async function handleToolCall(call: VapiToolCall): Promise<{ toolCallId: string;
 
       case 'get_analytics': {
         const { metric = 'overview', period = 'today' } = safeParams as { metric?: string; period?: string };
-        // Return stub analytics — wire to real dashboard-data.ts as needed
-        return {
-          toolCallId,
-          result: `Métricas de ${metric} para ${period}: datos en procesamiento. Revisa el dashboard para detalles completos.`,
-        };
+        // Wire to real dashboard data (no more stub/fake analytics to external callers)
+        const { getDashboardSnapshot } = await import('@/lib/dashboard-data');
+        const snap = getDashboardSnapshot();
+        if (metric === 'overview' || metric === 'kpis') {
+          const kpis = snap.kpis.map(k => `${k.label}: ${k.value} (${k.direction === 'up' ? '+' : '−'}${k.change})`).join('; ');
+          return { toolCallId, result: `Resumen (${period}): ${kpis}. Generado: ${snap.generatedAt}` };
+        }
+        if (metric === 'pipeline') {
+          const stages = snap.pipeline.map(p => `${p.stage}: ${p.count} (${p.owners.join(', ') || 'sin dueño'})`).join('; ');
+          return { toolCallId, result: `Pipeline: ${stages}` };
+        }
+        if (metric === 'alerts') {
+          const alerts = snap.alerts.map(a => `[${a.level}] ${a.title} — ${a.owner}, ETA ${a.eta}`).join('; ');
+          return { toolCallId, result: alerts || 'Sin alertas activas.' };
+        }
+        // Fallback: return the full snapshot summary (real data, not a stub)
+        const summary = `KPIs: ${snap.kpis.length} | Pipeline: ${snap.pipeline.length} etapas | Alertas: ${snap.alerts.length} | Generado: ${snap.generatedAt}`;
+        return { toolCallId, result: summary };
       }
 
       default:

@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 export const runtime = 'nodejs';
 
 // POST: Register for beta
 export async function POST(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   try {
     const body = await req.json();
     const { platform, identifier } = body;
@@ -37,6 +42,10 @@ export async function POST(req: NextRequest) {
 
 // GET: Get beta statistics
 export async function GET(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   try {
     return NextResponse.json({
       statistics: {
@@ -56,6 +65,10 @@ export async function GET(req: NextRequest) {
 
 // PUT: Redeem invite code
 export async function PUT(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   try {
     const body = await req.json();
     const { code, email } = body;

@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { UserNav } from "@/components/UserNav";
 
@@ -114,10 +114,39 @@ function TeacherBox({ tip, onAsk }: { tip: PMDecision; onAsk: () => void }) {
 
 export default function PanoramaPage() {
   const [askOpen, setAskOpen] = useState(false);
+  const [projects, setProjects] = useState<Project[]>(SEED_PROJECTS);
+
+  // Fetch live projects from the API on mount; fall back to seed data on error.
+  // API returns canonical rows (panorama_projects table when Supabase is
+  // configured, in-memory fallback otherwise). Newly created projects appear
+  // here instead of vanishing into the void.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/panorama/projects", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json();
+        const live: Project[] = (data.projects ?? []).map((p: Record<string, unknown>) => ({
+          id: String(p.id ?? ""),
+          name: String(p.name ?? "Sin nombre"),
+          phase: (p.phase as Phase) ?? "iniciacion",
+          progress: Number(p.progress ?? 0),
+          sponsor: String(p.sponsor ?? "Ivette"),
+          riskLevel: ((p.risk_level ?? p.riskLevel ?? "low") as Project["riskLevel"]),
+          dueDate: undefined,
+        }));
+        if (!cancelled && live.length > 0) setProjects(live);
+      } catch {
+        // keep seed fallback
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const grouped = PHASES.map((ph) => ({
     ...ph,
-    projects: SEED_PROJECTS.filter((p) => p.phase === ph.id),
+    projects: projects.filter((p) => p.phase === ph.id),
   }));
 
   return (

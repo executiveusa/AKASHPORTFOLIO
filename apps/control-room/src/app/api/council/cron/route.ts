@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireCron, toErrorResponse } from '@/lib/auth/guards';
 
 /**
  * Council Cron Endpoint — triggered by Vercel Cron or external scheduler
@@ -79,6 +80,10 @@ function buildAgenda(type: MeetingType): string[] {
 }
 
 export async function POST(req: NextRequest) {
+  try { requireCron(req); } catch (e) { return toErrorResponse(e); }
+
+  try { requireCron(req); } catch (e) { return toErrorResponse(e); }
+
   // Verify this is coming from our scheduler (basic shared secret)
   const authHeader = req.headers.get('authorization');
   const cronSecret = process.env.CRON_SECRET;
@@ -139,7 +144,11 @@ export async function POST(req: NextRequest) {
 }
 
 // GET: Next scheduled meeting info
-export async function GET() {
+export async function GET(req: NextRequest) {
+  try { requireCron(req); } catch (e) { return toErrorResponse(e); }
+
+  try { requireCron(req); } catch (e) { return toErrorResponse(e); }
+
   const now = new Date();
   const mxNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Mexico_City' }));
 

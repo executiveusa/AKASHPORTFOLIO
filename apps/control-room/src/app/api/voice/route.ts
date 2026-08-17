@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 export const runtime = 'nodejs';
 
@@ -22,6 +23,10 @@ const audioCache = new Map<string, VoiceSynthesis>();
 
 // POST: Synthesize text to speech with avatar lip-sync
 export async function POST(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   try {
     const body = await req.json();
     const { text, voiceId = 'ivette-primary', language = 'es' } = body;
@@ -59,6 +64,10 @@ export async function POST(req: NextRequest) {
 
 // GET: Stream audio or fetch synthesis info
 export async function GET(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   try {
     const id = req.nextUrl.searchParams.get('id');
 

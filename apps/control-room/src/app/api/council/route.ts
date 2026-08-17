@@ -6,6 +6,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseClient } from '@/lib/supabase-client';
+import { requireAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 export const runtime = 'nodejs';
 
@@ -21,6 +22,10 @@ interface CouncilMeeting {
 
 // POST: Initiate a new council meeting
 export async function POST(req: NextRequest) {
+  try { await requireAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireAdmin(); } catch (e) { return toErrorResponse(e); }
+
   try {
     const body = await req.json();
     const { topic, participants, context } = body;
@@ -71,6 +76,10 @@ export async function POST(req: NextRequest) {
 
 // GET: Fetch active council meetings or specific meeting
 export async function GET(req: NextRequest) {
+  try { await requireAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireAdmin(); } catch (e) { return toErrorResponse(e); }
+
   try {
     const meetingId = req.nextUrl.searchParams.get('meetingId');
 
@@ -111,6 +120,10 @@ export async function GET(req: NextRequest) {
 
 // PUT: Update council meeting status
 export async function PUT(req: NextRequest) {
+  try { await requireAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireAdmin(); } catch (e) { return toErrorResponse(e); }
+
   try {
     const body = await req.json();
     const { meetingId, status, decision } = body;

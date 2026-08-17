@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { synthesizeSphereVoice } from '@/lib/mercury-voice';
 import type { SphereAgentId } from '@/shared/council-events';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 const VALID_AGENT_IDS = new Set<string>([
   'synthia', 'alex', 'cazadora', 'forjadora', 'seductora',
@@ -18,6 +19,8 @@ const VALID_AGENT_IDS = new Set<string>([
 ]);
 
 export async function POST(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   let body: { agentId?: string; text?: string };
 
   try {

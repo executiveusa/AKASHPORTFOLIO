@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 /**
  * Currency Arbitrage Agent — ALEX™ Financial Scout
@@ -141,6 +142,10 @@ function buildBriefText(
 }
 
 export async function GET(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   const { searchParams } = new URL(req.url);
   const format = searchParams.get('format') ?? 'json';
 

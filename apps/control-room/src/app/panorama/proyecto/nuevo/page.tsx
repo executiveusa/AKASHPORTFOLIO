@@ -133,17 +133,28 @@ export default function NuevoProyectoPage() {
     setData((d) => { const m = [...d.milestones]; m[i] = { ...m[i], [k]: v }; return { ...d, milestones: m }; });
   }
 
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
   async function submit() {
     setSaving(true);
+    setSubmitError(null);
     try {
-      await fetch("/api/panorama/projects", {
+      const res = await fetch("/api/panorama/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-    } catch {}
-    setSaving(false);
-    router.push("/panorama");
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        setSubmitError(err.error || err.detail || `Error ${res.status}: no se pudo crear el proyecto`);
+        setSaving(false);
+        return;
+      }
+      router.push("/panorama");
+    } catch (e) {
+      setSubmitError("No se pudo conectar con el servidor. Revisa tu conexión e intenta de nuevo.");
+      setSaving(false);
+    }
   }
 
   const teacher = TEACHERS[step - 1];

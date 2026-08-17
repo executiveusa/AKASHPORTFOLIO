@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getRevenueSnapshot, getActiveStrategies, dailyRevenueScan } from "@/lib/revenue-agent";
 import { auth } from "../../../../auth";
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 /**
  * GET /api/revenue — Revenue snapshot + strategies
  */
 export async function GET(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -27,6 +32,10 @@ export async function GET(req: NextRequest) {
  * POST /api/revenue — Trigger daily revenue scan
  */
 export async function POST(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

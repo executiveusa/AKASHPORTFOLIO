@@ -24,12 +24,17 @@ import {
   type HandConfig,
   type ChannelPlatform,
 } from '@/lib/openfang';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 export const runtime = 'nodejs';
 
 // ─── GET ──────────────────────────────────────────────────────────────────────
 
 export async function GET(request: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   const { searchParams } = new URL(request.url);
   const handId = searchParams.get('hand');
 
@@ -80,6 +85,10 @@ export async function GET(request: NextRequest) {
 // ─── POST ─────────────────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   let body: Record<string, unknown>;
   try {
     body = await request.json();

@@ -1,10 +1,15 @@
 import { NextResponse } from 'next/server';
 import { synthiaObservability } from '@/lib/observability';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 /**
  * SSE Endpoint for real-time telemetry streaming
  */
 export async function GET() {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
     const encoder = new TextEncoder();
 
     const stream = new ReadableStream({

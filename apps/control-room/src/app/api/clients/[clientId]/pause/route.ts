@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-client'
 import { synthiaOS } from '@/lib/synthia-os-client'
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ clientId: string }> }
 ) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   const { clientId } = await params
   const supabase = supabaseAdmin
 

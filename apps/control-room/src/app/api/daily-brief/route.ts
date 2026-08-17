@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateDailyBrief, BriefData } from '@/lib/daily-brief';
 import { supabaseClient, supabaseAdmin } from '@/lib/supabase-client';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 export const runtime = 'nodejs';
 
@@ -120,6 +121,10 @@ async function fetchYesterdayRevenue(userId: string): Promise<number> {
 }
 
 export async function GET(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   try {
     const userId = req.nextUrl.searchParams.get('userId');
     const language = (req.nextUrl.searchParams.get('language') as 'es' | 'en') || 'es';

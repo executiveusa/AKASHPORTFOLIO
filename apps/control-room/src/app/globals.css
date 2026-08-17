@@ -192,3 +192,180 @@ body {
 }
 
 .theater-title { font-family: 'Playfair Display', Georgia, 'Times New Roman', serif; }
+
+/* ─── Mobile Cockpit (.mcp-*) — /m route ───────────────────────────────────
+   A true mobile app shell: bottom tab bar, safe-area insets, touch targets.
+   Scoped so it never clashes with the desktop cockpit chrome.            */
+
+.mcp-shell {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  background: #0a0c10;
+  color: #eef2f8;
+  font-family: var(--font-sans);
+  /* respect notches + home indicators on iPhone/Android */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.mcp-topbar {
+  flex-shrink: 0;
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid #263044;
+  background: #10141c;
+}
+.mcp-topbar-title { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; }
+.mcp-topbar-sub { font-size: 11px; color: #6b7689; margin-top: 1px; }
+
+.mcp-main {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px 16px 96px; /* bottom pad clears the tab bar */
+}
+
+.mcp-page { display: flex; flex-direction: column; gap: 14px; }
+
+/* Hero */
+.mcp-hero { padding: 6px 2px 10px; }
+.mcp-hero-greet { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+.mcp-hero-sub { font-size: 13px; color: #a9b4c5; margin-top: 2px; }
+
+/* Section heads */
+.mcp-section-head { padding: 4px 2px 8px; position: relative; }
+.mcp-section-title { font-size: 22px; font-weight: 800; letter-spacing: -0.01em; }
+.mcp-section-sub { font-size: 12.5px; color: #a9b4c5; margin-top: 2px; }
+.mcp-fab {
+  position: absolute; top: 2px; right: 0;
+  padding: 8px 14px; border-radius: 999px;
+  background: #7c5cff; color: #fff; font-size: 13px; font-weight: 600;
+  text-decoration: none;
+}
+
+/* Cards */
+.mcp-card {
+  background: #151b26; border: 1px solid #263044; border-radius: 14px;
+  padding: 16px;
+}
+.mcp-card-title {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: #6b7689; margin-bottom: 12px;
+}
+
+/* Status rows */
+.mcp-status-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; font-size: 14px; }
+.mcp-status-row + .mcp-status-row { border-top: 1px solid #1b2332; }
+.mcp-status-val { margin-left: auto; color: #a9b4c5; font-size: 13px; }
+.mcp-dot { width: 9px; height: 9px; border-radius: 50%; background: #6b7689; flex-shrink: 0; }
+.mcp-dot.ok { background: #34d399; box-shadow: 0 0 8px #34d39966; }
+.mcp-dot.bad { background: #f87171; }
+.mcp-dot.warn { background: #fbbf24; }
+
+/* Quick actions */
+.mcp-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.mcp-action {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 14px 6px; border-radius: 12px; background: #1b2332;
+  text-decoration: none; color: #eef2f8; font-size: 12px; font-weight: 500;
+  min-height: 72px; justify-content: center;
+}
+.mcp-action span:first-child { font-size: 22px; }
+.mcp-action:active { background: #263044; }
+
+/* Lists */
+.mcp-list { list-style: none; padding: 0; margin: 0; }
+.mcp-list-row { border-top: 1px solid #1b2332; }
+.mcp-list-row:first-child { border-top: none; }
+.mcp-list-link { display: flex; flex-direction: column; gap: 2px; padding: 11px 0; text-decoration: none; color: inherit; }
+.mcp-list-link:active { opacity: 0.7; }
+.mcp-list-name { font-size: 14.5px; font-weight: 600; }
+.mcp-list-meta { font-size: 12px; color: #a9b4c5; }
+
+.mcp-empty { font-size: 13px; color: #6b7689; padding: 8px 0; }
+
+/* Spheres list */
+.mcp-spheres { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.mcp-sphere {
+  display: flex; align-items: center; gap: 12px; padding: 14px;
+  background: #151b26; border: 1px solid #263044; border-radius: 14px;
+  cursor: pointer; min-height: 64px;
+}
+.mcp-sphere:active { background: #1b2332; }
+.mcp-sphere-orb { width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; }
+.mcp-sphere-info { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+.mcp-sphere-name { font-size: 14.5px; font-weight: 700; }
+.mcp-sphere-role { font-size: 11.5px; color: #a9b4c5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mcp-sphere-status { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; flex-shrink: 0; }
+.mcp-sphere-status.standby { background: #1b2332; color: #a9b4c5; }
+.mcp-sphere-status.active { background: #34d39922; color: #34d399; }
+.mcp-sphere-status.error { background: #f8717122; color: #f87171; }
+
+/* Chat */
+.mcp-chat-page { display: flex; flex-direction: column; height: 100%; padding: 0; }
+.mcp-chat-header { padding: 12px 16px; border-bottom: 1px solid #263044; flex-shrink: 0; }
+.mcp-select {
+  width: 100%; padding: 11px 12px; border-radius: 10px; background: #151b26;
+  border: 1px solid #33405a; color: #eef2f8; font-size: 14px; appearance: none;
+}
+.mcp-chat-thread { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.mcp-bubble { max-width: 82%; padding: 10px 13px; border-radius: 14px; font-size: 14px; line-height: 1.45; }
+.mcp-bubble.user { align-self: flex-end; background: #7c5cff; color: #fff; border-bottom-right-radius: 4px; }
+.mcp-bubble.assistant { align-self: flex-start; background: #1b2332; border: 1px solid #263044; border-bottom-left-radius: 4px; }
+.mcp-bubble-name { font-size: 11px; font-weight: 700; color: #d4af37; margin-bottom: 3px; }
+.mcp-bubble-text { white-space: pre-wrap; word-wrap: break-word; }
+.mcp-chat-err { font-size: 12px; color: #f87171; padding: 6px 0; }
+.mcp-chat-input {
+  flex-shrink: 0; display: flex; gap: 8px; padding: 10px 12px 14px;
+  border-top: 1px solid #263044; background: #10141c;
+  padding-bottom: calc(14px + env(safe-area-inset-bottom));
+}
+.mcp-input {
+  flex: 1; padding: 11px 14px; border-radius: 999px; background: #151b26;
+  border: 1px solid #33405a; color: #eef2f8; font-size: 14px; min-width: 0;
+}
+.mcp-send {
+  padding: 11px 18px; border-radius: 999px; background: #7c5cff; color: #fff;
+  font-size: 14px; font-weight: 600; border: none; flex-shrink: 0;
+}
+.mcp-send:disabled { opacity: 0.4; }
+
+/* Settings */
+.mcp-radio-group { display: flex; flex-direction: column; gap: 8px; }
+.mcp-radio {
+  display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+  border-radius: 10px; background: #1b2332; font-size: 14px; cursor: pointer;
+}
+.mcp-radio.on { background: #7c5cff22; border: 1px solid #7c5cff66; }
+.mcp-radio input { accent-color: #7c5cff; width: 18px; height: 18px; }
+.mcp-note { font-size: 12px; color: #6b7689; margin-top: 10px; }
+
+/* ─── Bottom Tab Bar ─────────────────────────────────────────────────────── */
+.mcp-tabbar {
+  position: relative; flex-shrink: 0; display: flex;
+  background: #10141c; border-top: 1px solid #263044;
+  padding: 6px 0 calc(6px + env(safe-area-inset-bottom));
+}
+.mcp-tabbar-border {
+  position: absolute; top: 0; left: 0; height: 3px;
+  width: 56px; border-radius: 0 0 999px 999px; will-change: transform;
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.mcp-tab {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 8px 0 6px; background: none; border: none; color: #6b7689;
+  cursor: pointer; min-height: 52px; /* >= 44px touch target */
+}
+.mcp-tab-icon { font-size: 19px; line-height: 1; }
+.mcp-tab-label { font-size: 10px; font-weight: 600; letter-spacing: 0.01em; }
+.mcp-tab.is-active { color: #eef2f8; }
+.mcp-tab.is-active .mcp-tab-icon { transform: translateY(-1px); }
+
+/* On wider screens, keep it phone-sized and centered */
+@media (min-width: 481px) {
+  .mcp-shell { border-left: 1px solid #1b2332; border-right: 1px solid #1b2332; }
+}

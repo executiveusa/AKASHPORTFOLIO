@@ -14,6 +14,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { callLLM, type LLMMessage } from '@/lib/litellm-gateway'
+import { requireCron, toErrorResponse } from '@/lib/auth/guards';
 
 const CRON_SECRET = process.env.CRON_SECRET ?? ''
 
@@ -114,7 +115,11 @@ async function runAutonomousCouncil(trigger: CouncilTrigger): Promise<string> {
 // ---------------------------------------------------------------------------
 // GET — health check / status
 // ---------------------------------------------------------------------------
-export async function GET() {
+export async function GET(req: NextRequest) {
+  try { requireCron(req); } catch (e) { return toErrorResponse(e); }
+
+  try { requireCron(req); } catch (e) { return toErrorResponse(e); }
+
   return NextResponse.json({
     route: '/api/council/heartbeat',
     status: 'ready',
@@ -127,6 +132,10 @@ export async function GET() {
 // POST — manual trigger or cron invocation
 // ---------------------------------------------------------------------------
 export async function POST(req: NextRequest) {
+  try { requireCron(req); } catch (e) { return toErrorResponse(e); }
+
+  try { requireCron(req); } catch (e) { return toErrorResponse(e); }
+
   // Validate cron secret
   const authHeader = req.headers.get('authorization')
   if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}`) {

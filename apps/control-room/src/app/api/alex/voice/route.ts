@@ -5,10 +5,15 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   const apiKey = process.env.ELEVEN_LABS_API_KEY;
   if (!apiKey) {
     return NextResponse.json({ error: 'ElevenLabs not configured' }, { status: 503 });
@@ -72,6 +77,10 @@ export async function POST(req: NextRequest) {
  * GET /api/alex/voice/voices — list available ElevenLabs voices
  */
 export async function GET() {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   const apiKey = process.env.ELEVEN_LABS_API_KEY;
   if (!apiKey) {
     return NextResponse.json({ error: 'ElevenLabs not configured' }, { status: 503 });

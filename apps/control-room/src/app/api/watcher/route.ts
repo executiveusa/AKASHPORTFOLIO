@@ -14,12 +14,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseClient } from '@/lib/supabase-client';
 import { getBudgetStatus, getBudgetStatusAsync, getAgentCosts } from '@/lib/litellm-gateway';
 import { auth } from '../../../../auth';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 // ---------------------------------------------------------------------------
 // GET /api/watcher — route based on ?view= param
 // ---------------------------------------------------------------------------
 
 export async function GET(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -176,6 +181,10 @@ async function getDirectives(): Promise<NextResponse> {
 type AlertSeverity = 'INFO' | 'WARN' | 'ALERT' | 'CRITICAL';
 
 export async function POST(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { synthiaObservability } from '@/lib/observability';
 import { getBudgetStatusAsync, getLoopGuardStatus } from '@/lib/litellm-gateway';
 import { listReports } from '@/lib/ops-reports';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 export const runtime = 'nodejs';
 
@@ -20,6 +21,10 @@ export const runtime = 'nodejs';
 // ---------------------------------------------------------------------------
 
 export async function GET(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   const view = req.nextUrl.searchParams.get('view') ?? 'events';
   const limit = Math.min(parseInt(req.nextUrl.searchParams.get('limit') ?? '50', 10), 200);
   const typeFilter = req.nextUrl.searchParams.get('type');
@@ -63,6 +68,10 @@ export async function GET(req: NextRequest) {
 // ---------------------------------------------------------------------------
 
 export async function POST(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   let body: Record<string, unknown>;
   try {
     body = await req.json();

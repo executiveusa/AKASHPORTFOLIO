@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { callLLM } from '@/lib/litellm-gateway';
 import { secrets } from '@/lib/secrets-client';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -46,7 +47,11 @@ Formato: 3 secciones (Situación, Decisiones, Próximos pasos). Máximo 300 pala
 Tono: amigable, CDMX, no técnico. Celebra el progreso. Máximo 2 párrafos.`,
 };
 
-export async function POST(req: NextRequest): Promise<NextResponse> {
+export async function POST(req: NextRequest): Promise<NextResponse | Response> {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   // Validate CRON_SECRET or any auth header to prevent abuse
   const cronSecret = secrets.vapiPrivateKey() ? process.env.CRON_SECRET : null;
   const authHeader = req.headers.get('authorization');

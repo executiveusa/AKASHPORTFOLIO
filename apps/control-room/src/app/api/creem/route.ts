@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyCreemWebhook, parseCreemWebhookEvent } from "@/lib/creem-client";
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 /**
  * POST /api/creem — Creem.io webhook receiver
  * Handles checkout.completed, payment.succeeded, etc.
  */
 export async function POST(request: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   const body = await request.text();
   const signature = request.headers.get("x-creem-signature") || "";
 
@@ -41,6 +46,10 @@ export async function POST(request: NextRequest) {
  * GET /api/creem — Status check
  */
 export async function GET() {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   return NextResponse.json({
     status: "connected",
     provider: "creem.io",

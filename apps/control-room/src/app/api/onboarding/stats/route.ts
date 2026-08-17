@@ -7,6 +7,7 @@
  */
 
 import { NextResponse } from 'next/server';
+import { requireUser, toErrorResponse } from '@/lib/auth/guards';
 
 export const runtime = 'nodejs';
 export const revalidate = 60; // ISR: regenerate every 60 s
@@ -18,7 +19,11 @@ interface FunnelRow {
   count: number;
 }
 
-export async function GET(): Promise<NextResponse> {
+export async function GET(): Promise<NextResponse | Response> {
+  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+
   const supabaseUrl = (process.env.SUPABASE_URL ?? '').replace(/\/$/, '');
   const serviceKey  = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
 

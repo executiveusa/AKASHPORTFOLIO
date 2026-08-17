@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { sanitizeText, sanitizeForLLM } from '@/lib/sanitize';
+import { requireUser, toErrorResponse } from '@/lib/auth/guards';
 
 interface OnboardingAnswers {
   biz: string;
@@ -35,7 +36,11 @@ function recommendSpheres(answers: OnboardingAnswers): string[] {
   return [...new Set(spheres)];
 }
 
-export async function POST(req: NextRequest): Promise<NextResponse> {
+export async function POST(req: NextRequest): Promise<NextResponse | Response> {
+  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+
   const session = await auth();
   if (!session?.user?.email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

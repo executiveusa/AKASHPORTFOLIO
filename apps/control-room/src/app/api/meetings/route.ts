@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 export const runtime = 'nodejs';
 
@@ -22,6 +23,10 @@ const observations = new Map<string, MeetingObservation>();
 
 // POST: Log meeting observation
 export async function POST(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   try {
     const body = await req.json();
     const { meetingId, transcript, decisions } = body;
@@ -49,6 +54,10 @@ export async function POST(req: NextRequest) {
 
 // GET: Fetch meeting observations
 export async function GET(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   try {
     const meetingId = req.nextUrl.searchParams.get('meetingId');
     const limit = parseInt(req.nextUrl.searchParams.get('limit') || '10');
@@ -71,6 +80,10 @@ export async function GET(req: NextRequest) {
 
 // PUT: Update observation with new decisions
 export async function PUT(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   try {
     const body = await req.json();
     const { observationId, decisions } = body;

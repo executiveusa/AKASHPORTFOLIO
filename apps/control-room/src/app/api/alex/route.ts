@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createAlexAgent, AlexContext } from '@/lib/alex-agent';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 export const runtime = 'nodejs';
 
@@ -20,6 +21,10 @@ interface AlexRequest {
 }
 
 export async function POST(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   try {
     const body: AlexRequest = await req.json();
 
@@ -78,6 +83,10 @@ export async function POST(req: NextRequest) {
  * Health check endpoint for ALEX™ API
  */
 export async function GET() {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   return NextResponse.json({
     status: 'ok',
     agent: 'ALEX™',

@@ -10,6 +10,7 @@ import { synthiaObservability } from '../../../lib/observability';
 import { agentMail } from '../../../lib/agent-mail';
 import * as fs from 'fs';
 import * as path from 'path';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 const coachingHistory: Array<{
   id: string;
@@ -22,6 +23,10 @@ const coachingHistory: Array<{
 }> = [];
 
 export async function POST(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   try {
     const { agentId, content, contentType, context } = await req.json();
 
@@ -123,6 +128,10 @@ Responde en JSON:
 }
 
 export async function GET(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   const { searchParams } = new URL(req.url);
   const agentId = searchParams.get('agentId');
   const limit = parseInt(searchParams.get('limit') || '20');

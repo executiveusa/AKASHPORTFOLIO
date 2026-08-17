@@ -6,11 +6,16 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { meetingEmitter } from '../../../../lib/meeting-room';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream({

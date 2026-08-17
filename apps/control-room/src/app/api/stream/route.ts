@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 export const runtime = 'nodejs';
 
@@ -28,6 +29,10 @@ function checkRateLimit(clientId: string, limit: number = 100, windowMs: number 
 
 // POST: Stream tokens from Claude API
 export async function POST(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   try {
     const clientId = req.headers.get('x-client-id') || req.headers.get('x-forwarded-for') || 'anonymous';
 

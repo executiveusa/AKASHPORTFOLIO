@@ -6,10 +6,15 @@
  * Falls back to a structured mock if the service is not running.
  */
 import { NextRequest, NextResponse } from "next/server";
+import { requireUser, toErrorResponse } from '@/lib/auth/guards';
 
 const POMELLI_BASE = process.env.POMELLI_API_URL ?? "http://localhost:8811";
 
 export async function POST(req: NextRequest) {
+  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+
   let body: { url?: string };
   try {
     body = await req.json() as { url?: string };

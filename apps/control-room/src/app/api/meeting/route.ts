@@ -6,8 +6,13 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { runMeeting, getMeetings, getMeeting, getTodaysMeetings, MeetingType } from '../../../lib/meeting-room';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 export async function GET(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');
   const today = searchParams.get('today') === 'true';
@@ -27,6 +32,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   try {
     const { type } = await req.json();
     const validTypes: MeetingType[] = ['morning_standup', 'midday_pulse', 'evening_wrap'];

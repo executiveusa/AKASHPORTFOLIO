@@ -13,6 +13,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { vibeIngest } from '@/lib/vibe-graph';
 import type { SphereAgentId } from '@/shared/council-events';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 // Valid callers — all spheres can request design work
 const VALID_CALLERS = [
@@ -53,6 +54,10 @@ interface DispatchBody {
 }
 
 export async function POST(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   let body: DispatchBody;
 
   try {
@@ -172,6 +177,10 @@ Body:
 }
 
 export async function GET(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   // Return active design tasks from Vibe Graph
   const { vibeIngest: _, getVibeContext } = await import('@/lib/vibe-graph');
   const ctx = await getVibeContext('synthia' as SphereAgentId);

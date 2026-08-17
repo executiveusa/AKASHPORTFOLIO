@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 /**
  * GET  /api/panorama/expenses — list expenses
  * POST /api/panorama/expenses — create expense
+ *
+ * Persistence: Supabase (panorama_expenses table) when configured; falls back
+ * to an in-memory store when SUPABASE_URL is unset. Run
+ * supabase/migrations/011_panorama_projects.sql to enable persistence.
  */
 export const dynamic = "force-dynamic";
 
-// In-memory store for MVP (replace with Supabase once schema is applied)
+// In-memory fallback store (non-canonical; used only when Supabase is unconfigured)
 const EXPENSES: Array<{
   id: string;
   amount: number;
@@ -21,15 +26,46 @@ const EXPENSES: Array<{
   created_at: string;
 }> = [];
 
+async function getExpensesTable() {
+  try {
+    const { supabaseAdmin } = await import('@/lib/supabase-client');
+    const probe = await supabaseAdmin.from('panorama_expenses').select('id').limit(1);
+    if (probe.error) return null;
+    return supabaseAdmin;
+  } catch {
+    return null;
+  }
+}
+
 export async function GET() {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  const db = await getExpensesTable();
+  if (db) {
+    const { data, error } = await db.from('panorama_expenses')
+      .select('*').order('created_at', { ascending: false });
+    if (error) {
+      return NextResponse.json({ ok: false, error: 'DB_QUERY_FAILED', detail: error.message }, { status: 500 });
+    }
+    const rows = data ?? [];
+    return NextResponse.json({
+      ok: true,
+      expenses: rows,
+      total: rows.reduce((s: number, e: { amount: number }) => s + Number(e.amount), 0),
+      source: 'supabase',
+    });
+  }
   return NextResponse.json({
     ok: true,
     expenses: EXPENSES.slice().reverse(),
     total: EXPENSES.reduce((s, e) => s + e.amount, 0),
+    source: 'memory-fallback',
   });
 }
 
 export async function POST(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   let body: Record<string, unknown>;
   try {
     body = await req.json();
@@ -55,7 +91,15 @@ export async function POST(req: NextRequest) {
     created_at: new Date().toISOString(),
   };
 
-  EXPENSES.push(expense);
+  const db = await getExpensesTable();
+  if (db) {
+    const { data, error } = await db.from('panorama_expenses').insert(expense).select().single();
+    if (error) {
+      return NextResponse.json({ ok: false, error: 'DB_INSERT_FAILED', detail: error.message }, { status: 500 });
+    }
+    return NextResponse.json({ ok: true, expense: data, source: 'supabase' }, { status: 201 });
+  }
 
-  return NextResponse.json({ ok: true, expense }, { status: 201 });
+  EXPENSES.push(expense);
+  return NextResponse.json({ ok: true, expense, source: 'memory-fallback' }, { status: 201 });
 }

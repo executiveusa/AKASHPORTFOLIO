@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseClient } from '@/lib/supabase-client';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 export const runtime = 'nodejs';
 
@@ -72,6 +73,10 @@ async function dbDelete(agentId: string, messageId: string): Promise<void> {
 
 // POST: Send message between agents
 export async function POST(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   try {
     const body = await req.json();
     const { from, to, subject, body: messageBody } = body;
@@ -108,6 +113,10 @@ export async function POST(req: NextRequest) {
 
 // GET: Fetch agent inbox
 export async function GET(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   try {
     const agentId = req.nextUrl.searchParams.get('agentId');
 
@@ -131,6 +140,10 @@ export async function GET(req: NextRequest) {
 
 // PATCH: Mark message as read
 export async function PATCH(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   try {
     const { agentId, messageId } = await req.json();
     if (!agentId || !messageId) {
@@ -154,6 +167,10 @@ export async function PATCH(req: NextRequest) {
 
 // DELETE: Archive/delete message
 export async function DELETE(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   try {
     const body = await req.json();
     const { agentId, messageId } = body;

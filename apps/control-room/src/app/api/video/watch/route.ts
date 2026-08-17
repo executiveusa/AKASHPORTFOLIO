@@ -22,6 +22,7 @@ import { readFile, rm, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import path from 'path';
 import os from 'os';
+import { requireOperatorOrAdmin, toErrorResponse } from '@/lib/auth/guards';
 
 export const runtime = 'nodejs';
 export const maxDuration = 120;
@@ -135,6 +136,10 @@ async function frameToBase64(framePath: string): Promise<string | null> {
 }
 
 export async function POST(req: NextRequest) {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   const startTime = Date.now();
 
   try {
@@ -240,6 +245,10 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET() {
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
+  try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
+
   const { available, missing } = await checkDependencies();
 
   let skillInstalled = false;
