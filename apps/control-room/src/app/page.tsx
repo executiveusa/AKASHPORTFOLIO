@@ -1,17 +1,19 @@
+import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 
 /**
- * Root route — first-run gate (server component).
+ * Root route — authentication + first-run gate (async server component).
  *
- * Reads cookie `synthia_seen`; absent → /bienvenida (60-second first-run flow);
- * present → /dashboard (normal entry).
+ * No session → /landing (public marketing/landing page).
+ * Session + no cookie `synthia_seen` → /bienvenida (60-second first-run flow).
+ * Session + cookie present → /dashboard (normal operator entry).
  *
- * The public Kupuri Media landing is served from public/index.html
- * via the beforeFiles rewrite in next.config.ts and runs before this component.
- * This page only executes if the rewrite is absent or the visitor has a session.
+ * Requires: no `/` redirect in next.config.ts (redirects() must not include `/`).
  */
 export default async function Home() {
+  const session = await auth();
+  if (!session) redirect('/landing');
   const store = await cookies();
   const seen = store.get('synthia_seen');
   redirect(seen?.value ? '/dashboard' : '/bienvenida');

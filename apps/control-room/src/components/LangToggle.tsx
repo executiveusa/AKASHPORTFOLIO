@@ -63,7 +63,7 @@ export function LangToggle({ onChange }: LangToggleProps) {
   };
 
   const MONO: CSSProperties = {
-    fontFamily: '"IBM Plex Mono", "Courier New", monospace',
+    fontFamily: 'var(--font-plex-mono), ui-monospace, monospace',
     fontSize: 11,
     letterSpacing: '0.1em',
     textTransform: 'uppercase',

@@ -22,6 +22,7 @@ import { SphereField } from '@/components/SphereField';
 import { LangToggle, useVoiceLang } from '@/components/LangToggle';
 import { SpheresTour } from '@/components/tour/SpheresTour';
 import { useCouncilLang } from '@/lib/council/selectors';
+import { unlockAudio } from '@/lib/council/bus';
 
 const copy = {
   es: {
@@ -89,7 +90,7 @@ export default function SpheresPage() {
       >
         <span
           style={{
-            fontFamily: '"IBM Plex Mono", monospace',
+            fontFamily: 'var(--font-plex-mono), ui-monospace, monospace',
             fontSize: 11,
             letterSpacing: '0.14em',
             textTransform: 'uppercase',
@@ -115,7 +116,7 @@ export default function SpheresPage() {
             padding: '6px 10px',
             color: '#fff',
             fontSize: 12,
-            fontFamily: '"IBM Plex Sans", sans-serif',
+            fontFamily: 'var(--font-plex-sans), system-ui, sans-serif',
             outline: 'none',
           }}
         />
@@ -123,7 +124,7 @@ export default function SpheresPage() {
         {/* Start button */}
         <button
           data-tour="iniciar-consejo"
-          onClick={launchMeeting}
+          onClick={() => { unlockAudio(); launchMeeting(); }}
           disabled={isLaunching || !topic.trim()}
           style={{
             padding: '6px 14px',
@@ -131,7 +132,7 @@ export default function SpheresPage() {
             border: '1px solid rgba(232,233,238,0.35)',
             borderRadius: 5,
             color: '#e8e9ee',
-            fontFamily: '"IBM Plex Mono", monospace',
+            fontFamily: 'var(--font-plex-mono), ui-monospace, monospace',
             fontSize: 11,
             letterSpacing: '0.1em',
             textTransform: 'uppercase',

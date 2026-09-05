@@ -24,6 +24,7 @@
  *   voice.words / voice.done / voice.fallback ARE buffered for late subscribers.
  */
 
+import { createHmac } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import {
   runCouncilMeeting,
@@ -44,6 +45,34 @@ import {
   noteVoice,
   closeMeeting,
 } from '@/lib/council/registry';
+
+// ── HMAC token helpers ─────────────────────────────────────────────────────
+// Signed token for cross-instance SSE auth (bienvenida flow).
+// POST returns the token; GET verifies it without relying on module-level Set.
+
+const HMAC_SECRET = (): string =>
+  process.env.NEXTAUTH_SECRET ?? process.env.CRON_SECRET ?? 'dev';
+
+function signMeetingToken(meetingId: string): string {
+  return createHmac('sha256', HMAC_SECRET())
+    .update(meetingId)
+    .digest('hex');
+}
+
+function verifyMeetingToken(meetingId: string, token: string): boolean {
+  const expected = signMeetingToken(meetingId);
+  // Constant-time comparison to prevent timing attacks
+  if (expected.length !== token.length) return false;
+  let diff = 0;
+  for (let i = 0; i < expected.length; i++) {
+    diff |= expected.charCodeAt(i) ^ token.charCodeAt(i);
+  }
+  return diff === 0;
+}
+
+// ── Spend-keyword detection ────────────────────────────────────────────────
+const SPEND_PATTERN =
+  /\b(pagar|gastar|contratar|enviar|publicar|comprar|invertir|firmar|\$|MXN|EUR|USD)\b/i;
 
 // ── Bienvenida meeting tracking ────────────────────────────────────────────
 // Tracks meetingIds that were started via the bienvenida first-run flow so the
@@ -150,7 +179,7 @@ export async function POST(req: NextRequest) {
       (id): id is SphereAgentId => BIENVENIDA_AGENTS.includes(id as SphereAgentId),
     );
     if (boardIds.length === 0) boardIds = [...BIENVENIDA_AGENTS];
-    // Register this meeting as a bienvenida meeting (for GET auth)
+    // Register this meeting as a bienvenida meeting (fast-path for same-instance GET)
     bienvenidaMeetings.add(brief.id);
     // Auto-clean after 2 h to avoid unbounded growth
     setTimeout(() => bienvenidaMeetings.delete(brief.id), 2 * 60 * 60 * 1000);
@@ -197,7 +226,8 @@ export async function POST(req: NextRequest) {
       const decisions = memo.nextActions.map(a => `${a.owner}: ${a.action}`);
       const acceptVotes = memo.boardStances?.filter((s: { vote: string }) => s.vote === 'accept').length ?? 0;
       const total = Math.max(memo.boardStances?.length ?? 1, 1);
-      closeMeeting(brief.id, acceptVotes / total, decisions);
+      const coherence = acceptVotes / total;
+      closeMeeting(brief.id, coherence, decisions);
       emitEvent(brief.id, {
         t: Date.now(),
         type: 'meeting.end',
@@ -205,6 +235,103 @@ export async function POST(req: NextRequest) {
         artifactRef: `/api/council/memo?briefId=${brief.id}`,
         decisions,
       } satisfies CouncilEvent);
+
+      // ── Approval gate (autonomy guardrail ≥ 0.85) ──────────────────────────
+      // needsApproval when confidence < 0.85 OR any decision contains spend keywords.
+      const memoConfidence: number =
+        typeof (memo as Record<string, unknown>).confidence === 'number'
+          ? (memo as Record<string, unknown>).confidence as number
+          : coherence;
+      const decisionsText = decisions.join(' ');
+      const needsApproval =
+        memoConfidence < 0.85 || SPEND_PATTERN.test(decisionsText);
+
+      if (needsApproval) {
+        const reason = memoConfidence < 0.85
+          ? `El consejo alcanzó confianza ${Math.round(memoConfidence * 100)}% (umbral 85%); el operador debe revisar antes de ejecutar.`
+          : `Una o más decisiones implican una acción de gasto o compromiso que requiere autorización del operador.`;
+
+        import('@/lib/supabase-client')
+          .then(({ supabaseAdmin }) =>
+            supabaseAdmin
+              .from('approvals')
+              .insert({
+                workflow_id:   brief.id,
+                risk_level:    memoConfidence < 0.85 ? 'medium' : 'high',
+                status:        'pending',
+                requested_by:  'la-vigilante',
+                requested_at:  new Date().toISOString(),
+                metadata:      { meetingId: brief.id, confidence: memoConfidence, decisions },
+              })
+              .select('id')
+              .single(),
+          )
+          .then(({ data, error }) => {
+            if (error) console.warn('[orchestrator] approval insert skipped:', error.message);
+            const approvalId = (data as { id?: string } | null)?.id ?? brief.id;
+            const t = Date.now();
+            // Emit approval.required into the SSE buffer (buffered so late joiners see it)
+            emitEvent(brief.id, {
+              t,
+              type: 'approval.required',
+              meetingId: brief.id,
+              id: approvalId,
+              reason,
+              agentId: 'la-vigilante',
+            });
+            // Emit a sphere.signal for la-vigilante so she lights up amber
+            emitEvent(brief.id, {
+              t: t + 1,
+              type: 'sphere.signal',
+              meetingId: brief.id,
+              agentId: 'la-vigilante',
+              kind: 'ASSERT',
+              amplitude: 1.0,
+              durationMs: 5000,
+              carrierHz: 0,
+              transcript: reason,
+            } satisfies CouncilEvent);
+          })
+          .catch((err: unknown) => {
+            console.warn('[orchestrator] approval flow failed:', err);
+            // Still emit the event even if DB insert failed
+            const t = Date.now();
+            emitEvent(brief.id, {
+              t,
+              type: 'approval.required',
+              meetingId: brief.id,
+              id: brief.id,
+              reason,
+              agentId: 'la-vigilante',
+            });
+          });
+      }
+
+      // Best-effort: persist memo as a synthia_asset so /library can list it.
+      // Wrapped in try/catch — table may not exist yet; never block the meeting flow.
+      import('@/lib/supabase-client')
+        .then(({ supabaseAdmin }) => {
+          const descriptionLines: string[] = [
+            ...decisions.map((d: string) => `- ${d}`),
+            '',
+            `Coherencia del consejo: ${Math.round(coherence * 100)}%`,
+          ];
+          return supabaseAdmin
+            .from('synthia_assets')
+            .insert({
+              thread_id: brief.id,
+              type: 'memo',
+              title: brief.situation.slice(0, 80),
+              url: `/api/council/memo?briefId=${brief.id}`,
+              description: descriptionLines.join('\n'),
+            });
+        })
+        .then(({ error }) => {
+          if (error) console.warn('[orchestrator] memo→asset insert skipped:', error.message);
+        })
+        .catch((err: unknown) => {
+          console.warn('[orchestrator] memo→asset failed:', err);
+        });
     })
     .catch(err => {
       console.error(`[orchestrator] Meeting ${brief.id} crashed:`, err);
@@ -218,12 +345,18 @@ export async function POST(req: NextRequest) {
       } satisfies CouncilEvent);
     });
 
-  return NextResponse.json({
-    meetingId: brief.id,
-    briefId:   brief.id,
-    status:    'started',
+  const responseBody: Record<string, unknown> = {
+    meetingId:  brief.id,
+    briefId:    brief.id,
+    status:     'started',
     agentCount: boardIds.length,
-  });
+  };
+  // Bienvenida meetings get a signed token so the GET SSE endpoint can verify
+  // cross-instance (token replaces reliance on module-level Set alone).
+  if (isBienvenida) {
+    responseBody.token = signMeetingToken(brief.id);
+  }
+  return NextResponse.json(responseBody);
 }
 
 // ---------------------------------------------------------------------------
@@ -242,8 +375,14 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // Auth: bienvenida meetings allow any signed-in user; others require admin
-  if (bienvenidaMeetings.has(meetingId)) {
+  // Auth: bienvenida meetings allow any signed-in user; others require admin.
+  // Fast-path: same-instance module-level Set. Cross-instance: verify HMAC token.
+  const suppliedToken = req.nextUrl.searchParams.get('token');
+  const isBienvenidaGet =
+    bienvenidaMeetings.has(meetingId) ||
+    (suppliedToken !== null && verifyMeetingToken(meetingId, suppliedToken));
+
+  if (isBienvenidaGet) {
     try { await requireUser(); } catch (e) { return toErrorResponse(e); }
   } else {
     try { await requireAdmin(); } catch (e) { return toErrorResponse(e); }

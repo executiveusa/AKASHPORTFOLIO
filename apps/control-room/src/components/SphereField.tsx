@@ -25,6 +25,7 @@ import { SPHERE_FREQUENCY_MAP, ALL_SPHERE_IDS } from '@/shared/sphere-state';
 import { useCouncilBus } from '@/lib/council/bus';
 import { useCouncilLang } from '@/lib/council/selectors';
 import { SphereRing2D } from '@/components/SphereRing2D';
+import { ApprovalCard } from '@/components/ApprovalCard';
 import type { SphereAgentId } from '@/shared/council-events';
 
 // ---------------------------------------------------------------------------
@@ -114,7 +115,7 @@ function CouncilHUD({
   } as const;
 
   const MONO: CSSProperties = {
-    fontFamily: '"IBM Plex Mono", "Courier New", monospace',
+    fontFamily: 'var(--font-plex-mono), ui-monospace, monospace',
     fontSize: 12,
     letterSpacing: '0.12em',
     textTransform: 'uppercase',
@@ -166,7 +167,11 @@ function CouncilHUD({
         <span style={label}>{L.coherencia}</span>
         <span style={val}>{groupCoherence}%</span>
       </div>
-      <div style={{ ...cell, borderRight: 'none' }} data-tour="aprobaciones">
+      {/* data-tour moves to ApprovalCard when a card is visible */}
+      <div
+        style={{ ...cell, borderRight: 'none' }}
+        {...(!approvalPending ? { 'data-tour': 'aprobaciones' } : {})}
+      >
         <span style={label}>{L.pendientes}</span>
         <span style={{ ...val, color: approvalPending ? '#f5b000' : '#fff' }}>
           {approvalPending ? 1 : 0}
@@ -245,7 +250,7 @@ function CouncilTranscript({ lang }: { lang: string }) {
             <div>
               <span
                 style={{
-                  fontFamily: '"IBM Plex Mono", monospace',
+                  fontFamily: 'var(--font-plex-mono), ui-monospace, monospace',
                   fontSize: 10,
                   letterSpacing: '0.1em',
                   textTransform: 'uppercase',
@@ -262,7 +267,7 @@ function CouncilTranscript({ lang }: { lang: string }) {
                     color: 'rgba(255,255,255,0.38)',
                     letterSpacing: '0.07em',
                     textTransform: 'uppercase',
-                    fontFamily: '"IBM Plex Mono", monospace',
+                    fontFamily: 'var(--font-plex-mono), ui-monospace, monospace',
                     border: '1px solid rgba(255,255,255,0.12)',
                     borderRadius: 2,
                     padding: '0 4px',
@@ -450,7 +455,7 @@ export function SphereField({ meetingId, market, className = '' }: SphereFieldPr
     // Council ring ground disc
     const cgGeo = new THREE.RingGeometry(4.8, 5.2, 128);
     const cgMat = new THREE.MeshBasicMaterial({
-      color: 0x8b5cf6, transparent: true, opacity: 0.15, side: THREE.DoubleSide,
+      color: 0xe8e9ee, transparent: true, opacity: 0.12, side: THREE.DoubleSide,
     });
     cgMatRef.current = cgMat;
     const cgRing = new THREE.Mesh(cgGeo, cgMat);
@@ -662,6 +667,7 @@ export function SphereField({ meetingId, market, className = '' }: SphereFieldPr
       style={{ minHeight: 500, background: '#07080c' }}
     >
       <CouncilHUD market={market} activeSphere={activeSphere} />
+      <ApprovalCard />
       <div ref={mountRef} className="absolute inset-0" style={{ top: 36 }} />
       <CouncilTranscript lang={lang} />
 

@@ -30,6 +30,7 @@ import { hasSeenFirstRun, markFirstRunSeen, TOUR_STEPS } from '@/lib/first-run';
 import { LangToggle, useVoiceLang } from '@/components/LangToggle';
 import { SphereRing2D } from '@/components/SphereRing2D';
 import { TourOverlay } from '@/components/tour/TourOverlay';
+import { unlockAudio } from '@/lib/council/bus';
 import type { SphereAgentId, CouncilEvent } from '@/shared/council-events';
 
 // ---------------------------------------------------------------------------
@@ -179,6 +180,8 @@ export default function BienvenidaPage() {
   }, []);
 
   const handleGesture = useCallback(async () => {
+    // Unlock the bus audio pipeline on first gesture
+    unlockAudio();
     // Create context on first gesture
     if (!audioCtxRef.current) {
       try {
@@ -258,6 +261,7 @@ export default function BienvenidaPage() {
     }
 
     let meetingId: string | null = null;
+  let sseToken: string | null = null;
 
     try {
       const res = await fetch('/api/council/orchestrator', {
@@ -277,8 +281,10 @@ export default function BienvenidaPage() {
         meetingId?: string;
         briefId?: string;
         status?: string;
+        token?: string;
       };
       meetingId = data.meetingId ?? data.briefId ?? null;
+      sseToken  = data.token ?? null;
     } catch {
       setMemo(buildStaticMemo(text, lang as 'es' | 'en'));
       setMemoIsStatic(true);
@@ -295,10 +301,11 @@ export default function BienvenidaPage() {
       return;
     }
 
-    // Open SSE stream
-    const es = new EventSource(
-      `/api/council/orchestrator?meetingId=${encodeURIComponent(meetingId)}`,
-    );
+    // Open SSE stream — include signed token so GET auth works cross-instance
+    const sseUrl = sseToken
+      ? `/api/council/orchestrator?meetingId=${encodeURIComponent(meetingId)}&token=${encodeURIComponent(sseToken)}`
+      : `/api/council/orchestrator?meetingId=${encodeURIComponent(meetingId)}`;
+    const es = new EventSource(sseUrl);
     esRef.current = es;
 
     let tourStep1Shown = false;
@@ -389,8 +396,8 @@ export default function BienvenidaPage() {
   // Render
   // ---------------------------------------------------------------------------
 
-  const isMono = '"IBM Plex Mono", "Courier New", monospace';
-  const isSans = '"IBM Plex Sans", system-ui, -apple-system, sans-serif';
+  const isMono = 'var(--font-plex-mono), ui-monospace, monospace';
+  const isSans = 'var(--font-plex-sans), system-ui, sans-serif';
 
   return (
     <div

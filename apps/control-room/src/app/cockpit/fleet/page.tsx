@@ -45,8 +45,8 @@ function StatusIndicator({ status }: { status: SphereRow["status"] }) {
   const config: Record<string, { color: string; label: string }> = {
     speaking:  { color: "var(--color-status-info)",  label: "Hablando" },
     active:    { color: "var(--color-status-ok)",    label: "Activo" },
-    idle:      { color: "var(--color-cream-400)",    label: "Idle" },
-    standby:   { color: "var(--color-charcoal-600)", label: "Standby" },
+    idle:      { color: "var(--color-cream-400)",    label: "En reposo" },
+    standby:   { color: "var(--color-charcoal-600)", label: "En espera" },
   };
   const c = config[status] ?? config.standby;
   const pulse = status === "speaking" || status === "active";
@@ -83,6 +83,7 @@ export default function FleetPage() {
   const [error, setError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<string>("");
   const [view, setView] = useState<"grid" | "table">("grid");
+  const VIEW_LABELS: Record<"grid" | "table", string> = { grid: "cuadrícula", table: "tabla" };
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -117,7 +118,7 @@ export default function FleetPage() {
           </h1>
           <p style={{ fontSize: 13, color: "var(--color-cream-400)", marginTop: 4 }}>
             {data
-              ? `${activeCount}/${spheres.length} agentes activos — Último refresh: ${lastRefresh}`
+              ? `${activeCount}/${spheres.length} agentes activos — Última actualización: ${lastRefresh}`
               : error
                 ? `Error al cargar: ${error}`
                 : "Cargando…"}
@@ -137,10 +138,9 @@ export default function FleetPage() {
                 border: "none",
                 borderRadius: 6,
                 cursor: "pointer",
-                textTransform: "capitalize",
               }}
             >
-              {v}
+              {VIEW_LABELS[v]}
             </button>
           ))}
         </div>

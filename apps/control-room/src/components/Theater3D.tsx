@@ -517,9 +517,9 @@ function buildCosmicFieldScene(scene: THREE.Scene) {
   // Central council ring — glowing ground disc
   const ringGeo = new THREE.RingGeometry(3.8, 4.2, 128);
   const ringMat = new THREE.MeshBasicMaterial({
-    color: 0x8b5cf6,
+    color: 0xe8e9ee,
     transparent: true,
-    opacity: 0.35,
+    opacity: 0.18,
     side: THREE.DoubleSide,
   });
   const ring = new THREE.Mesh(ringGeo, ringMat);
@@ -782,10 +782,14 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
     shaderUniformsRef.current = allUniforms;
     pulseQueueRef.current = [];
 
-    // Animation
+    // Animation — stop-start pattern: loop only while a field is active.
+    // Restarts on bus field appearance or OrbitControls interaction (same pattern as SphereField).
     let t = 0;
-    const animate = () => {
-      animFrameRef.current = requestAnimationFrame(animate);
+    let raf: number | null = null;
+
+    const doFrame = () => {
+      raf = null;
+      animFrameRef.current = 0;
       t += 0.01;
 
       // Map bus field to sphere uniforms — no idle sin() animation
@@ -805,7 +809,7 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
             av.scale.set(scl, scl, scl);
           }
         } else {
-          // No meeting — freeze, no idle motion (rotation removed: not data-driven)
+          // No meeting — freeze, no idle motion
           if (allUniforms[i]) {
             allUniforms[i].uPhase.value  = 0;
             allUniforms[i].uEnergy.value = 0;
@@ -846,7 +850,6 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
         camera.position.x += (Math.random() - 0.5) * amt * 0.002;
         camera.position.y += (Math.random() - 0.5) * amt * 0.001;
       }
-      // (no else-damp needed: controls.update() resets position from spherical each frame)
 
       // Expand + fade SSE-triggered pulse rings
       const now = Date.now();
@@ -864,14 +867,38 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
         return true;
       });
 
-      // Particle drift — only while a field is active (motion is data)
+      // Particle drift — speed proportional to groupCoherence (zero when idle)
       if (busF) {
-        particles.rotation.y += 0.0003;
+        particles.rotation.y += 0.0003 * busF.groupCoherence;
       }
 
       if (composerRef.current) { composerRef.current.render(); } else { renderer.render(scene, camera); }
+
+      // Continue loop only while field is active
+      if (busF) {
+        raf = requestAnimationFrame(doFrame);
+        animFrameRef.current = raf;
+      }
+      // else: loop stopped; bus subscription / controls change will restart it
     };
-    animate();
+
+    const startLoop = () => {
+      if (raf === null) {
+        raf = requestAnimationFrame(doFrame);
+        animFrameRef.current = raf;
+      }
+    };
+
+    // Restart loop when field appears in bus
+    const busUnsub = useCouncilBus.subscribe((s, prev) => {
+      if (s.field && !prev.field) startLoop();
+    });
+
+    // Restart on orbit-controls interaction (so damping keeps rendering)
+    controls.addEventListener('change', startLoop);
+
+    // Render at least one frame immediately
+    startLoop();
 
     // Resize
     const onResize = () => {
@@ -884,8 +911,10 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
     window.addEventListener('resize', onResize);
 
     return () => {
-      cancelAnimationFrame(animFrameRef.current);
+      if (raf !== null) cancelAnimationFrame(raf);
+      busUnsub();
       window.removeEventListener('resize', onResize);
+      controls.removeEventListener('change', startLoop);
       controls.dispose();
       renderer.dispose();
     };

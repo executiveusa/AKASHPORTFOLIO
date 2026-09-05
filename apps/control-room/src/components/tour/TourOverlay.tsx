@@ -120,7 +120,7 @@ export function TourOverlay({
     fontSize: 12,
     lineHeight: 1.5,
     color: 'rgba(255,255,255,0.80)',
-    fontFamily: '"IBM Plex Sans", system-ui, sans-serif',
+    fontFamily: 'var(--font-plex-sans), system-ui, sans-serif',
     fontWeight: 400,
     margin: 0,
   };
