@@ -226,7 +226,7 @@ export const useCouncilBus = create<BusState>((set, get) => ({
     // Dev oracle — expose field for Playwright / evidence oracles
     // ------------------------------------------------------------------
     if (process.env.NODE_ENV !== 'production' && typeof window !== 'undefined') {
-      (window as Record<string, unknown>)['__synthiaField'] = () =>
+      (window as unknown as Record<string, unknown>)['__synthiaField'] = () =>
         useCouncilBus.getState().field;
     }
   },

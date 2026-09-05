@@ -197,9 +197,20 @@ export async function rimeStreamTurn(
   let wsUsed = false;
   try {
     // Dynamic import — guarded so missing dep degrades gracefully.
-    const wsModule = await import('ws').catch(() => null);
+    // Bundler-opaque specifier so Turbopack/webpack don't try to resolve an optional dep.
+    const wsSpecifier: string = 'ws';
+    const wsModule = (await import(/* turbopackIgnore: true */ /* webpackIgnore: true */ wsSpecifier).catch(() => null)) as
+      | { default?: unknown; WebSocket?: unknown }
+      | null;
     if (wsModule) {
-      const WsClass = wsModule.default ?? wsModule.WebSocket;
+      interface WsLike {
+        on(event: 'open' | 'error' | 'close', cb: () => void): void;
+        on(event: 'message', cb: (raw: Buffer | string) => void): void;
+        send(data: string): void;
+        close(): void;
+      }
+      type WsCtor = new (url: string, opts: { headers: Record<string, string> }) => WsLike;
+      const WsClass = (wsModule.default ?? wsModule.WebSocket) as WsCtor | undefined;
       if (typeof WsClass === 'function') {
         wsUsed = true;
         await new Promise<void>((resolve) => {
