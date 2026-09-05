@@ -1,8 +1,8 @@
 # Run state — RUN-001 voice-and-council-bus
 status: READY FOR PREVIEW (build READY da38eed → https://akashportfolio-control-room-gikggbkti-the-pauli-effect.vercel.app ; SSO-protected)
-next_stage: 08_gauntlet pass 2 (after CHECK of 3dc3dbf)
+next_stage: CHECK (build of 738d598) → 08_gauntlet pass 3
 mode: brownfield
-revision: local 9f68361 = remote 3dc3dbf (repair slice 1) · previous READY build da38eed
+revision: local 7f47921 = remote 738d598 (repair slices 2+3) · last READY build 3dc3dbf
 bar_status: CHOSEN 2026-09-05 — voice: ElevenLabs Conversational AI es demo (north star: owner-recorded es-MX); visuals: Apple Intelligence Siri glow; OS: hyperagent.com/docs parity (standards/hyperagent-parity-bar.md)
 lock_status: drafted-from-evidence
 graph_status: admitted (N-1,N0,N1,N2,N3,N4,N5,N7,N8 built; N6 owner-gated)
@@ -11,7 +11,7 @@ latest_verified_slice: none
 production_verified: false
 
 ## Current blocker
-None for LLM (keys live 13:40). Remaining: Supabase URLs unreachable from sandbox (verify not paused); GH_PAT/Notion dead.
+Vercel API deployment quota exhausted (100/day free plan; resets 2026-09-06 ~05:52 UTC). Auto-deploy via GitHub push may still run; else typecheck locally via npm mirror or wait.
 
 ## Single next action
-Vercel build of 3dc3dbf → critic pass 2 with the pass-1 card as prior → repair slice 2 (TTFA progressive playback, approvals control, memo→assets) or approval packet.
+Get a build result for 738d598 (auto-deploy, local tsc, or after quota reset) → critic pass 3 → approval packet or slice 4.

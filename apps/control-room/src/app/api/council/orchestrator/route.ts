@@ -239,8 +239,8 @@ export async function POST(req: NextRequest) {
       // ── Approval gate (autonomy guardrail ≥ 0.85) ──────────────────────────
       // needsApproval when confidence < 0.85 OR any decision contains spend keywords.
       const memoConfidence: number =
-        typeof (memo as Record<string, unknown>).confidence === 'number'
-          ? (memo as Record<string, unknown>).confidence as number
+        typeof (memo as unknown as Record<string, unknown>).confidence === 'number'
+          ? (memo as unknown as Record<string, unknown>).confidence as number
           : coherence;
       const decisionsText = decisions.join(' ');
       const needsApproval =
