@@ -1,13 +1,20 @@
 /**
- * Council Orchestrator v3 Ã¢â‚¬â€ SYNTHIAÃ¢â€žÂ¢ as Chairman
+ * Council Orchestrator v3 — SYNTHIA™ as Chairman
  *
  * Uses the 3-stage Karpathy council engine:
- *   Stage 1 Ã¢â‚¬â€ Position: each sphere gives their independent take
- *   Stage 2 Ã¢â‚¬â€ Review:   each sphere reviews all others (anonymized)
- *   Stage 3 Ã¢â‚¬â€ Synthesis: SYNTHIA writes the final Memo
+ *   Stage 1 — Position: each sphere gives their independent take
+ *   Stage 2 — Review:   each sphere reviews all others (anonymized)
+ *   Stage 3 — Synthesis: SYNTHIA writes the final Memo
  *
- * POST /api/council/orchestrator  Ã¢â‚¬â€ start a meeting
- * GET  /api/council/orchestrator  Ã¢â‚¬â€ SSE stream of CouncilEvents
+ * POST /api/council/orchestrator  — start a meeting
+ * GET  /api/council/orchestrator  — SSE stream of CouncilEvents + VoiceEvents
+ *
+ * Voice integration (RUN-001 N3):
+ *   sphere.signal events with a transcript trigger speakTurn(), which opens
+ *   a Rime WS stream (or REST fallback) and publishes voice.* events on the
+ *   same SSE channel. Turns are serialised per meeting so speakers don't overlap.
+ *   voice.chunk events are NOT stored in the replay buffer (too large);
+ *   voice.words / voice.done / voice.fallback ARE buffered for late subscribers.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -21,10 +28,17 @@ import {
   type CouncilMemo,
 } from '@/lib/council-engine';
 import { SPHERE_FREQUENCY_MAP } from '@/shared/sphere-state';
-import type { SphereAgentId, CouncilEvent } from '@/shared/council-events';
+import type { SphereAgentId, CouncilEvent, VoiceEvent, VoiceLang } from '@/shared/council-events';
 import { requireAdmin, toErrorResponse } from '@/lib/auth/guards';
+import { speakTurn, releaseMeetingVoiceBudget } from '@/lib/voice/council-voice';
+import {
+  registerMeeting,
+  noteSignal,
+  noteVoice,
+  closeMeeting,
+} from '@/lib/council/registry';
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Input sanitization Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ── Input sanitization ─────────────────────────────────────────────────────
 
 /** Strip potential prompt injection and XSS payloads from user-supplied strings. */
 const INJECTION_PATTERN =
@@ -46,17 +60,23 @@ function sanitizeBrief(brief: CouncilBrief): CouncilBrief {
 }
 
 // ---------------------------------------------------------------------------
-// POST Ã¢â‚¬â€ start a new council meeting
+// POST — start a new council meeting
 // ---------------------------------------------------------------------------
 
 export async function POST(req: NextRequest) {
   try { await requireAdmin(); } catch (e) { return toErrorResponse(e); }
+
   let body: {
     brief?: Partial<CouncilBrief>;
     /** Legacy: plain topic string (backward compat) */
     topic?: string;
     agentIds?: SphereAgentId[];
     initiatedBy?: string;
+    /** Voice synthesis language. Default 'es'. Not threaded into council-engine
+     *  (CouncilMeetingOpts has no lang field); applied to speakTurn calls only. */
+    lang?: VoiceLang;
+    /** Enable voice synthesis. Default true. Set false for text-only mode. */
+    voice?: boolean;
   };
 
   try {
@@ -65,7 +85,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Build CouncilBrief from input Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+  // ── Build CouncilBrief from input ──────────────────────────────────────────
   let rawBrief: CouncilBrief;
 
   if (body.brief?.situation) {
@@ -98,15 +118,21 @@ export async function POST(req: NextRequest) {
 
   const brief = sanitizeBrief(rawBrief);
 
-  // Only real board members Ã¢â‚¬â€ not the chairman (synthia) or guardian (la-vigilante)
+  // Voice config for this meeting
+  const meetingLang: VoiceLang = body.lang ?? 'es';
+  const voiceEnabled: boolean  = body.voice !== false; // default true
+
+  // Only real board members — not the chairman (synthia) or guardian (la-vigilante)
   const boardIds = (body.agentIds ?? DEFAULT_BOARD_IDS).filter(
     (id): id is SphereAgentId => id !== 'synthia' && id !== 'la-vigilante',
   );
 
   // Emit meeting.begin + node.spawn after a tick so SSE clients can connect first
   setTimeout(() => {
+    const beginT = Date.now();
+    registerMeeting(brief.id, brief.situation.slice(0, 120), boardIds, beginT);
     emitEvent(brief.id, {
-      t: Date.now(),
+      t: beginT,
       type: 'meeting.begin',
       meetingId: brief.id,
       title: brief.situation.slice(0, 80),
@@ -132,19 +158,24 @@ export async function POST(req: NextRequest) {
     boardIds,
     constraints: DEFAULT_CONSTRAINTS,
     onEvent: ({ stage, sphereId, data }) =>
-      mapToCouncilEvent(brief.id, stage, sphereId, data),
+      mapToCouncilEvent(brief.id, stage, sphereId, data, meetingLang, voiceEnabled),
   })
     .then(memo => {
+      const decisions = memo.nextActions.map(a => `${a.owner}: ${a.action}`);
+      const acceptVotes = memo.boardStances?.filter((s: { vote: string }) => s.vote === 'accept').length ?? 0;
+      const total = Math.max(memo.boardStances?.length ?? 1, 1);
+      closeMeeting(brief.id, acceptVotes / total, decisions);
       emitEvent(brief.id, {
         t: Date.now(),
         type: 'meeting.end',
         meetingId: brief.id,
         artifactRef: `/api/council/memo?briefId=${brief.id}`,
-        decisions: memo.nextActions.map(a => `${a.owner}: ${a.action}`),
+        decisions,
       } satisfies CouncilEvent);
     })
     .catch(err => {
       console.error(`[orchestrator] Meeting ${brief.id} crashed:`, err);
+      closeMeeting(brief.id, undefined, [`ERROR: ${String(err).slice(0, 200)}`]);
       emitEvent(brief.id, {
         t: Date.now(),
         type: 'meeting.end',
@@ -163,7 +194,7 @@ export async function POST(req: NextRequest) {
 }
 
 // ---------------------------------------------------------------------------
-// GET Ã¢â‚¬â€ SSE stream for a meeting
+// GET — SSE stream for a meeting
 // ---------------------------------------------------------------------------
 
 export async function GET(req: NextRequest) {
@@ -182,7 +213,7 @@ export async function GET(req: NextRequest) {
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     start(controller) {
-      const cleanup = subscribeMeeting(meetingId, (event: CouncilEvent) => {
+      const cleanup = subscribeMeeting(meetingId, (event: CouncilEvent | VoiceEvent) => {
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
         if (event.type === 'meeting.end') {
           cleanup();
@@ -207,7 +238,8 @@ export async function GET(req: NextRequest) {
 }
 
 // ---------------------------------------------------------------------------
-// Map internal council-engine onEvent callbacks Ã¢â€ â€™ typed CouncilEvents
+// Map internal council-engine onEvent callbacks → typed CouncilEvents,
+// then enqueue a voice turn for sphere.signal events that carry a transcript.
 // ---------------------------------------------------------------------------
 
 function mapToCouncilEvent(
@@ -215,6 +247,8 @@ function mapToCouncilEvent(
   stage: string,
   sphereId: SphereAgentId | undefined,
   data: unknown,
+  lang: VoiceLang = 'es',
+  voiceEnabled = true,
 ): void {
   if (!sphereId) return;
 
@@ -223,8 +257,11 @@ function mapToCouncilEvent(
 
   if (stage === 'position') {
     const pos = data as SpherePosition;
+    const transcript = pos.recommendation ?? pos.stance;
+    const posT = Date.now();
+    noteSignal(meetingId, sphereId, 'ASSERT', posT, transcript);
     emitEvent(meetingId, {
-      t: Date.now(),
+      t: posT,
       type: 'sphere.signal',
       meetingId,
       agentId: sphereId,
@@ -232,15 +269,22 @@ function mapToCouncilEvent(
       amplitude: Math.max(0, Math.min(1, pos.confidence ?? 0.7)),
       durationMs: 3000,
       carrierHz: hz,
-      transcript: pos.recommendation ?? pos.stance,
+      transcript,
     } satisfies CouncilEvent);
+
+    if (voiceEnabled && transcript) {
+      enqueueVoiceTurn(meetingId, sphereId, transcript, lang);
+    }
     return;
   }
 
   if (stage === 'review') {
     const rev = data as SphereReview;
+    const transcript = rev.topInsight;
+    const revT = Date.now();
+    noteSignal(meetingId, sphereId, 'REFLECT', revT, transcript);
     emitEvent(meetingId, {
-      t: Date.now(),
+      t: revT,
       type: 'sphere.signal',
       meetingId,
       agentId: sphereId,
@@ -248,8 +292,12 @@ function mapToCouncilEvent(
       amplitude: 0.6,
       durationMs: 2500,
       carrierHz: hz,
-      transcript: rev.topInsight,
+      transcript,
     } satisfies CouncilEvent);
+
+    if (voiceEnabled && transcript) {
+      enqueueVoiceTurn(meetingId, sphereId, transcript, lang);
+    }
     return;
   }
 
@@ -278,26 +326,67 @@ function mapToCouncilEvent(
 }
 
 // ---------------------------------------------------------------------------
+// Voice turn queue — one sequential Promise chain per meeting
+// Ensures speakers don't overlap within the same meeting.
+// ---------------------------------------------------------------------------
+
+const voiceQueues = new Map<string, Promise<void>>();
+
+function enqueueVoiceTurn(
+  meetingId: string,
+  agentId: SphereAgentId,
+  transcript: string,
+  lang: VoiceLang,
+): void {
+  const prior = voiceQueues.get(meetingId) ?? Promise.resolve();
+  const next = prior
+    .then(() =>
+      speakTurn(meetingId, agentId, transcript, lang, (voiceEv: VoiceEvent) => {
+        // voice.chunk is large — publish to subscribers but skip the replay buffer.
+        // voice.words / voice.done / voice.fallback go into the buffer for late subscribers.
+        const skipBuffer = voiceEv.type === 'voice.chunk';
+        if (voiceEv.type === 'voice.done') noteVoice(meetingId, agentId);
+        emitEvent(meetingId, voiceEv, { skipBuffer });
+      }),
+    )
+    .catch((err: unknown) => {
+      console.error(`[orchestrator] speakTurn error for ${agentId} in ${meetingId}:`, err);
+    });
+  voiceQueues.set(meetingId, next);
+}
+
+// ---------------------------------------------------------------------------
 // In-memory pub/sub + event buffer for SSE
 // Buffer replays events to late-connecting subscribers (race-condition safe)
 // ---------------------------------------------------------------------------
 
-type EventListener = (event: CouncilEvent) => void;
+type AnySSEEvent = CouncilEvent | VoiceEvent;
+type EventListener = (event: AnySSEEvent) => void;
 const listeners   = new Map<string, Set<EventListener>>();
-const eventBuffer = new Map<string, Array<{ event: CouncilEvent; ts: number }>>();
+const eventBuffer = new Map<string, Array<{ event: AnySSEEvent; ts: number }>>();
 
 const BUFFER_MAX    = 200;
 const BUFFER_TTL_MS = 15 * 60 * 1000;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function emitEvent(meetingId: string, event: any): void {
-  if (!eventBuffer.has(meetingId)) eventBuffer.set(meetingId, []);
-  const buf = eventBuffer.get(meetingId)!;
-  buf.push({ event, ts: Date.now() });
-  if (buf.length > BUFFER_MAX) buf.shift();
+function emitEvent(
+  meetingId: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  event: any,
+  opts?: { skipBuffer?: boolean },
+): void {
+  if (!opts?.skipBuffer) {
+    if (!eventBuffer.has(meetingId)) eventBuffer.set(meetingId, []);
+    const buf = eventBuffer.get(meetingId)!;
+    buf.push({ event, ts: Date.now() });
+    if (buf.length > BUFFER_MAX) buf.shift();
+  }
 
   if (event.type === 'meeting.end') {
-    setTimeout(() => eventBuffer.delete(meetingId), BUFFER_TTL_MS);
+    setTimeout(() => {
+      eventBuffer.delete(meetingId);
+      voiceQueues.delete(meetingId);
+      releaseMeetingVoiceBudget(meetingId);
+    }, BUFFER_TTL_MS);
   }
 
   const subs = listeners.get(meetingId);
@@ -325,5 +414,3 @@ function subscribeMeeting(meetingId: string, listener: EventListener): () => voi
     if (listeners.get(meetingId)?.size === 0) listeners.delete(meetingId);
   };
 }
-
-

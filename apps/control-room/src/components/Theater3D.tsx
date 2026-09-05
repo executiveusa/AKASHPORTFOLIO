@@ -9,6 +9,8 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { motion, AnimatePresence } from 'framer-motion';
 import { SPHERE_FREQUENCY_MAP, ALL_SPHERE_IDS } from '@/shared/sphere-state';
 import type { MeetingLocation } from '@/lib/meeting-locations';
+import { useCouncilBus } from '@/lib/council/bus';
+import type { CouncilField } from '@/lib/sphere-physics';
 
 // ---------------------------------------------------------------------------
 // Agent avatar config — derived from SPHERE_FREQUENCY_MAP (9 Sphere OS™ agents)
@@ -533,14 +535,18 @@ function buildCosmicFieldScene(scene: THREE.Scene) {
 // ---------------------------------------------------------------------------
 const SPHERE_VERTEX_SHADER = `
   uniform float uTime;
-  uniform float uFrequency;
+  uniform float uPhase;
+  uniform float uEnergy;
+  uniform float uSpeak;
   varying vec3 vNormal;
   varying vec3 vViewDir;
   void main() {
     vec3 pos = position;
-    float disp = sin(pos.x * 8.0 + uTime * uFrequency * 6.28) *
-                 cos(pos.y * 8.0 + uTime * uFrequency * 4.0) * 0.04;
-    pos += normal * disp;
+    float amp  = 0.03 + uEnergy * 0.03;
+    float disp = sin(pos.x * 8.0 + uPhase * 6.28318) *
+                 cos(pos.y * 8.0 + uPhase * 4.0) * amp;
+    float equator = exp(-pos.y * pos.y * 8.0) * uSpeak;
+    pos += normal * (disp + equator * 0.05);
     vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);
     vViewDir = normalize(-mvPos.xyz);
     vNormal = normalize(normalMatrix * normal);
@@ -552,12 +558,14 @@ const SPHERE_FRAGMENT_SHADER = `
   uniform vec3 uBaseColor;
   uniform vec3 uEmissiveColor;
   uniform float uTime;
+  uniform float uEnergy;
   uniform float uPulse;
   varying vec3 vNormal;
   varying vec3 vViewDir;
   void main() {
     float fresnel = pow(1.0 - max(dot(vNormal, vViewDir), 0.0), 3.0);
-    vec3 core = uEmissiveColor * (0.6 + 0.4 * sin(uTime * 3.0));
+    float emInt   = 0.4 + uEnergy * 1.2;
+    vec3 core = uEmissiveColor * emInt;
     vec3 rim  = uBaseColor * fresnel;
     vec3 col  = mix(core, uBaseColor, 0.5) + rim * 1.2;
     float pulse = uPulse * (1.0 - fresnel) * 0.8;
@@ -583,8 +591,12 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
   const animFrameRef = useRef<number>(0);
   const pulseQueueRef = useRef<Array<{ mesh: THREE.Mesh; born: number }>>([]);
   const shaderUniformsRef = useRef<Array<{ [key: string]: THREE.IUniform }>>([]);
-  const [isConnected, setIsConnected] = useState(false);
-  const [tick, setTick] = useState(0);
+  const bloomPassRef = useRef<UnrealBloomPass | null>(null);
+  const busFieldRef  = useRef<CouncilField | null>(null);
+  const busSpeakerRef = useRef<{ speaking: string | null; rms: number }>({ speaking: null, rms: 0 });
+  const connectedRef = useRef(false);
+  const connection = useCouncilBus((s) => s.connection);
+  const [tick] = useState(0);
 
   const buildScene = useCallback(() => {
     const container = containerRef.current;
@@ -629,11 +641,12 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
     if (!isMobile) {
       const bloom = new UnrealBloomPass(
         new THREE.Vector2(container.clientWidth, container.clientHeight),
-        0.9,   // strength
+        0.6,   // strength — driven by groupCoherence in rAF
         0.4,   // radius
         0.82,  // threshold
       );
       composer.addPass(bloom);
+      bloomPassRef.current = bloom;
     }
     composerRef.current = composer;
 
@@ -705,11 +718,14 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
       const baseColorV = new THREE.Color(ag.color);
       const emissiveColorV = new THREE.Color(ag.emissive);
       const uniforms: { [key: string]: THREE.IUniform } = {
-        uTime:         { value: 0 },
-        uFrequency:    { value: ag.frequency_hz },
-        uBaseColor:    { value: baseColorV },
-        uEmissiveColor:{ value: emissiveColorV },
-        uPulse:        { value: 0 },
+        uTime:          { value: 0 },
+        uFrequency:     { value: ag.frequency_hz },
+        uPhase:         { value: 0 },
+        uEnergy:        { value: 0.5 },
+        uSpeak:         { value: 0 },
+        uBaseColor:     { value: baseColorV },
+        uEmissiveColor: { value: emissiveColorV },
+        uPulse:         { value: 0 },
       };
       allUniforms.push(uniforms);
       const bodyMat = new THREE.ShaderMaterial({
@@ -772,31 +788,64 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
       animFrameRef.current = requestAnimationFrame(animate);
       t += 0.01;
 
-      // Avatar float + shader time
+      // Map bus field to sphere uniforms — no idle sin() animation
+      const busF = busFieldRef.current;
+      const busS = busSpeakerRef.current;
+
       avatars.forEach((av, i) => {
-        av.position.y = sceneConfig.agentY + 0.42 + Math.sin(t * 1.2 + i * 1.3) * 0.08;
-        av.rotation.y += 0.005;
-        const scl = 1 + Math.sin(t * 2 + i) * 0.04;
-        av.scale.set(scl, scl, scl);
+        const ag = AGENT_CONFIG[i];
+        av.rotation.y += 0.002;
+        if (busF) {
+          const sphere = busF.spheres.get(ag.sphereId);
+          if (sphere && allUniforms[i]) {
+            allUniforms[i].uPhase.value  = sphere.phase;
+            allUniforms[i].uEnergy.value = sphere.energy;
+            allUniforms[i].uSpeak.value  = sphere.speakingNow ? Math.max(0.2, busS.rms) : 0;
+            allUniforms[i].uPulse.value  = sphere.speakingNow ? busS.rms : 0;
+            const scl = 0.9 + sphere.energy * 0.2;
+            av.scale.set(scl, scl, scl);
+          }
+        } else {
+          // No meeting — freeze, no idle motion
+          if (allUniforms[i]) {
+            allUniforms[i].uPhase.value  = 0;
+            allUniforms[i].uEnergy.value = 0;
+            allUniforms[i].uSpeak.value  = 0;
+            allUniforms[i].uPulse.value  = 0;
+          }
+          av.scale.set(1, 1, 1);
+        }
         if (allUniforms[i]) allUniforms[i].uTime.value = t;
       });
 
-      // Speak ring pulse (demo: rotate through agents)
-      const speaker = Math.floor(t * 0.5) % numAgents;
+      // Speak rings from bus (speakingNow + RMS)
       speakRings.forEach((ring, i) => {
         const mat = ring.material as THREE.MeshBasicMaterial;
-        if (i === speaker) {
-          mat.opacity = 0.4 + Math.sin(t * 8) * 0.3;
-          ring.scale.setScalar(1 + Math.sin(t * 8) * 0.15);
-          if (allUniforms[i]) allUniforms[i].uPulse.value = 0.6 + Math.sin(t * 8) * 0.4;
+        const ag = AGENT_CONFIG[i];
+        const sphere = busF?.spheres.get(ag.sphereId);
+        const isSpeaking = sphere?.speakingNow ?? false;
+        const rmsVal = isSpeaking ? busS.rms : 0;
+        if (isSpeaking) {
+          mat.opacity = 0.3 + rmsVal * 0.5;
+          ring.scale.setScalar(1 + rmsVal * 0.2);
         } else {
           mat.opacity = Math.max(0, mat.opacity - 0.04);
           ring.scale.setScalar(1);
-          if (allUniforms[i]) {
-            allUniforms[i].uPulse.value = Math.max(0, allUniforms[i].uPulse.value - 0.03);
-          }
         }
       });
+
+      // groupCoherence → bloom strength 0.6→1.4
+      if (bloomPassRef.current && busF) {
+        const target = 0.6 + busF.groupCoherence * 0.8;
+        bloomPassRef.current.strength += (target - bloomPassRef.current.strength) * 0.04;
+      }
+
+      // entropy → camera micro-shake ≤ 0.2 px
+      if (busF && busF.entropy > 0.15) {
+        const shakeAmt = (busF.entropy - 0.15) * 0.3;
+        camera.position.x += (Math.random() - 0.5) * shakeAmt * 0.002;
+        camera.position.y += (Math.random() - 0.5) * shakeAmt * 0.001;
+      }
 
       // Expand + fade SSE-triggered pulse rings
       const now = Date.now();
@@ -845,62 +894,25 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
     return cleanup;
   }, [buildScene, tick]);
 
-  // SSE connection for live council events
+  // Subscribe to bus updates without triggering re-renders (ref-based)
+  useEffect(() => {
+    return useCouncilBus.subscribe((s) => {
+      busFieldRef.current  = s.field;
+      busSpeakerRef.current = { speaking: s.speaking, rms: s.rms };
+    });
+  }, []);
+
+  // Connect bus when meetingId changes; disconnect on unmount only if we started it
   useEffect(() => {
     if (!meetingId) return;
-    const es = new EventSource(`/api/council/orchestrator?meetingId=${meetingId}`);
-    setIsConnected(true);
-
-    es.onmessage = (ev) => {
-      try {
-        const event = JSON.parse(ev.data) as { kind?: string; agentId?: string };
-        const uniforms = shaderUniformsRef.current;
-        const idx = AGENT_CONFIG.findIndex((a) => a.sphereId === event.agentId);
-
-        if (event.kind === 'sphere.signal' && idx >= 0 && uniforms[idx]) {
-          // Trigger pulse ring at that sphere's position
-          const ag = AGENT_CONFIG[idx];
-          const numAg = AGENT_CONFIG.length;
-          const angle = (idx / numAg) * Math.PI * 2;
-          const r = 4.2; // approximate ring radius
-          const ringGeo = new THREE.RingGeometry(0.5, 0.58, 48);
-          const ringMat = new THREE.MeshBasicMaterial({
-            color: ag.color,
-            transparent: true,
-            opacity: 0.8,
-            side: THREE.DoubleSide,
-          });
-          const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-          ringMesh.rotation.x = -Math.PI / 2;
-          ringMesh.position.set(
-            Math.cos(angle) * r,
-            0.05,
-            Math.sin(angle) * r,
-          );
-          // Access scene through renderer dom element parent approach is complex;
-          // instead we add directly — scene ref not in closure so we use uniforms to trigger pulse
-          uniforms[idx].uPulse.value = 1.0;
-        }
-
-        if (event.kind === 'meeting.focus' && event.agentId) {
-          // ALIGN entrainment — lerp all sphere colors toward focal sphere
-          const focalIdx = AGENT_CONFIG.findIndex((a) => a.sphereId === event.agentId);
-          if (focalIdx >= 0 && uniforms[focalIdx]) {
-            const focalColor = uniforms[focalIdx].uBaseColor.value as THREE.Color;
-            uniforms.forEach((u, i) => {
-              if (i !== focalIdx) {
-                (u.uBaseColor.value as THREE.Color).lerp(focalColor, 0.15);
-              }
-            });
-          }
-        }
-      } catch {
-        // ignore malformed events
+    useCouncilBus.getState().connect(meetingId);
+    connectedRef.current = true;
+    return () => {
+      if (connectedRef.current) {
+        useCouncilBus.getState().disconnect();
+        connectedRef.current = false;
       }
     };
-
-    es.onerror = () => { setIsConnected(false); es.close(); };
-    return () => es.close();
   }, [meetingId]);
 
   return (
@@ -910,9 +922,9 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
       {/* Live badge */}
       <AnimatePresence>
         <motion.div
-          key={isConnected ? 'live' : 'off'}
+          key={connection === 'live' ? 'live' : 'off'}
           className={`absolute top-4 right-4 px-3 py-1.5 rounded-full text-xs font-bold ${
-            isConnected
+            connection === 'live'
               ? 'bg-green-500/20 text-green-400 border border-green-500'
               : 'bg-zinc-800/80 text-zinc-400 border border-zinc-700'
           }`}
@@ -920,7 +932,7 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
         >
-          {isConnected ? '● EN VIVO' : '○ DEMO'}
+          {connection === 'live' ? '● EN VIVO' : '○ DEMO'}
         </motion.div>
       </AnimatePresence>
 
