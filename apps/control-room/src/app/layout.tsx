@@ -22,8 +22,8 @@ const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://kupuri-media-cdmx.ve
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Cynthia — Tu IA Soberana Personal",
-    template: "%s | Cynthia",
+    default: "SYNTHIA — Tu IA Soberana Personal",
+    template: "%s | SYNTHIA",
   },
   description: "El sistema operativo personal de Ivette. Una IA que aprende, crece y trabaja solo para ti.",
   keywords: [
@@ -156,7 +156,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="antialiased" style={{ fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" }}>
+      <body className="antialiased" style={{ fontFamily: "var(--font-plex-sans), system-ui, sans-serif" }}>
         <div className="flex flex-col min-h-screen">
           <Breadcrumb />
           <main className="flex-1">

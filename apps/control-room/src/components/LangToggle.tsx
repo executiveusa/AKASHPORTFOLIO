@@ -2,46 +2,25 @@
 
 /**
  * LangToggle — segmented ES · EN control.
- * Persists the chosen voice language in localStorage('synthia_voice_lang').
- * Best-effort PATCH to /api/synthia/memory { voice_lang } on change.
+ * Lang is a single source of truth: the bus (useCouncilBus lang + setLang).
+ * On first mount, LangToggle hydrates the bus from localStorage('synthia_voice_lang').
+ * useVoiceLang() is a thin wrapper over the bus for backward compat with bienvenida.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import type { CSSProperties } from 'react';
+import { useCouncilBus } from '@/lib/council/bus';
+import type { VoiceLang } from '@/shared/council-events';
 
 const LS_KEY = 'synthia_voice_lang';
 
 // ---------------------------------------------------------------------------
-// Hook
+// Hook — reads/writes bus; hydrate is done inside LangToggle component effect
 // ---------------------------------------------------------------------------
 
-export function useVoiceLang(): [string, (lang: string) => void] {
-  const [lang, setLangState] = useState<string>('es');
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(LS_KEY);
-      if (saved === 'es' || saved === 'en') setLangState(saved);
-    } catch {
-      /* storage blocked */
-    }
-  }, []);
-
-  const setLang = (next: string) => {
-    setLangState(next);
-    try {
-      localStorage.setItem(LS_KEY, next);
-    } catch {
-      /* storage blocked */
-    }
-    // Best-effort — never block on failure
-    fetch('/api/synthia/memory', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ voice_lang: next }),
-    }).catch(() => { /* intentionally silent */ });
-  };
-
+export function useVoiceLang(): [VoiceLang, (lang: VoiceLang) => void] {
+  const lang = useCouncilBus((s) => s.lang);
+  const setLang = useCouncilBus((s) => s.setLang);
   return [lang, setLang];
 }
 
@@ -51,14 +30,30 @@ export function useVoiceLang(): [string, (lang: string) => void] {
 
 interface LangToggleProps {
   /** Called after internal state updates; receives the new lang value. */
-  onChange?: (lang: string) => void;
+  onChange?: (lang: VoiceLang) => void;
 }
 
 export function LangToggle({ onChange }: LangToggleProps) {
-  const [lang, setLang] = useVoiceLang();
+  const lang = useCouncilBus((s) => s.lang);
+  const busSetLang = useCouncilBus((s) => s.setLang);
 
-  const handleSelect = (next: string) => {
-    setLang(next);
+  // Hydrate bus from localStorage on first mount (single source of truth)
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(LS_KEY);
+      if (saved === 'es' || saved === 'en') {
+        busSetLang(saved);
+      }
+    } catch {
+      /* storage blocked */
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSelect = (next: VoiceLang) => {
+    busSetLang(next);
+    // Persist to localStorage as backup
+    try { localStorage.setItem(LS_KEY, next); } catch { /* */ }
     onChange?.(next);
   };
 

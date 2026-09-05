@@ -169,15 +169,18 @@ export function closeMeeting(
   touch();
 
   // Fire-and-forget: persist to Supabase (table may not exist — swallow errors)
+  // id = meetingId so /api/council/memo can query by id on in-memory miss.
   import('@/lib/supabase-client').then(({ supabaseAdmin }) => {
     supabaseAdmin
       .from('sphere_meetings')
       .insert({
+        id: meetingId,
         meeting_id: meetingId,
         topic: meeting.topic,
         agent_ids: meeting.agentIds,
         started_at: new Date(meeting.startedAt).toISOString(),
         ended_at: new Date(closed.endedAt).toISOString(),
+        closed_at: new Date(closed.endedAt).toISOString(),
         coherence: coherence ?? null,
         decisions: decisions ?? null,
       })

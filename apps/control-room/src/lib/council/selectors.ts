@@ -53,9 +53,12 @@ interface SpeakerState {
 /**
  * Returns speaking identity and real-time RMS. Drives the mouth-pulse and
  * bloom boost visuals without the caller needing to know about Web Audio.
+ * Uses two primitive selectors to avoid creating a new object on every tick.
  */
 export function useSpeaker(): SpeakerState {
-  return useCouncilBus((s) => ({ speaking: s.speaking, rms: s.rms }));
+  const speaking = useCouncilBus((s) => s.speaking);
+  const rms = useCouncilBus((s) => s.rms);
+  return { speaking, rms };
 }
 
 // ---------------------------------------------------------------------------

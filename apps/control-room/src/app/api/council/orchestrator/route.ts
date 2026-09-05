@@ -50,16 +50,25 @@ import {
 // Signed token for cross-instance SSE auth (bienvenida flow).
 // POST returns the token; GET verifies it without relying on module-level Set.
 
-const HMAC_SECRET = (): string =>
-  process.env.NEXTAUTH_SECRET ?? process.env.CRON_SECRET ?? 'dev';
+/** Returns the HMAC secret, or throws if neither env var is set. */
+function HMAC_SECRET(): string {
+  const s = process.env.NEXTAUTH_SECRET ?? process.env.CRON_SECRET;
+  if (!s) throw new Error('server misconfigured');
+  return s;
+}
 
 function signMeetingToken(meetingId: string): string {
-  return createHmac('sha256', HMAC_SECRET())
-    .update(meetingId)
-    .digest('hex');
+  try {
+    return createHmac('sha256', HMAC_SECRET())
+      .update(meetingId)
+      .digest('hex');
+  } catch {
+    throw new Error('server misconfigured');
+  }
 }
 
 function verifyMeetingToken(meetingId: string, token: string): boolean {
+  // May throw if HMAC_SECRET is not configured — caller must handle
   const expected = signMeetingToken(meetingId);
   // Constant-time comparison to prevent timing attacks
   if (expected.length !== token.length) return false;
@@ -71,8 +80,9 @@ function verifyMeetingToken(meetingId: string, token: string): boolean {
 }
 
 // ── Spend-keyword detection ────────────────────────────────────────────────
+// Only real spend/commit phrases: currency amounts or explicit action verbs.
 const SPEND_PATTERN =
-  /\b(pagar|gastar|contratar|enviar|publicar|comprar|invertir|firmar|\$|MXN|EUR|USD)\b/i;
+  /(\$\s?\d|\b\d[\d.,]*\s?(mxn|usd|eur|pesos|dólares|euros)\b|\b(pagar|comprar|invertir|firmar contrato|contratar a|transferir)\b)/i;
 
 // ── Bienvenida meeting tracking ────────────────────────────────────────────
 // Tracks meetingIds that were started via the bienvenida first-run flow so the
@@ -227,6 +237,84 @@ export async function POST(req: NextRequest) {
       const acceptVotes = memo.boardStances?.filter((s: { vote: string }) => s.vote === 'accept').length ?? 0;
       const total = Math.max(memo.boardStances?.length ?? 1, 1);
       const coherence = acceptVotes / total;
+
+      // ── Approval gate (autonomy guardrail) ─────────────────────────────────
+      // Gate sanity:
+      // - confidence: use memo.confidence only if it is a number; otherwise use
+      //   coherence but only when boardStances exists AND has ≥ 3 votes.
+      // - spend pattern: only real spend/commit phrases (currency amounts or verbs).
+      // - bienvenida meetings: never require approval (welcome council is informational).
+      // - risk_level: 'high' when spend pattern matched; otherwise 'medium'.
+      const memoRecord = memo as unknown as Record<string, unknown>;
+      const memoConfidence: number =
+        typeof memoRecord.confidence === 'number'
+          ? memoRecord.confidence as number
+          : (memo.boardStances && memo.boardStances.length >= 3)
+            ? coherence
+            : 1; // assume confident if not enough data (skip the gate)
+
+      const decisionsText = decisions.join(' ');
+      const spendMatched = SPEND_PATTERN.test(decisionsText);
+      const needsApproval =
+        !isBienvenida &&
+        (memoConfidence < 0.85 || spendMatched);
+
+      // ── EMIT approval.required BEFORE meeting.end ───────────────────────────
+      // Emit synchronously so it is buffered before the meeting.end closes the stream.
+      // Use brief.id as approvalId if DB row id is not yet known.
+      if (needsApproval) {
+        const reason = memoConfidence < 0.85
+          ? `El consejo alcanzó confianza ${Math.round(memoConfidence * 100)}% (umbral 85%); el operador debe revisar antes de ejecutar.`
+          : `Una o más decisiones implican una acción de gasto o compromiso que requiere autorización del operador.`;
+        const riskLevel: 'high' | 'medium' = spendMatched ? 'high' : 'medium';
+        const t = Date.now();
+
+        // Emit approval.required and sphere.signal synchronously (before meeting.end)
+        emitEvent(brief.id, {
+          t,
+          type: 'approval.required',
+          meetingId: brief.id,
+          id: brief.id, // use meetingId until DB row is confirmed
+          reason,
+          agentId: 'la-vigilante',
+        });
+        emitEvent(brief.id, {
+          t: t + 1,
+          type: 'sphere.signal',
+          meetingId: brief.id,
+          agentId: 'la-vigilante',
+          kind: 'ASSERT',
+          amplitude: 1.0,
+          durationMs: 5000,
+          carrierHz: 0,
+          transcript: reason,
+        } satisfies CouncilEvent);
+
+        // Best-effort: insert approvals row asynchronously (never blocks the event)
+        import('@/lib/supabase-client')
+          .then(({ supabaseAdmin }) =>
+            supabaseAdmin
+              .from('approvals')
+              .insert({
+                workflow_id:   brief.id,
+                risk_level:    riskLevel,
+                status:        'pending',
+                requested_by:  'la-vigilante',
+                requested_at:  new Date().toISOString(),
+                metadata:      { meetingId: brief.id, confidence: memoConfidence, decisions },
+              })
+              .select('id')
+              .single(),
+          )
+          .then(({ error }) => {
+            if (error) console.warn('[orchestrator] approval insert skipped:', error.message);
+          })
+          .catch((err: unknown) => {
+            console.warn('[orchestrator] approval insert failed:', err);
+          });
+      }
+
+      // ── Close meeting and emit meeting.end ────────────────────────────────
       closeMeeting(brief.id, coherence, decisions);
       emitEvent(brief.id, {
         t: Date.now(),
@@ -236,79 +324,7 @@ export async function POST(req: NextRequest) {
         decisions,
       } satisfies CouncilEvent);
 
-      // ── Approval gate (autonomy guardrail ≥ 0.85) ──────────────────────────
-      // needsApproval when confidence < 0.85 OR any decision contains spend keywords.
-      const memoConfidence: number =
-        typeof (memo as unknown as Record<string, unknown>).confidence === 'number'
-          ? (memo as unknown as Record<string, unknown>).confidence as number
-          : coherence;
-      const decisionsText = decisions.join(' ');
-      const needsApproval =
-        memoConfidence < 0.85 || SPEND_PATTERN.test(decisionsText);
-
-      if (needsApproval) {
-        const reason = memoConfidence < 0.85
-          ? `El consejo alcanzó confianza ${Math.round(memoConfidence * 100)}% (umbral 85%); el operador debe revisar antes de ejecutar.`
-          : `Una o más decisiones implican una acción de gasto o compromiso que requiere autorización del operador.`;
-
-        import('@/lib/supabase-client')
-          .then(({ supabaseAdmin }) =>
-            supabaseAdmin
-              .from('approvals')
-              .insert({
-                workflow_id:   brief.id,
-                risk_level:    memoConfidence < 0.85 ? 'medium' : 'high',
-                status:        'pending',
-                requested_by:  'la-vigilante',
-                requested_at:  new Date().toISOString(),
-                metadata:      { meetingId: brief.id, confidence: memoConfidence, decisions },
-              })
-              .select('id')
-              .single(),
-          )
-          .then(({ data, error }) => {
-            if (error) console.warn('[orchestrator] approval insert skipped:', error.message);
-            const approvalId = (data as { id?: string } | null)?.id ?? brief.id;
-            const t = Date.now();
-            // Emit approval.required into the SSE buffer (buffered so late joiners see it)
-            emitEvent(brief.id, {
-              t,
-              type: 'approval.required',
-              meetingId: brief.id,
-              id: approvalId,
-              reason,
-              agentId: 'la-vigilante',
-            });
-            // Emit a sphere.signal for la-vigilante so she lights up amber
-            emitEvent(brief.id, {
-              t: t + 1,
-              type: 'sphere.signal',
-              meetingId: brief.id,
-              agentId: 'la-vigilante',
-              kind: 'ASSERT',
-              amplitude: 1.0,
-              durationMs: 5000,
-              carrierHz: 0,
-              transcript: reason,
-            } satisfies CouncilEvent);
-          })
-          .catch((err: unknown) => {
-            console.warn('[orchestrator] approval flow failed:', err);
-            // Still emit the event even if DB insert failed
-            const t = Date.now();
-            emitEvent(brief.id, {
-              t,
-              type: 'approval.required',
-              meetingId: brief.id,
-              id: brief.id,
-              reason,
-              agentId: 'la-vigilante',
-            });
-          });
-      }
-
       // Best-effort: persist memo as a synthia_asset so /library can list it.
-      // Wrapped in try/catch — table may not exist yet; never block the meeting flow.
       import('@/lib/supabase-client')
         .then(({ supabaseAdmin }) => {
           const descriptionLines: string[] = [
@@ -354,7 +370,11 @@ export async function POST(req: NextRequest) {
   // Bienvenida meetings get a signed token so the GET SSE endpoint can verify
   // cross-instance (token replaces reliance on module-level Set alone).
   if (isBienvenida) {
-    responseBody.token = signMeetingToken(brief.id);
+    try {
+      responseBody.token = signMeetingToken(brief.id);
+    } catch {
+      return NextResponse.json({ error: 'server misconfigured' }, { status: 500 });
+    }
   }
   return NextResponse.json(responseBody);
 }
@@ -378,9 +398,14 @@ export async function GET(req: NextRequest) {
   // Auth: bienvenida meetings allow any signed-in user; others require admin.
   // Fast-path: same-instance module-level Set. Cross-instance: verify HMAC token.
   const suppliedToken = req.nextUrl.searchParams.get('token');
-  const isBienvenidaGet =
-    bienvenidaMeetings.has(meetingId) ||
-    (suppliedToken !== null && verifyMeetingToken(meetingId, suppliedToken));
+  let isBienvenidaGet = bienvenidaMeetings.has(meetingId);
+  if (!isBienvenidaGet && suppliedToken !== null) {
+    try {
+      isBienvenidaGet = verifyMeetingToken(meetingId, suppliedToken);
+    } catch {
+      return NextResponse.json({ error: 'server misconfigured' }, { status: 500 });
+    }
+  }
 
   if (isBienvenidaGet) {
     try { await requireUser(); } catch (e) { return toErrorResponse(e); }
@@ -395,7 +420,11 @@ export async function GET(req: NextRequest) {
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
         if (event.type === 'meeting.end') {
           cleanup();
-          controller.close();
+          // Delay close ~750 ms so late-buffered events (approval.required) flush
+          // to the client before the stream terminates.
+          setTimeout(() => {
+            try { controller.close(); } catch { /* already closed */ }
+          }, 750);
         }
       });
 

@@ -13,13 +13,15 @@
  *   - "EN VIVO / DEMO" live badge (state is in HUD)
  *   - Active sphere tooltip chrome (now accessible via click and keyboard sr-only list — see SphereField.tsx)
  *
- * Tour anchors: data-tour="iniciar-consejo", "aprobaciones", "mercados"
- * (aprobaciones and mercados are rendered inside SphereField's HUD strip)
+ * Tour anchors: data-tour="iniciar-consejo", "aprobaciones"
+ * (aprobaciones is rendered by ApprovalCard inside SphereField)
+ * Note: data-tour="mercados" may be absent if market data is not connected;
+ * SpheresTour skips that step when the anchor element is not in the DOM.
  */
 
 import { Suspense, useState } from 'react';
 import { SphereField } from '@/components/SphereField';
-import { LangToggle, useVoiceLang } from '@/components/LangToggle';
+import { LangToggle } from '@/components/LangToggle';
 import { SpheresTour } from '@/components/tour/SpheresTour';
 import { useCouncilLang } from '@/lib/council/selectors';
 import { unlockAudio } from '@/lib/council/bus';
@@ -47,7 +49,6 @@ export default function SpheresPage() {
   const [isLaunching, setIsLaunching] = useState(false);
   const [error, setError]         = useState<string | null>(null);
   const [lang]                    = useCouncilLang();
-  const [voiceLang]               = useVoiceLang();
   const t = copy[lang as 'es' | 'en'] ?? copy.es;
 
   const launchMeeting = async () => {
@@ -58,7 +59,7 @@ export default function SpheresPage() {
       const res = await fetch('/api/council/orchestrator', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic: topic.trim(), lang: voiceLang }),
+        body: JSON.stringify({ topic: topic.trim(), lang }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = (await res.json()) as { meetingId?: string };
@@ -156,7 +157,7 @@ export default function SpheresPage() {
             background: 'rgba(239,68,68,0.15)',
             color: '#f87171',
             fontSize: 11,
-            fontFamily: '"IBM Plex Mono", monospace',
+            fontFamily: 'var(--font-plex-mono), ui-monospace, monospace',
           }}
         >
           {error}

@@ -7,12 +7,15 @@
  *   1. Mount → hasSeenFirstRun() → if true, redirect to /spheres
  *   2. SYNTHIA greeting line appears; voice synthesis attempted on first user gesture
  *   3. User types one sentence → Enter / submit
- *   4. POST /api/council/orchestrator (initiatedBy: 'bienvenida', lang) → EventSource SSE
- *   5. sphere.signal events: set speaking sphere + append transcript
- *      → TourOverlay step 1 anchors to ring
- *   6. meeting.closing / meeting.end → show memo (decisions[] or synthesis)
+ *   4. POST /api/council/orchestrator (initiatedBy: 'bienvenida', lang) → bus.connect(meetingId, { token })
+ *   5. sphere.signal events: speaking/transcript/energy read from bus (SphereRing2D driven by field.spheres)
+ *      → TourOverlay step 1 anchors to ring when bus.connection === 'live'
+ *   6. meeting.end → show memo (decisions[] from bus transcript)
  *      → TourOverlay step 2 anchors to memo
  *   7. "Entrar al observatorio" → markFirstRunSeen() → /spheres?tour=1
+ *
+ * Watchdog: 20 s timer reset on every bus transcript change / field tick;
+ *   on expiry → disconnect + static memo. Hard 90 s cap.
  *
  * Degradation: on any orchestrator error, show a self-identifying static memo
  * (dashed border, muted, labelled "Sin consejo en vivo — memo de ejemplo").
@@ -21,6 +24,7 @@
  *
  * AudioContext: created/resumed only on first user gesture (focus or keydown on
  * the input). The greeting audio buffer is fetched eagerly but played on gesture.
+ * Council turns route through the bus (MediaSource TTFA applies).
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
@@ -30,8 +34,9 @@ import { hasSeenFirstRun, markFirstRunSeen, TOUR_STEPS } from '@/lib/first-run';
 import { LangToggle, useVoiceLang } from '@/components/LangToggle';
 import { SphereRing2D } from '@/components/SphereRing2D';
 import { TourOverlay } from '@/components/tour/TourOverlay';
-import { unlockAudio } from '@/lib/council/bus';
-import type { SphereAgentId, CouncilEvent } from '@/shared/council-events';
+import { unlockAudio, useCouncilBus } from '@/lib/council/bus';
+import { ApprovalCard } from '@/components/ApprovalCard';
+import type { SphereAgentId } from '@/shared/council-events';
 
 // ---------------------------------------------------------------------------
 // Constants — Observatorio design tokens
@@ -42,7 +47,6 @@ const TEXT_DIM = 'rgba(255,255,255,0.42)';
 const TEXT_MID = 'rgba(255,255,255,0.72)';
 const TEXT_FULL = 'rgba(255,255,255,0.92)';
 const BORDER   = 'rgba(255,255,255,0.10)';
-// Neutral accent: no violet. #e8e9ee text on transparent with 1px border.
 const ACCENT_TEXT   = '#e8e9ee';
 const ACCENT_BORDER = 'rgba(232,233,238,0.35)';
 
@@ -103,7 +107,7 @@ async function playWithContext(
   src.buffer = decoded;
   src.connect(ctx.destination);
   src.start(0);
-  return decoded.duration * 1000; // ms
+  return decoded.duration * 1000;
 }
 
 // ---------------------------------------------------------------------------
@@ -112,7 +116,16 @@ async function playWithContext(
 
 export default function BienvenidaPage() {
   const router = useRouter();
-  const [lang, setLang] = useVoiceLang() as [('es' | 'en'), (l: string) => void];
+  const [lang] = useVoiceLang();
+
+  // Bus state
+  const busConnect    = useCouncilBus((s) => s.connect);
+  const busDisconnect = useCouncilBus((s) => s.disconnect);
+  const busConnection = useCouncilBus((s) => s.connection);
+  const busTranscript = useCouncilBus((s) => s.transcript);
+  const busField      = useCouncilBus((s) => s.field);
+  const busSpeaking   = useCouncilBus((s) => s.speaking);
+  const busApproval   = useCouncilBus((s) => s.approvalPending);
 
   // Redirect if already onboarded
   useEffect(() => {
@@ -139,13 +152,24 @@ export default function BienvenidaPage() {
     return () => clearTimeout(t);
   }, []);
 
-  // Sphere ring state
-  const [speaking, setSpeaking] = useState<SphereAgentId | null>(null);
-  const [energy, setEnergy]     = useState<Partial<Record<SphereAgentId, number>>>({});
-  const [coherence, setCoherence] = useState(0);
+  // Local energy + coherence derived from bus field
+  const energy: Partial<Record<SphereAgentId, number>> = {};
+  let coherenceVal = 0;
+  if (busField) {
+    coherenceVal = busField.groupCoherence;
+    for (const [id, sphere] of busField.spheres.entries()) {
+      energy[id] = sphere.energy;
+    }
+  }
 
-  // Transcript + voice-failed badge
-  const [transcript, setTranscript] = useState<string>('');
+  // Transcript display — last bus transcript text, falling back to greeting
+  const [greetingText, setGreetingText] = useState('');
+  const lastTranscriptText =
+    busTranscript.length > 0
+      ? (busTranscript[busTranscript.length - 1].text ?? '')
+      : greetingText;
+
+  // Voice-failed badge (only for greeting; bus handles council turns)
   const [voiceFailed, setVoiceFailed] = useState(false);
 
   // User input
@@ -156,7 +180,9 @@ export default function BienvenidaPage() {
   const [phase, setPhase] = useState<'idle' | 'greeting' | 'running' | 'done'>('idle');
   const [memo, setMemo]   = useState<string[]>([]);
   const [memoIsStatic, setMemoIsStatic] = useState(false);
-  const esRef = useRef<EventSource | null>(null);
+  const briefTextRef = useRef('');
+  // Ref-tracked phase for use inside timeout callbacks (avoids stale closure)
+  const phaseRef = useRef<'idle' | 'greeting' | 'running' | 'done'>('idle');
 
   // Tour step — only first 2 bienvenida steps
   const [tourStep, setTourStep] = useState(0);
@@ -164,6 +190,7 @@ export default function BienvenidaPage() {
 
   // ---------------------------------------------------------------------------
   // AudioContext — lazy; created and resumed only on first user gesture
+  // (used only for greeting clip; council turns use bus MediaSource)
   // ---------------------------------------------------------------------------
   const audioCtxRef       = useRef<AudioContext | null>(null);
   const greetingBufRef    = useRef<ArrayBuffer | null>(null);
@@ -201,9 +228,7 @@ export default function BienvenidaPage() {
       const buf = greetingBufRef.current;
       greetingBufRef.current = null;
       try {
-        const durationMs = await playWithContext(ctx, buf);
-        setSpeaking('synthia');
-        setTimeout(() => setSpeaking(null), durationMs);
+        await playWithContext(ctx, buf);
         setVoiceFailed(false);
       } catch {
         setVoiceFailed(true);
@@ -218,7 +243,7 @@ export default function BienvenidaPage() {
   useEffect(() => {
     const t = setTimeout(async () => {
       const greeting = GREETING[lang as 'es' | 'en'] ?? GREETING.es;
-      setTranscript(greeting);
+      setGreetingText(greeting);
       setPhase('greeting');
 
       try {
@@ -229,7 +254,6 @@ export default function BienvenidaPage() {
         });
         if (res.ok && res.headers.get('content-type')?.includes('audio')) {
           greetingBufRef.current = await res.arrayBuffer();
-          // Will play on first user gesture (focus/keydown)
         } else {
           setVoiceFailed(true);
         }
@@ -244,24 +268,113 @@ export default function BienvenidaPage() {
   }, []);
 
   // ---------------------------------------------------------------------------
-  // Submit handler
+  // Tour auto-advance: step 1 when bus goes live (meeting started)
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    if (busConnection === 'live' && phase === 'running' && tourStep === 0) {
+      setTourStep(1);
+    }
+  }, [busConnection, phase, tourStep]);
+
+  // ---------------------------------------------------------------------------
+  // Watch bus for meeting.end (connection transitions to idle after meeting)
+  // Phase transitions to done once meeting ends and we have decisions from transcript
+  // ---------------------------------------------------------------------------
+  const meetingEndHandledRef = useRef(false);
+
+  useEffect(() => {
+    if (
+      phase === 'running' &&
+      busConnection === 'idle' &&
+      !meetingEndHandledRef.current
+    ) {
+      meetingEndHandledRef.current = true;
+      // Collect decisions from bus transcript
+      const decisions = busTranscript
+        .filter(e => e.kind === 'ASSERT' && e.text)
+        .map(e => e.text as string)
+        .slice(-3);
+      if (decisions.length > 0) {
+        setMemo(decisions);
+        setMemoIsStatic(false);
+      } else {
+        setMemo(buildStaticMemo(briefTextRef.current, lang as 'es' | 'en'));
+        setMemoIsStatic(true);
+      }
+      setPhase('done');
+      setTourStep(2);
+    }
+  }, [busConnection, phase, busTranscript, lang]);
+
+  // Keep phaseRef current so timeout callbacks can read latest phase
+  useEffect(() => { phaseRef.current = phase; }, [phase]);
+
+  // ---------------------------------------------------------------------------
+  // Watchdog: 20 s timer reset on every transcript change / field tick.
+  // On expiry: disconnect + static memo. Hard 90 s cap.
+  // ---------------------------------------------------------------------------
+  const watchdogRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hardCapRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const armWatchdog = useCallback(() => {
+    if (watchdogRef.current) clearTimeout(watchdogRef.current);
+    watchdogRef.current = setTimeout(() => {
+      // Use ref to avoid stale closure over phase
+      if (phaseRef.current === 'running') {
+        busDisconnect();
+        setMemo(buildStaticMemo(briefTextRef.current, lang as 'es' | 'en'));
+        setMemoIsStatic(true);
+        setPhase('done');
+        setTourStep(2);
+      }
+    }, 20_000);
+  }, [busDisconnect, lang]);
+
+  // Reset watchdog whenever transcript or field ticks
+  useEffect(() => {
+    if (phase === 'running') armWatchdog();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [busTranscript.length, busField, phase]);
+
+  // Hard 90 s cap — set once when phase becomes 'running'
+  useEffect(() => {
+    if (phase !== 'running') return;
+    hardCapRef.current = setTimeout(() => {
+      if (phaseRef.current === 'running') {
+        busDisconnect();
+        setMemo(buildStaticMemo(briefTextRef.current, lang as 'es' | 'en'));
+        setMemoIsStatic(true);
+        setPhase('done');
+        setTourStep(2);
+      }
+    }, 90_000);
+    return () => {
+      if (hardCapRef.current) clearTimeout(hardCapRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
+
+  // Cleanup timers + bus on unmount
+  useEffect(() => {
+    return () => {
+      if (watchdogRef.current) clearTimeout(watchdogRef.current);
+      if (hardCapRef.current) clearTimeout(hardCapRef.current);
+      busDisconnect();
+    };
+  }, [busDisconnect]);
+
+  // ---------------------------------------------------------------------------
+  // Submit handler — POST to orchestrator, then connect bus
   // ---------------------------------------------------------------------------
 
   const handleSubmit = useCallback(async () => {
     const text = brief.trim();
     if (!text || phase === 'running') return;
 
+    briefTextRef.current = text;
     setPhase('running');
-    setTranscript('');
     setVoiceFailed(false);
-
-    if (esRef.current) {
-      esRef.current.close();
-      esRef.current = null;
-    }
-
-    let meetingId: string | null = null;
-  let sseToken: string | null = null;
+    meetingEndHandledRef.current = false;
 
     try {
       const res = await fetch('/api/council/orchestrator', {
@@ -283,83 +396,25 @@ export default function BienvenidaPage() {
         status?: string;
         token?: string;
       };
-      meetingId = data.meetingId ?? data.briefId ?? null;
-      sseToken  = data.token ?? null;
+      const meetingId = data.meetingId ?? data.briefId ?? null;
+      const sseToken  = data.token ?? undefined;
+
+      if (!meetingId) throw new Error('no meetingId');
+
+      // Connect bus — routes council turns through MediaSource for TTFA
+      busConnect(meetingId, { token: sseToken });
+      // Arm initial watchdog
+      armWatchdog();
+
     } catch {
       setMemo(buildStaticMemo(text, lang as 'es' | 'en'));
       setMemoIsStatic(true);
       setPhase('done');
       setTourStep(2);
-      return;
     }
-
-    if (!meetingId) {
-      setMemo(buildStaticMemo(text, lang as 'es' | 'en'));
-      setMemoIsStatic(true);
-      setPhase('done');
-      setTourStep(2);
-      return;
-    }
-
-    // Open SSE stream — include signed token so GET auth works cross-instance
-    const sseUrl = sseToken
-      ? `/api/council/orchestrator?meetingId=${encodeURIComponent(meetingId)}&token=${encodeURIComponent(sseToken)}`
-      : `/api/council/orchestrator?meetingId=${encodeURIComponent(meetingId)}`;
-    const es = new EventSource(sseUrl);
-    esRef.current = es;
-
-    let tourStep1Shown = false;
-
-    es.onmessage = (e) => {
-      let event: CouncilEvent;
-      try {
-        event = JSON.parse(e.data as string) as CouncilEvent;
-      } catch {
-        return;
-      }
-
-      if (event.type === 'sphere.signal') {
-        setSpeaking(event.agentId);
-        setEnergy(prev => ({ ...prev, [event.agentId]: 1.0 }));
-        if (event.transcript) setTranscript(event.transcript);
-        if (!tourStep1Shown) { tourStep1Shown = true; setTourStep(1); }
-        const dur = event.durationMs ?? 3000;
-        setTimeout(() => {
-          setSpeaking(prev => (prev === event.agentId ? null : prev));
-          setEnergy(prev => ({ ...prev, [event.agentId]: 0.6 }));
-        }, dur);
-      }
-
-      if (event.type === 'meeting.closing') setCoherence(event.coherence);
-
-      if (event.type === 'meeting.end') {
-        es.close();
-        esRef.current = null;
-        setSpeaking(null);
-        const decisions =
-          event.decisions && event.decisions.length > 0
-            ? event.decisions.slice(0, 3)
-            : buildStaticMemo(text, lang as 'es' | 'en');
-        const isStatic = !(event.decisions && event.decisions.length > 0);
-        setMemo(decisions);
-        setMemoIsStatic(isStatic);
-        setPhase('done');
-        setTourStep(2);
-      }
-    };
-
-    es.onerror = () => {
-      es.close();
-      esRef.current = null;
-      setMemo(buildStaticMemo(text, lang as 'es' | 'en'));
-      setMemoIsStatic(true);
-      setPhase('done');
-      setTourStep(2);
-    };
-  }, [brief, lang, phase]);
+  }, [brief, lang, phase, busConnect, armWatchdog]);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    // Resume AudioContext on any key (user gesture)
     void handleGesture();
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -371,16 +426,6 @@ export default function BienvenidaPage() {
     markFirstRunSeen();
     router.push('/spheres?tour=1');
   };
-
-  // Cleanup SSE on unmount
-  useEffect(() => {
-    return () => {
-      if (esRef.current) {
-        esRef.current.close();
-        esRef.current = null;
-      }
-    };
-  }, []);
 
   // Responsive ring size
   const [ringSize, setRingSize] = useState(300);
@@ -417,7 +462,6 @@ export default function BienvenidaPage() {
         transition: reducedMotion ? 'none' : 'opacity 600ms ease',
       }}
     >
-      {/* Base styles only — no Google Fonts @import at runtime */}
       <style>{`
         *, *::before, *::after { box-sizing: border-box; }
         body { margin: 0; }
@@ -425,18 +469,18 @@ export default function BienvenidaPage() {
 
       {/* LangToggle — fixed top-right */}
       <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 100 }}>
-        <LangToggle onChange={(l) => setLang(l)} />
+        <LangToggle />
       </div>
 
-      {/* Sphere ring */}
+      {/* Sphere ring — driven by bus field */}
       <div
         data-tour="ring"
         style={{ marginBottom: 24, display: 'flex', justifyContent: 'center' }}
       >
         <SphereRing2D
-          speaking={speaking}
+          speaking={busSpeaking}
           energy={energy}
-          coherence={coherence}
+          coherence={coherenceVal}
           size={ringSize}
           reducedMotion={reducedMotion}
         />
@@ -459,7 +503,7 @@ export default function BienvenidaPage() {
         aria-live="polite"
         aria-atomic="true"
       >
-        {transcript}
+        {lastTranscriptText}
       </p>
       {voiceFailed && (
         <span
@@ -520,13 +564,19 @@ export default function BienvenidaPage() {
         </div>
       )}
 
+      {/* ApprovalCard — shown when bus.approvalPending */}
+      {busApproval && (
+        <div style={{ width: '100%', maxWidth: 520, marginTop: 16, position: 'relative' }}>
+          <ApprovalCard />
+        </div>
+      )}
+
       {/* Memo — shown after meeting.end */}
       {phase === 'done' && memo.length > 0 && (
         <div
           data-tour="memo"
           style={{ width: '100%', maxWidth: 520, textAlign: 'center' }}
         >
-          {/* Static memo self-identification badge */}
           {memoIsStatic && (
             <div
               style={{
@@ -581,7 +631,6 @@ export default function BienvenidaPage() {
             ))}
           </ul>
 
-          {/* Neutral enter button — no violet */}
           <button
             type="button"
             onClick={handleEnter}

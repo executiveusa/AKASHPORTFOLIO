@@ -65,7 +65,7 @@ function SignInContent() {
         Hola, Ivette.
       </h1>
       <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.5)', marginBottom: 40, textAlign: 'center', maxWidth: 320, lineHeight: 1.6 }}>
-        Soy Cynthia. Tu mundo está aquí — listo cuando tú lo estés. Entra con tu cuenta de Google para continuar.
+        Soy SYNTHIA. Tu mundo está aquí — listo cuando tú lo estés. Entra con tu cuenta de Google para continuar.
       </p>
 
       {/* Error */}
@@ -126,7 +126,7 @@ function SignInContent() {
       </button>
 
       <p style={{ marginTop: 32, fontSize: 12, color: 'rgba(255,255,255,0.25)', textAlign: 'center' }}>
-        Solo Ivette puede acceder a Cynthia.
+        Solo Ivette puede acceder a SYNTHIA.
       </p>
 
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>

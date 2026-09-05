@@ -590,8 +590,11 @@ export function SphereField({ meetingId, market, className = '' }: SphereFieldPr
       }
 
       // Camera micro-shake (damped, post-controls, amplitude ≤ 0.2px).
-      // Shake offset is applied after controls.update() so it doesn't accumulate.
+      // Store base position after controls.update() each frame; apply shake as
+      // camera.position = base + offset so it never accumulates across frames.
       controls.update();
+      const basePosX = camera.position.x;
+      const basePosY = camera.position.y;
       if (busField && busField.entropy > 0.15) {
         const amt = Math.min((busField.entropy - 0.15) * 0.4, 0.2);
         shakeOffset.x = (Math.random() - 0.5) * amt * 0.002;
@@ -601,8 +604,8 @@ export function SphereField({ meetingId, market, className = '' }: SphereFieldPr
         shakeOffset.x *= 0.6;
         shakeOffset.y *= 0.6;
       }
-      camera.position.x += shakeOffset.x;
-      camera.position.y += shakeOffset.y;
+      camera.position.x = basePosX + shakeOffset.x;
+      camera.position.y = basePosY + shakeOffset.y;
 
       composer.render();
 

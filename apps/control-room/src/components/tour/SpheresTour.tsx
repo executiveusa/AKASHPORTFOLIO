@@ -4,10 +4,13 @@
  * SpheresTour — three hotspot tour overlays for the /spheres page.
  *
  * Reads ?tour=1 from the URL. Anchors to [data-tour="iniciar-consejo"],
- * [data-tour="aprobaciones"], and [data-tour="mercados"].
+ * [data-tour="aprobaciones"], and [data-tour="mercados"] (mercados step
+ * is skipped if its anchor element is absent from the DOM).
  *
- * Mount point: add <SpheresTour /> anywhere inside the /spheres page component
- * (preferably at the root div level). See BUILD-NOTES.md for exact placement.
+ * Steps advance by progress (not by user clicking "next"):
+ *   step 1 → 2: when bus.connection === 'live' (meeting started)
+ *   step 2 → 3: when approvalPending or after 8 s
+ *   step 3 dismiss: after 8 s or ESC
  *
  * Never shown again after dismissed (parent should remove via state or hide via CSS).
  * Replayable by navigating to /spheres?tour=1 again.
@@ -16,9 +19,10 @@
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { TourOverlay } from './TourOverlay';
+import { useCouncilBus } from '@/lib/council/bus';
 import type { TourStep } from '@/lib/first-run';
 
-const SPHERES_TOUR_STEPS: TourStep[] = [
+const ALL_TOUR_STEPS: TourStep[] = [
   {
     id: 'spheres-tour-1',
     anchor: 'iniciar-consejo',
@@ -48,6 +52,10 @@ export function SpheresTour({ lang = 'es' }: SpheresTourProps) {
   const [step, setStep] = useState<number>(0);
   const [reducedMotion, setReducedMotion] = useState(false);
 
+  // Bus selectors for progress-based advancement
+  const busConnection   = useCouncilBus((s) => s.connection);
+  const busApproval     = useCouncilBus((s) => s.approvalPending);
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -63,20 +71,52 @@ export function SpheresTour({ lang = 'es' }: SpheresTourProps) {
     }
   }, [searchParams]);
 
+  // Step 1 → 2: when meeting starts (bus.connection === 'live')
+  useEffect(() => {
+    if (step === 1 && busConnection === 'live') {
+      setStep(2);
+    }
+  }, [step, busConnection]);
+
+  // Step 2 → 3: when approvalPending or after 8 s
+  useEffect(() => {
+    if (step !== 2) return;
+    if (busApproval) {
+      setStep(3);
+      return;
+    }
+    const t = setTimeout(() => setStep(3), 8_000);
+    return () => clearTimeout(t);
+  }, [step, busApproval]);
+
+  // Step 3 → dismiss: after 8 s
+  useEffect(() => {
+    if (step !== 3) return;
+    const t = setTimeout(() => setStep(0), 8_000);
+    return () => clearTimeout(t);
+  }, [step]);
+
   if (step <= 0) return null;
+
+  // Filter out mercados step if anchor is absent
+  const activeSteps = ALL_TOUR_STEPS.filter(s => {
+    if (s.anchor === 'mercados' && typeof document !== 'undefined') {
+      return document.querySelector('[data-tour="mercados"]') !== null;
+    }
+    return true;
+  });
+
+  // Remap step to filtered list
+  const currentStepIdx = step - 1;
+  const filteredStep = currentStepIdx < activeSteps.length ? step : 0;
+  if (filteredStep <= 0) return null;
 
   return (
     <TourOverlay
-      step={step}
-      steps={SPHERES_TOUR_STEPS}
+      step={filteredStep}
+      steps={activeSteps}
       lang={lang}
       reducedMotion={reducedMotion}
-      onNext={() =>
-        setStep(s => {
-          const next = s + 1;
-          return next > SPHERES_TOUR_STEPS.length ? 0 : next;
-        })
-      }
       onDismiss={() => setStep(0)}
     />
   );

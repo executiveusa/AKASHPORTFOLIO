@@ -8,7 +8,6 @@ export async function GET(req: NextRequest) {
   try { await requireUser(); } catch (e) { return toErrorResponse(e); }
 
   const threadId = req.nextUrl.searchParams.get('thread_id');
-  const scope = req.nextUrl.searchParams.get('scope');
 
   let query = supabaseAdmin.from('synthia_assets').select('*').order('created_at', { ascending: false });
   if (threadId) query = query.eq('thread_id', threadId);

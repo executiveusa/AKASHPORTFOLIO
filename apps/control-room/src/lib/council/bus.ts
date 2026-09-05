@@ -75,7 +75,7 @@ interface BusState {
   metrics: BusMetrics;
 
   // Actions
-  connect: (meetingId: string) => void;
+  connect: (meetingId: string, opts?: { token?: string }) => void;
   disconnect: () => void;
   setLang: (l: VoiceLang) => void;
   resolveApproval: () => void;
@@ -212,7 +212,7 @@ export const useCouncilBus = create<BusState>((set, get) => {
       set({ connection: 'idle', speaking: null, rms: 0, metrics: {} });
     },
 
-    connect: async (meetingId) => {
+    connect: async (meetingId, opts) => {
       get().disconnect();
 
       const phy = await getPhysics();
@@ -220,11 +220,12 @@ export const useCouncilBus = create<BusState>((set, get) => {
       set({ meetingId, field, connection: 'live', transcript: [], approvalPending: null, metrics: {} });
 
       // ------------------------------------------------------------------
-      // SSE subscription
+      // SSE subscription — include token for cross-instance HMAC auth
       // ------------------------------------------------------------------
-      es = new EventSource(
-        `/api/council/orchestrator?meetingId=${encodeURIComponent(meetingId)}`,
-      );
+      const sseUrl = opts?.token
+        ? `/api/council/orchestrator?meetingId=${encodeURIComponent(meetingId)}&token=${encodeURIComponent(opts.token)}`
+        : `/api/council/orchestrator?meetingId=${encodeURIComponent(meetingId)}`;
+      es = new EventSource(sseUrl);
       es.onerror = () => set({ connection: 'error' });
 
       es.onmessage = (msg) => {
@@ -382,8 +383,21 @@ function flushSourceBuffer(clip: QueuedClip): void {
   try {
     sb.appendBuffer(bytes);
   } catch {
-    // appendBuffer can throw if updating or quota exceeded — skip chunk
+    // appendBuffer failed (quota / updating) — put chunk back and mark clip failed
+    // so playing resets and the next clip in the queue can start.
+    clip.pendingBytes.unshift(bytes);
     clip.appending = false;
+    // Dispatch error to the audio element to trigger the cleanup listener
+    if (clip.audioEl) {
+      try { clip.audioEl.dispatchEvent(new Event('error')); } catch { /* */ }
+    } else {
+      // audioEl not yet attached — reset playing directly so pumpVoice can advance
+      const idx = voiceQueue.indexOf(clip);
+      if (idx !== -1) voiceQueue.splice(idx, 1);
+      playing = false;
+      if (busSet) busSet({ speaking: null, rms: 0 });
+      pumpVoice();
+    }
   }
 }
 
@@ -407,7 +421,6 @@ function maybeEndStream(clip: QueuedClip): void {
 function startProgressivePlay(clip: QueuedClip): void {
   if (!busSet || !busGet) return;
   const set = busSet;
-  const get = busGet;
 
   // Only construct AudioContext after a user gesture (audioUnlocked set by unlockAudio())
   if (!audioUnlocked) return;
@@ -448,7 +461,7 @@ function startProgressivePlay(clip: QueuedClip): void {
     analyser.fftSize = 256;
     srcNode.connect(analyser);
     analyser.connect(audioCtx.destination);
-    timeDomainData = new Uint8Array(analyser.frequencyBinCount);
+    timeDomainData = new Uint8Array(new ArrayBuffer(analyser.frequencyBinCount));
   } catch {
     // createMediaElementSource can fail if the element is already attached elsewhere
   }
@@ -589,7 +602,7 @@ async function playClipFallback(clip: QueuedClip): Promise<void> {
     src.connect(analyser);
     analyser.connect(audioCtx.destination);
 
-    const timeDomainData = new Uint8Array(analyser.frequencyBinCount);
+    const timeDomainData = new Uint8Array(new ArrayBuffer(analyser.frequencyBinCount));
     const t0 = audioCtx.currentTime;
     const phy = await getPhysics();
     const currentClip = clip;

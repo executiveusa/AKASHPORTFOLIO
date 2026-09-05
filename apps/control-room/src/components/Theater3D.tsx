@@ -844,11 +844,14 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
       }
 
       // entropy → camera micro-shake ≤ 0.2 px (damped, post-controls, non-accumulating)
+      // Store base position after controls.update(); apply shake as base + offset.
       controls.update();
+      const tBasePosX = camera.position.x;
+      const tBasePosY = camera.position.y;
       if (busF && busF.entropy > 0.15) {
         const amt = Math.min((busF.entropy - 0.15) * 0.3, 0.2);
-        camera.position.x += (Math.random() - 0.5) * amt * 0.002;
-        camera.position.y += (Math.random() - 0.5) * amt * 0.001;
+        camera.position.x = tBasePosX + (Math.random() - 0.5) * amt * 0.002;
+        camera.position.y = tBasePosY + (Math.random() - 0.5) * amt * 0.001;
       }
 
       // Expand + fade SSE-triggered pulse rings

@@ -64,9 +64,9 @@
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-space-grotesk), system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
-  --font-display: var(--font-playfair-display);
+  --font-sans: var(--font-plex-sans), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+  --font-display: var(--font-plex-sans);
 }
 
 /* Utility classes — Uncodixfy compliant (no glass, no pills, no gradients) */
@@ -191,4 +191,4 @@ body {
   }
 }
 
-.theater-title { font-family: 'Playfair Display', Georgia, 'Times New Roman', serif; }
+.theater-title { font-family: var(--font-display), Georgia, 'Times New Roman', serif; }
