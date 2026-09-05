@@ -113,7 +113,7 @@ export default function FleetPage() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 600, color: "var(--color-cream-100)", margin: 0 }}>
-            Fleet Monitor
+            Monitor de la flota
           </h1>
           <p style={{ fontSize: 13, color: "var(--color-cream-400)", marginTop: 4 }}>
             {data

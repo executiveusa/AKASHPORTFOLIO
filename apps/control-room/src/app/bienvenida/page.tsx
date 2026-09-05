@@ -5,19 +5,22 @@
  *
  * Flow:
  *   1. Mount → hasSeenFirstRun() → if true, redirect to /spheres
- *   2. SYNTHIA greeting line appears; best-effort voice synthesis plays
+ *   2. SYNTHIA greeting line appears; voice synthesis attempted on first user gesture
  *   3. User types one sentence → Enter / submit
- *   4. POST /api/council/orchestrator → EventSource SSE stream
+ *   4. POST /api/council/orchestrator (initiatedBy: 'bienvenida', lang) → EventSource SSE
  *   5. sphere.signal events: set speaking sphere + append transcript
  *      → TourOverlay step 1 anchors to ring
  *   6. meeting.closing / meeting.end → show memo (decisions[] or synthesis)
  *      → TourOverlay step 2 anchors to memo
  *   7. "Entrar al observatorio" → markFirstRunSeen() → /spheres?tour=1
  *
- * Degradation: on any orchestrator error, show a static 3-bullet memo and
- * let the user enter the observatory.
+ * Degradation: on any orchestrator error, show a self-identifying static memo
+ * (dashed border, muted, labelled "Sin consejo en vivo — memo de ejemplo").
  *
  * Mobile: ring ≤ 60vw; input full width; no overflow.
+ *
+ * AudioContext: created/resumed only on first user gesture (focus or keydown on
+ * the input). The greeting audio buffer is fetched eagerly but played on gesture.
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
@@ -30,15 +33,17 @@ import { TourOverlay } from '@/components/tour/TourOverlay';
 import type { SphereAgentId, CouncilEvent } from '@/shared/council-events';
 
 // ---------------------------------------------------------------------------
-// Constants
+// Constants — Observatorio design tokens
 // ---------------------------------------------------------------------------
 
-const FIELD = '#07080c';
+const FIELD    = '#07080c';
 const TEXT_DIM = 'rgba(255,255,255,0.42)';
 const TEXT_MID = 'rgba(255,255,255,0.72)';
 const TEXT_FULL = 'rgba(255,255,255,0.92)';
-const BORDER = 'rgba(255,255,255,0.10)';
-const ACCENT = '#8b5cf6'; // synthia violet
+const BORDER   = 'rgba(255,255,255,0.10)';
+// Neutral accent: no violet. #e8e9ee text on transparent with 1px border.
+const ACCENT_TEXT   = '#e8e9ee';
+const ACCENT_BORDER = 'rgba(232,233,238,0.35)';
 
 const GREETING = {
   es: 'Hola. Soy SYNTHIA. Dime en una frase qué hace tu negocio.',
@@ -55,19 +60,15 @@ const ENTER_LABEL = {
   en: 'Enter the observatory',
 };
 
-// ---------------------------------------------------------------------------
-// Web Audio helper
-// ---------------------------------------------------------------------------
+const VOICE_UNAVAILABLE = {
+  es: 'Voz no disponible',
+  en: 'Voice unavailable',
+};
 
-async function playAudioArrayBuffer(buf: ArrayBuffer): Promise<number> {
-  const ctx = new AudioContext();
-  const decoded = await ctx.decodeAudioData(buf);
-  const source = ctx.createBufferSource();
-  source.buffer = decoded;
-  source.connect(ctx.destination);
-  source.start(0);
-  return decoded.duration * 1000; // ms
-}
+const STATIC_MEMO_LABEL = {
+  es: 'Sin consejo en vivo — memo de ejemplo',
+  en: 'No live council — sample memo',
+};
 
 // ---------------------------------------------------------------------------
 // Static fallback memo builder
@@ -86,6 +87,22 @@ function buildStaticMemo(userText: string, lang: 'es' | 'en'): string[] {
     'Primera acción recomendada: define el perfil de tu cliente ideal.',
     'Siguiente paso: convoca un consejo de estrategia con ALEX y CAZADORA.',
   ];
+}
+
+// ---------------------------------------------------------------------------
+// Audio context helper — call only inside user gesture handler
+// ---------------------------------------------------------------------------
+
+async function playWithContext(
+  ctx: AudioContext,
+  buf: ArrayBuffer,
+): Promise<number> {
+  const decoded = await ctx.decodeAudioData(buf.slice(0));
+  const src = ctx.createBufferSource();
+  src.buffer = decoded;
+  src.connect(ctx.destination);
+  src.start(0);
+  return decoded.duration * 1000; // ms
 }
 
 // ---------------------------------------------------------------------------
@@ -114,7 +131,7 @@ export default function BienvenidaPage() {
     return () => mq.removeEventListener('change', h);
   }, []);
 
-  // Intro fade-in state
+  // Intro fade-in
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 60);
@@ -123,11 +140,12 @@ export default function BienvenidaPage() {
 
   // Sphere ring state
   const [speaking, setSpeaking] = useState<SphereAgentId | null>(null);
-  const [energy, setEnergy] = useState<Partial<Record<SphereAgentId, number>>>({});
+  const [energy, setEnergy]     = useState<Partial<Record<SphereAgentId, number>>>({});
   const [coherence, setCoherence] = useState(0);
 
-  // Transcript line shown under the ring
+  // Transcript + voice-failed badge
   const [transcript, setTranscript] = useState<string>('');
+  const [voiceFailed, setVoiceFailed] = useState(false);
 
   // User input
   const [brief, setBrief] = useState('');
@@ -135,16 +153,63 @@ export default function BienvenidaPage() {
 
   // Meeting state
   const [phase, setPhase] = useState<'idle' | 'greeting' | 'running' | 'done'>('idle');
-  const [memo, setMemo] = useState<string[]>([]);
+  const [memo, setMemo]   = useState<string[]>([]);
+  const [memoIsStatic, setMemoIsStatic] = useState(false);
   const esRef = useRef<EventSource | null>(null);
 
-  // Tour step
+  // Tour step — only first 2 bienvenida steps
   const [tourStep, setTourStep] = useState(0);
-  // Only the bienvenida steps (first 2)
   const bienvenidaTourSteps = TOUR_STEPS.slice(0, 2);
 
   // ---------------------------------------------------------------------------
-  // Greeting on mount
+  // AudioContext — lazy; created and resumed only on first user gesture
+  // ---------------------------------------------------------------------------
+  const audioCtxRef       = useRef<AudioContext | null>(null);
+  const greetingBufRef    = useRef<ArrayBuffer | null>(null);
+  const greetingPlayedRef = useRef(false);
+
+  // Close AudioContext on unmount
+  useEffect(() => {
+    return () => {
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close().catch(() => {});
+        audioCtxRef.current = null;
+      }
+    };
+  }, []);
+
+  const handleGesture = useCallback(async () => {
+    // Create context on first gesture
+    if (!audioCtxRef.current) {
+      try {
+        audioCtxRef.current = new AudioContext();
+      } catch {
+        setVoiceFailed(true);
+        return;
+      }
+    }
+    const ctx = audioCtxRef.current;
+    if (ctx.state === 'suspended') {
+      try { await ctx.resume(); } catch { setVoiceFailed(true); return; }
+    }
+    // Play buffered greeting if not played yet
+    if (greetingBufRef.current && !greetingPlayedRef.current) {
+      greetingPlayedRef.current = true;
+      const buf = greetingBufRef.current;
+      greetingBufRef.current = null;
+      try {
+        const durationMs = await playWithContext(ctx, buf);
+        setSpeaking('synthia');
+        setTimeout(() => setSpeaking(null), durationMs);
+        setVoiceFailed(false);
+      } catch {
+        setVoiceFailed(true);
+      }
+    }
+  }, []);
+
+  // ---------------------------------------------------------------------------
+  // Greeting on mount — fetch audio eagerly, play on first gesture
   // ---------------------------------------------------------------------------
 
   useEffect(() => {
@@ -159,16 +224,14 @@ export default function BienvenidaPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ agentId: 'synthia', text: greeting, lang }),
         });
-
         if (res.ok && res.headers.get('content-type')?.includes('audio')) {
-          const buf = await res.arrayBuffer();
-          setSpeaking('synthia');
-          const durationMs = await playAudioArrayBuffer(buf);
-          setTimeout(() => setSpeaking(null), durationMs);
+          greetingBufRef.current = await res.arrayBuffer();
+          // Will play on first user gesture (focus/keydown)
+        } else {
+          setVoiceFailed(true);
         }
-        // Text fallback: transcript already displayed above
       } catch {
-        // Voice unavailable — transcript already displayed, continue
+        setVoiceFailed(true);
       }
 
       inputRef.current?.focus();
@@ -187,8 +250,8 @@ export default function BienvenidaPage() {
 
     setPhase('running');
     setTranscript('');
+    setVoiceFailed(false);
 
-    // Close any prior stream
     if (esRef.current) {
       esRef.current.close();
       esRef.current = null;
@@ -201,9 +264,10 @@ export default function BienvenidaPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          topic: `Consejo de bienvenida: ${text}`,
-          agentIds: ['synthia', 'alex', 'cazadora'],
+          topic:       `Consejo de bienvenida: ${text}`,
+          agentIds:    ['synthia', 'alex', 'cazadora'],
           initiatedBy: 'bienvenida',
+          lang,
         }),
       });
 
@@ -216,15 +280,16 @@ export default function BienvenidaPage() {
       };
       meetingId = data.meetingId ?? data.briefId ?? null;
     } catch {
-      // Degrade: static memo
       setMemo(buildStaticMemo(text, lang as 'es' | 'en'));
+      setMemoIsStatic(true);
       setPhase('done');
-      setTourStep(2); // skip to memo overlay
+      setTourStep(2);
       return;
     }
 
     if (!meetingId) {
       setMemo(buildStaticMemo(text, lang as 'es' | 'en'));
+      setMemoIsStatic(true);
       setPhase('done');
       setTourStep(2);
       return;
@@ -248,17 +313,9 @@ export default function BienvenidaPage() {
 
       if (event.type === 'sphere.signal') {
         setSpeaking(event.agentId);
-        // Boost energy for speaking sphere
         setEnergy(prev => ({ ...prev, [event.agentId]: 1.0 }));
-        if (event.transcript) {
-          setTranscript(event.transcript);
-        }
-        // Show ring tour overlay on first signal
-        if (!tourStep1Shown) {
-          tourStep1Shown = true;
-          setTourStep(1);
-        }
-        // Auto-clear speaking after durationMs
+        if (event.transcript) setTranscript(event.transcript);
+        if (!tourStep1Shown) { tourStep1Shown = true; setTourStep(1); }
         const dur = event.durationMs ?? 3000;
         setTimeout(() => {
           setSpeaking(prev => (prev === event.agentId ? null : prev));
@@ -266,9 +323,7 @@ export default function BienvenidaPage() {
         }, dur);
       }
 
-      if (event.type === 'meeting.closing') {
-        setCoherence(event.coherence);
-      }
+      if (event.type === 'meeting.closing') setCoherence(event.coherence);
 
       if (event.type === 'meeting.end') {
         es.close();
@@ -278,7 +333,9 @@ export default function BienvenidaPage() {
           event.decisions && event.decisions.length > 0
             ? event.decisions.slice(0, 3)
             : buildStaticMemo(text, lang as 'es' | 'en');
+        const isStatic = !(event.decisions && event.decisions.length > 0);
         setMemo(decisions);
+        setMemoIsStatic(isStatic);
         setPhase('done');
         setTourStep(2);
       }
@@ -287,14 +344,16 @@ export default function BienvenidaPage() {
     es.onerror = () => {
       es.close();
       esRef.current = null;
-      // Always degrade — onerror only fires when the stream breaks unexpectedly
       setMemo(buildStaticMemo(text, lang as 'es' | 'en'));
+      setMemoIsStatic(true);
       setPhase('done');
       setTourStep(2);
     };
   }, [brief, lang, phase]);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    // Resume AudioContext on any key (user gesture)
+    void handleGesture();
     if (e.key === 'Enter') {
       e.preventDefault();
       handleSubmit();
@@ -316,10 +375,7 @@ export default function BienvenidaPage() {
     };
   }, []);
 
-  // ---------------------------------------------------------------------------
-  // Responsive ring size — updated after mount to avoid hydration mismatch
-  // ---------------------------------------------------------------------------
-
+  // Responsive ring size
   const [ringSize, setRingSize] = useState(300);
   useEffect(() => {
     const update = () =>
@@ -354,33 +410,21 @@ export default function BienvenidaPage() {
         transition: reducedMotion ? 'none' : 'opacity 600ms ease',
       }}
     >
-      {/* IBM Plex font import */}
+      {/* Base styles only — no Google Fonts @import at runtime */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap');
         *, *::before, *::after { box-sizing: border-box; }
         body { margin: 0; }
       `}</style>
 
       {/* LangToggle — fixed top-right */}
-      <div
-        style={{
-          position: 'fixed',
-          top: 16,
-          right: 16,
-          zIndex: 100,
-        }}
-      >
+      <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 100 }}>
         <LangToggle onChange={(l) => setLang(l)} />
       </div>
 
       {/* Sphere ring */}
       <div
         data-tour="ring"
-        style={{
-          marginBottom: 24,
-          display: 'flex',
-          justifyContent: 'center',
-        }}
+        style={{ marginBottom: 24, display: 'flex', justifyContent: 'center' }}
       >
         <SphereRing2D
           speaking={speaking}
@@ -391,7 +435,7 @@ export default function BienvenidaPage() {
         />
       </div>
 
-      {/* Transcript line — SYNTHIA or active sphere */}
+      {/* Transcript line + voice-failed badge */}
       <p
         style={{
           fontFamily: isMono,
@@ -401,7 +445,7 @@ export default function BienvenidaPage() {
           textAlign: 'center',
           maxWidth: 480,
           minHeight: '1.6em',
-          margin: '0 0 28px',
+          margin: '0 0 4px',
           lineHeight: 1.6,
           padding: '0 8px',
         }}
@@ -410,23 +454,38 @@ export default function BienvenidaPage() {
       >
         {transcript}
       </p>
-
-      {/* Input — shown only while idle/greeting/running, hidden after done */}
-      {phase !== 'done' && (
-        <div
+      {voiceFailed && (
+        <span
           style={{
-            width: '100%',
-            maxWidth: 520,
-            display: 'flex',
-            gap: 8,
+            display: 'inline-block',
+            marginBottom: 20,
+            fontFamily: isMono,
+            fontSize: 10,
+            color: 'rgba(255,255,255,0.38)',
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            border: '1px solid rgba(255,255,255,0.12)',
+            borderRadius: 3,
+            padding: '2px 6px',
           }}
+          aria-label={VOICE_UNAVAILABLE[lang as 'es' | 'en'] ?? VOICE_UNAVAILABLE.es}
         >
+          {VOICE_UNAVAILABLE[lang as 'es' | 'en'] ?? VOICE_UNAVAILABLE.es}
+        </span>
+      )}
+      {!voiceFailed && <div style={{ marginBottom: 20 }} />}
+
+      {/* Input — hidden after done */}
+      {phase !== 'done' && (
+        <div style={{ width: '100%', maxWidth: 520, display: 'flex', gap: 8 }}>
           <input
             ref={inputRef}
             type="text"
             value={brief}
             onChange={(e) => setBrief(e.target.value)}
             onKeyDown={handleKeyDown}
+            onFocus={() => { void handleGesture(); }}
+            enterKeyHint="go"
             placeholder={PLACEHOLDER[lang as 'es' | 'en'] ?? PLACEHOLDER.es}
             autoFocus
             disabled={phase === 'running'}
@@ -444,37 +503,13 @@ export default function BienvenidaPage() {
               opacity: phase === 'running' ? 0.5 : 1,
               transition: 'border-color 150ms, opacity 150ms',
             }}
-            onFocus={(e) => {
-              e.currentTarget.style.borderColor = ACCENT;
+            onFocusCapture={(e) => {
+              e.currentTarget.style.borderColor = ACCENT_BORDER;
             }}
-            onBlur={(e) => {
+            onBlurCapture={(e) => {
               e.currentTarget.style.borderColor = BORDER;
             }}
           />
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={!brief.trim() || phase === 'running'}
-            aria-label={lang === 'en' ? 'Submit' : 'Enviar'}
-            style={{
-              background:
-                brief.trim() && phase !== 'running' ? ACCENT : 'rgba(255,255,255,0.07)',
-              border: 'none',
-              borderRadius: 8,
-              color: brief.trim() && phase !== 'running' ? '#fff' : TEXT_DIM,
-              width: 44,
-              height: 44,
-              fontSize: 18,
-              cursor: brief.trim() && phase !== 'running' ? 'pointer' : 'default',
-              transition: 'background 150ms',
-              flexShrink: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            ↑
-          </button>
         </div>
       )}
 
@@ -482,12 +517,31 @@ export default function BienvenidaPage() {
       {phase === 'done' && memo.length > 0 && (
         <div
           data-tour="memo"
-          style={{
-            width: '100%',
-            maxWidth: 520,
-            textAlign: 'center',
-          }}
+          style={{ width: '100%', maxWidth: 520, textAlign: 'center' }}
         >
+          {/* Static memo self-identification badge */}
+          {memoIsStatic && (
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                marginBottom: 10,
+                padding: '3px 8px',
+                border: '1px dashed rgba(255,255,255,0.22)',
+                borderRadius: 4,
+                color: TEXT_DIM,
+                fontSize: 10,
+                fontFamily: isMono,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+              }}
+              aria-label={STATIC_MEMO_LABEL[lang as 'es' | 'en']}
+            >
+              {STATIC_MEMO_LABEL[lang as 'es' | 'en'] ?? STATIC_MEMO_LABEL.es}
+            </div>
+          )}
+
           <ul
             style={{
               listStyle: 'none',
@@ -503,12 +557,14 @@ export default function BienvenidaPage() {
                 key={i}
                 style={{
                   fontSize: 13,
-                  color: TEXT_MID,
+                  color: memoIsStatic ? 'rgba(255,255,255,0.45)' : TEXT_MID,
                   fontFamily: isSans,
                   lineHeight: 1.6,
                   padding: '8px 14px',
-                  background: 'rgba(255,255,255,0.04)',
-                  border: `1px solid ${BORDER}`,
+                  background: 'rgba(255,255,255,0.03)',
+                  border: memoIsStatic
+                    ? '1px dashed rgba(255,255,255,0.14)'
+                    : `1px solid ${BORDER}`,
                   borderRadius: 6,
                   textAlign: 'left',
                 }}
@@ -518,16 +574,17 @@ export default function BienvenidaPage() {
             ))}
           </ul>
 
+          {/* Neutral enter button — no violet */}
           <button
             type="button"
             onClick={handleEnter}
             style={{
-              background: ACCENT,
-              border: 'none',
+              background: 'transparent',
+              border: `1px solid ${ACCENT_BORDER}`,
               borderRadius: 8,
-              color: '#fff',
+              color: ACCENT_TEXT,
               fontSize: 14,
-              fontWeight: 500,
+              fontWeight: 400,
               fontFamily: isSans,
               padding: '12px 28px',
               cursor: 'pointer',
@@ -546,12 +603,6 @@ export default function BienvenidaPage() {
           steps={bienvenidaTourSteps}
           lang={lang as 'es' | 'en'}
           reducedMotion={reducedMotion}
-          onNext={() =>
-            setTourStep((s) => {
-              const next = s + 1;
-              return next > bienvenidaTourSteps.length ? 0 : next;
-            })
-          }
           onDismiss={() => setTourStep(0)}
         />
       )}

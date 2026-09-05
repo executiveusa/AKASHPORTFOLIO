@@ -5,14 +5,15 @@
  *
  * Positions itself relative to [data-tour="<anchor>"] via getBoundingClientRect.
  * Dismissed by progress (parent changes `step`) or ESC key.
- * Never a modal; no carousel; minimal chrome.
+ * No "Siguiente / Next" button — overlays advance only via the `step` prop.
+ * Only a dismiss (×) control is shown.
  *
  * Props:
  *   step          — 1-based index of current step (0 = hidden)
  *   steps         — ordered TourStep array
  *   lang          — 'es' | 'en'
- *   onNext        — called when user advances (arrow button)
- *   onDismiss     — called when ESC is pressed
+ *   onNext        — kept for caller compat; not rendered
+ *   onDismiss     — called when ESC or × is pressed
  *   reducedMotion — disables CSS transitions
  */
 
@@ -31,6 +32,7 @@ interface TourOverlayProps {
   step: number;
   steps: TourStep[];
   lang: 'es' | 'en';
+  /** Kept for caller compatibility; not rendered. Overlays advance via step prop. */
   onNext?: () => void;
   onDismiss?: () => void;
   reducedMotion?: boolean;
@@ -40,7 +42,6 @@ export function TourOverlay({
   step,
   steps,
   lang,
-  onNext,
   onDismiss,
   reducedMotion = false,
 }: TourOverlayProps) {
@@ -50,22 +51,15 @@ export function TourOverlay({
   const currentStep = steps[step - 1] ?? null;
 
   const measureAnchor = useCallback(() => {
-    if (!currentStep) {
-      setAnchorRect(null);
-      return;
-    }
+    if (!currentStep) { setAnchorRect(null); return; }
     const el = document.querySelector<HTMLElement>(
       `[data-tour="${currentStep.anchor}"]`,
     );
-    if (!el) {
-      setAnchorRect(null);
-      return;
-    }
+    if (!el) { setAnchorRect(null); return; }
     const r = el.getBoundingClientRect();
     setAnchorRect({ top: r.top, left: r.left, width: r.width, height: r.height });
   }, [currentStep]);
 
-  // Re-measure when step changes or on resize
   useEffect(() => {
     measureAnchor();
     window.addEventListener('resize', measureAnchor);
@@ -76,9 +70,7 @@ export function TourOverlay({
   useEffect(() => {
     if (!currentStep) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onDismiss?.();
-      }
+      if (e.key === 'Escape') onDismiss?.();
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
@@ -87,26 +79,21 @@ export function TourOverlay({
   if (!currentStep || step <= 0) return null;
 
   const text = lang === 'en' ? currentStep.textEn : currentStep.textEs;
-  const isLast = step >= steps.length;
 
-  // Compute position: prefer below the anchor, fall back to above
+  // Compute position: prefer below the anchor, fall back to above or bottom-center
   let top = 0;
   let left = 0;
   if (anchorRect) {
-    const overlayH = 72; // estimated height
+    const overlayH = 60;
     const spaceBelow = window.innerHeight - anchorRect.top - anchorRect.height;
-    if (spaceBelow >= overlayH + 12) {
-      top = anchorRect.top + anchorRect.height + 10;
-    } else {
-      top = Math.max(8, anchorRect.top - overlayH - 10);
-    }
-    // Center horizontally on anchor, clamped to viewport
+    top = spaceBelow >= overlayH + 12
+      ? anchorRect.top + anchorRect.height + 10
+      : Math.max(8, anchorRect.top - overlayH - 10);
     const overlayW = Math.min(280, window.innerWidth - 24);
     left = anchorRect.left + anchorRect.width / 2 - overlayW / 2;
     left = Math.max(12, Math.min(window.innerWidth - overlayW - 12, left));
   } else {
-    // Fallback: bottom-center
-    top = window.innerHeight - 96;
+    top  = window.innerHeight - 96;
     left = window.innerWidth / 2 - 140;
   }
 
@@ -153,16 +140,27 @@ export function TourOverlay({
 
   return (
     <div ref={overlayRef} style={overlayStyle} role="tooltip" aria-live="polite">
+      {/* Thin anchor line (visual cue) */}
+      <span
+        style={{
+          width: 2,
+          minHeight: 16,
+          alignSelf: 'stretch',
+          background: 'rgba(255,255,255,0.22)',
+          borderRadius: 1,
+          flexShrink: 0,
+        }}
+        aria-hidden="true"
+      />
       <p style={textStyle}>{text}</p>
+      {/* Dismiss only — no "Siguiente/Next" button; overlays advance via step prop */}
       <button
         type="button"
         style={btnStyle}
-        aria-label={isLast
-          ? (lang === 'en' ? 'Close tour' : 'Cerrar guía')
-          : (lang === 'en' ? 'Next tip' : 'Siguiente')}
-        onClick={isLast ? onDismiss : onNext}
+        aria-label={lang === 'en' ? 'Close tour' : 'Cerrar guía'}
+        onClick={onDismiss}
       >
-        {isLast ? '×' : '→'}
+        ×
       </button>
     </div>
   );

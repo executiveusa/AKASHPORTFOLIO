@@ -11,7 +11,7 @@
  *   - Sphere legend sidebar list (replaced by HUD readouts)
  *   - Custom inline lang toggle (replaced by LangToggle component)
  *   - "EN VIVO / DEMO" live badge (state is in HUD)
- *   - Active sphere tooltip chrome (still accessible via click)
+ *   - Active sphere tooltip chrome (now accessible via click and keyboard sr-only list — see SphereField.tsx)
  *
  * Tour anchors: data-tour="iniciar-consejo", "aprobaciones", "mercados"
  * (aprobaciones and mercados are rendered inside SphereField's HUD strip)
@@ -127,17 +127,17 @@ export default function SpheresPage() {
           disabled={isLaunching || !topic.trim()}
           style={{
             padding: '6px 14px',
-            background: isLaunching || !topic.trim() ? 'rgba(139,92,246,0.3)' : '#8b5cf6',
-            border: 'none',
+            background: 'transparent',
+            border: '1px solid rgba(232,233,238,0.35)',
             borderRadius: 5,
-            color: '#fff',
+            color: '#e8e9ee',
             fontFamily: '"IBM Plex Mono", monospace',
             fontSize: 11,
             letterSpacing: '0.1em',
             textTransform: 'uppercase',
             cursor: isLaunching || !topic.trim() ? 'not-allowed' : 'pointer',
             flexShrink: 0,
-            opacity: isLaunching || !topic.trim() ? 0.5 : 1,
+            opacity: isLaunching || !topic.trim() ? 0.4 : 1,
           }}
         >
           {isLaunching ? t.launching : t.launch}

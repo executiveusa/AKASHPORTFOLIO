@@ -1,5 +1,10 @@
-# Gauntlet
-Bar fetched (path/url/timestamp):
-Blind verdict (A/B/TIE + evidence):
-Scores:
-Smallest decisive gap:
+# Gauntlet — RUN-001 — pass 1 — 2026-09-05 (critic: fresh opus context; judged at local 6b58f85 = remote da38eed)
+Blind pick: BLOCKED (no A/B artifacts; preview SSO). Parity: SAME 2 · BETTER 3 · WORSE 6 · MISSING 5. Clutter: 4 vs ~21 (19%) — hollow pass (absence ≠ subtraction).
+Collins 5.9/10 — all floors FAIL. Voice 31/100 (TTFA not designed for: client waits for voice.done; pronunciation 0/10; fallback plumbed but never rendered).
+Critical failures (5): first-run unreachable (`/`→/dashboard, no middleware) · orchestrator admin-only on the welcome path · canned static memo styled as council output · `/api/council/memo` referenced but missing · approvals inert (count only, no control, no reason shown).
+Unverified claims (4): tour "pulso financiero en tiempo real" over a hardcoded 'MX' · "PRESUPUESTO" is a physics scalar · "accessible via click" false · STATE revision hash mismatch (local vs remote sha — fixed: record both).
+Load-bearing: in-memory SSE pub/sub across Vercel lambdas (POST/GET may land on different instances) · HUD contrast 9px/0.35 · AudioContext without gesture · "Siguiente" button · unbounded camera random walk · runtime @import font · two 500+ line renderers.
+Single biggest gap: the 60-second first run cannot happen.
+Repair slice 1 (dispatched 14:40): `/` cookie redirect · bienvenida path = requireUser (not anon) + 3 spheres + caps · lang threaded · self-identifying sample memo + voice fallback badges · AudioContext on gesture · no violet accent · TourOverlay no "Siguiente" · SphereField HUD 12px/.62, ENERGÍA, hide market w/o data, damped shake, idle rAF stop, raycaster + sr-only sphere buttons · Theater3D idle spin/particles removed · fleet h1 es · /api/council/memo route.
+Next slices (critic order): TTFA — play first chunk progressively (bus pump on first chunk, not voice.done) · approvals control on /spheres (reason + approve/reject → /api/approvals) · memo → /api/synthia/assets + /library · SSE durability (Supabase Realtime or KV) for multi-instance Vercel.
+Verdict: NOT READY

@@ -9,6 +9,13 @@
  * POST /api/council/orchestrator  — start a meeting
  * GET  /api/council/orchestrator  — SSE stream of CouncilEvents + VoiceEvents
  *
+ * Auth rules:
+ *   POST initiatedBy='bienvenida'  → requireUser (any signed-in operator)
+ *                                    agentIds forced ⊆ ['synthia','alex','cazadora']
+ *   POST all other                 → requireAdmin
+ *   GET  meetingId registered as bienvenida → requireUser
+ *   GET  all other                           → requireAdmin
+ *
  * Voice integration (RUN-001 N3):
  *   sphere.signal events with a transcript trigger speakTurn(), which opens
  *   a Rime WS stream (or REST fallback) and publishes voice.* events on the
@@ -29,7 +36,7 @@ import {
 } from '@/lib/council-engine';
 import { SPHERE_FREQUENCY_MAP } from '@/shared/sphere-state';
 import type { SphereAgentId, CouncilEvent, VoiceEvent, VoiceLang } from '@/shared/council-events';
-import { requireAdmin, toErrorResponse } from '@/lib/auth/guards';
+import { requireAdmin, requireUser, toErrorResponse } from '@/lib/auth/guards';
 import { speakTurn, releaseMeetingVoiceBudget } from '@/lib/voice/council-voice';
 import {
   registerMeeting,
@@ -37,6 +44,12 @@ import {
   noteVoice,
   closeMeeting,
 } from '@/lib/council/registry';
+
+// ── Bienvenida meeting tracking ────────────────────────────────────────────
+// Tracks meetingIds that were started via the bienvenida first-run flow so the
+// GET SSE endpoint can allow requireUser (rather than requireAdmin) for those.
+const bienvenidaMeetings = new Set<string>();
+const BIENVENIDA_AGENTS: SphereAgentId[] = ['synthia', 'alex', 'cazadora'];
 
 // ── Input sanitization ─────────────────────────────────────────────────────
 
@@ -64,16 +77,13 @@ function sanitizeBrief(brief: CouncilBrief): CouncilBrief {
 // ---------------------------------------------------------------------------
 
 export async function POST(req: NextRequest) {
-  try { await requireAdmin(); } catch (e) { return toErrorResponse(e); }
-
   let body: {
     brief?: Partial<CouncilBrief>;
     /** Legacy: plain topic string (backward compat) */
     topic?: string;
     agentIds?: SphereAgentId[];
     initiatedBy?: string;
-    /** Voice synthesis language. Default 'es'. Not threaded into council-engine
-     *  (CouncilMeetingOpts has no lang field); applied to speakTurn calls only. */
+    /** Voice synthesis language. Default 'es'. Applied to speakTurn calls only. */
     lang?: VoiceLang;
     /** Enable voice synthesis. Default true. Set false for text-only mode. */
     voice?: boolean;
@@ -83,6 +93,15 @@ export async function POST(req: NextRequest) {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+  }
+
+  const isBienvenida = body.initiatedBy === 'bienvenida';
+
+  // Auth: bienvenida → any signed-in operator; all other → admin only
+  if (isBienvenida) {
+    try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+  } else {
+    try { await requireAdmin(); } catch (e) { return toErrorResponse(e); }
   }
 
   // ── Build CouncilBrief from input ──────────────────────────────────────────
@@ -122,10 +141,24 @@ export async function POST(req: NextRequest) {
   const meetingLang: VoiceLang = body.lang ?? 'es';
   const voiceEnabled: boolean  = body.voice !== false; // default true
 
-  // Only real board members — not the chairman (synthia) or guardian (la-vigilante)
-  const boardIds = (body.agentIds ?? DEFAULT_BOARD_IDS).filter(
-    (id): id is SphereAgentId => id !== 'synthia' && id !== 'la-vigilante',
-  );
+  // For bienvenida: force agentIds ⊆ BIENVENIDA_AGENTS; drop others.
+  // For normal meetings: filter synthia/la-vigilante as chairman/guardian.
+  let boardIds: SphereAgentId[];
+  if (isBienvenida) {
+    const requested = body.agentIds ?? BIENVENIDA_AGENTS;
+    boardIds = requested.filter(
+      (id): id is SphereAgentId => BIENVENIDA_AGENTS.includes(id as SphereAgentId),
+    );
+    if (boardIds.length === 0) boardIds = [...BIENVENIDA_AGENTS];
+    // Register this meeting as a bienvenida meeting (for GET auth)
+    bienvenidaMeetings.add(brief.id);
+    // Auto-clean after 2 h to avoid unbounded growth
+    setTimeout(() => bienvenidaMeetings.delete(brief.id), 2 * 60 * 60 * 1000);
+  } else {
+    boardIds = (body.agentIds ?? DEFAULT_BOARD_IDS).filter(
+      (id): id is SphereAgentId => id !== 'synthia' && id !== 'la-vigilante',
+    );
+  }
 
   // Emit meeting.begin + node.spawn after a tick so SSE clients can connect first
   setTimeout(() => {
@@ -198,7 +231,6 @@ export async function POST(req: NextRequest) {
 // ---------------------------------------------------------------------------
 
 export async function GET(req: NextRequest) {
-  try { await requireAdmin(); } catch (e) { return toErrorResponse(e); }
   const meetingId =
     req.nextUrl.searchParams.get('meetingId') ??
     req.nextUrl.searchParams.get('briefId');
@@ -208,6 +240,13 @@ export async function GET(req: NextRequest) {
       { error: 'meetingId or briefId is required' },
       { status: 400 },
     );
+  }
+
+  // Auth: bienvenida meetings allow any signed-in user; others require admin
+  if (bienvenidaMeetings.has(meetingId)) {
+    try { await requireUser(); } catch (e) { return toErrorResponse(e); }
+  } else {
+    try { await requireAdmin(); } catch (e) { return toErrorResponse(e); }
   }
 
   const encoder = new TextEncoder();
@@ -240,6 +279,7 @@ export async function GET(req: NextRequest) {
 // ---------------------------------------------------------------------------
 // Map internal council-engine onEvent callbacks → typed CouncilEvents,
 // then enqueue a voice turn for sphere.signal events that carry a transcript.
+// lang is threaded from POST body into all speakTurn calls.
 // ---------------------------------------------------------------------------
 
 function mapToCouncilEvent(

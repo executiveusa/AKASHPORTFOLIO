@@ -34,8 +34,8 @@ const SPHERES_TOUR_STEPS: TourStep[] = [
   {
     id: 'spheres-tour-3',
     anchor: 'mercados',
-    textEs: 'Los mercados muestran el pulso financiero de tu negocio en tiempo real.',
-    textEn: 'Markets show your business financial pulse in real time.',
+    textEs: 'Cuando conectes tus mercados, su estado real aparecerá aquí. Sin datos, no hay número.',
+    textEn: 'Once your markets are connected, their real state appears here. No data, no number.',
   },
 ];
 

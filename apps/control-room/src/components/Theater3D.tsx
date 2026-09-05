@@ -794,7 +794,6 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
 
       avatars.forEach((av, i) => {
         const ag = AGENT_CONFIG[i];
-        av.rotation.y += 0.002;
         if (busF) {
           const sphere = busF.spheres.get(ag.sphereId);
           if (sphere && allUniforms[i]) {
@@ -806,7 +805,7 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
             av.scale.set(scl, scl, scl);
           }
         } else {
-          // No meeting — freeze, no idle motion
+          // No meeting — freeze, no idle motion (rotation removed: not data-driven)
           if (allUniforms[i]) {
             allUniforms[i].uPhase.value  = 0;
             allUniforms[i].uEnergy.value = 0;
@@ -840,12 +839,14 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
         bloomPassRef.current.strength += (target - bloomPassRef.current.strength) * 0.04;
       }
 
-      // entropy → camera micro-shake ≤ 0.2 px
+      // entropy → camera micro-shake ≤ 0.2 px (damped, post-controls, non-accumulating)
+      controls.update();
       if (busF && busF.entropy > 0.15) {
-        const shakeAmt = (busF.entropy - 0.15) * 0.3;
-        camera.position.x += (Math.random() - 0.5) * shakeAmt * 0.002;
-        camera.position.y += (Math.random() - 0.5) * shakeAmt * 0.001;
+        const amt = Math.min((busF.entropy - 0.15) * 0.3, 0.2);
+        camera.position.x += (Math.random() - 0.5) * amt * 0.002;
+        camera.position.y += (Math.random() - 0.5) * amt * 0.001;
       }
+      // (no else-damp needed: controls.update() resets position from spherical each frame)
 
       // Expand + fade SSE-triggered pulse rings
       const now = Date.now();
@@ -863,10 +864,11 @@ export function Theater3D({ meetingId, bilingual = true, location }: TheaterProp
         return true;
       });
 
-      // Particle drift
-      particles.rotation.y += 0.0003;
+      // Particle drift — only while a field is active (motion is data)
+      if (busF) {
+        particles.rotation.y += 0.0003;
+      }
 
-      controls.update();
       if (composerRef.current) { composerRef.current.render(); } else { renderer.render(scene, camera); }
     };
     animate();
