@@ -1,0 +1,12 @@
+id: N1
+job: "one verifiable job"
+reads: []
+writes: []
+owns: []
+depends_on: []
+parallel_group: null
+skills: []
+acceptance: []
+risk: low|medium|high
+human_gate: false
+status: pending|ready|running|blocked|built|verified|failed

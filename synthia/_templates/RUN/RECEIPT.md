@@ -1,0 +1,13 @@
+# Receipt
+```yaml
+decision: approve|revise|reject|reconstruct|park|archive
+changes: []
+proof: []
+status: NOT READY|READY FOR PREVIEW|PREVIEW VERIFIED|PRODUCTION VERIFIED
+commercial_impact: ""
+risks: []
+rollback: ""
+next: ""
+human_approval: ""
+revision: ""
+```

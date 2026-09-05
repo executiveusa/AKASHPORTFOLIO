@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { callLLM } from "@/lib/litellm-gateway";
 import { requireOperatorOrAdmin, toErrorResponse } from "@/lib/auth/guards";
 
 /**
@@ -24,7 +25,7 @@ function routeToSphere(message: string): string {
 export async function POST(req: NextRequest) {
   try { await requireOperatorOrAdmin(); } catch (e) { return toErrorResponse(e); }
 
-  let body: { message?: string; context?: string };
+  let body: { message?: string; context?: string; model?: string };
   try {
     body = await req.json();
   } catch {
@@ -36,17 +37,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "message required" }, { status: 422 });
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
   const agentUsed = routeToSphere(message);
+  const requestedModel = typeof body.model === 'string' ? body.model : undefined;
 
-  if (!apiKey) {
-    // Graceful fallback without API key
+  if (!process.env.OPEN_ROUTER_API && !process.env.ANTHROPIC_API_KEY) {
+    // Graceful fallback without any LLM key
     return NextResponse.json({
       ok: true,
-      reply: `Entendido. He enrutado tu mensaje a ${agentUsed}. Para activar respuestas inteligentes, configura ANTHROPIC_API_KEY en las variables de entorno.`,
+      reply: `Entendido. He enrutado tu mensaje a ${agentUsed}. Para activar respuestas inteligentes, configura OPEN_ROUTER_API en Infisical.`,
       agent_used: agentUsed,
       bead_id: null,
       cost_cents: 0,
+      model: null,
     });
   }
 
@@ -60,31 +62,13 @@ Reglas:
 - Si el usuario sube una foto, analiza el contenido y ruta al agente correcto
 - Nunca digas "no puedo" — siempre propone una alternativa`;
 
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 512,
-        system: systemPrompt,
-        messages: [{ role: "user", content: message }],
-      }),
-    });
-
-    if (!res.ok) {
-      throw new Error(`API ${res.status}`);
-    }
-
-    const data = await res.json();
-    const reply = data?.content?.[0]?.text ?? "Procesando tu solicitud...";
-    const inputTokens = data?.usage?.input_tokens ?? 0;
-    const outputTokens = data?.usage?.output_tokens ?? 0;
-    // claude-haiku pricing: ~$0.25/1M input, $1.25/1M output
-    const costCents = Math.round((inputTokens * 0.000025 + outputTokens * 0.000125) * 100);
+    // Free by default; a paid model runs only if the operator picked it in the switcher.
+    const result = await callLLM(
+      [{ role: 'system', content: systemPrompt }, { role: 'user', content: message }],
+      { model: requestedModel, maxTokens: 512, temperature: 0.7, sphereId: 'synthia' },
+    );
+    const reply = result.content?.trim() || 'Procesando tu solicitud...';
+    const costCents = Math.round((result.costEstimateUsd ?? 0) * 100);
 
     return NextResponse.json({
       ok: true,
@@ -92,6 +76,8 @@ Reglas:
       agent_used: agentUsed,
       bead_id: null,
       cost_cents: costCents,
+      model: result.model,
+      provider: result.provider,
     });
   } catch (err) {
     console.error("[synthia/agent]", err);

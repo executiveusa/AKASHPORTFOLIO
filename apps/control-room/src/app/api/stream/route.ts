@@ -1,123 +1,89 @@
+/**
+ * POST /api/stream — token streaming via OpenRouter (free models by default).
+ * Body: { prompt: string, model?: string, maxTokens?: number, system?: string }
+ * Emits SSE `data: {"delta": "..."}` chunks and a final `data: {"done": true, "model": "..."}`.
+ * Guarded (requireUser) + rate-limited. Replaces the old unguarded raw Anthropic proxy.
+ */
 import { NextRequest, NextResponse } from 'next/server';
+import { requireUser, toErrorResponse } from '@/lib/auth/guards';
+import { checkRateLimit } from '@/lib/sanitize';
+import { DEFAULT_MODEL, FREE_CHAIN, resolveModel, isFreeModel, paidAllowed } from '@/lib/models';
 
 export const runtime = 'nodejs';
 
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-
-function checkRateLimit(clientId: string, limit: number = 100, windowMs: number = 60000): boolean {
-  const now = Date.now();
-  const key = clientId;
-
-  let record = rateLimitMap.get(key);
-
-  if (!record || now > record.resetTime) {
-    rateLimitMap.set(key, {
-      count: 1,
-      resetTime: now + windowMs,
-    });
-    return true;
-  }
-
-  if (record.count < limit) {
-    record.count++;
-    return true;
-  }
-
-  return false;
-}
-
-// POST: Stream tokens from Claude API
 export async function POST(req: NextRequest) {
-  try {
-    const clientId = req.headers.get('x-client-id') || req.headers.get('x-forwarded-for') || 'anonymous';
+  let user: { id?: string; email?: string } | undefined;
+  try { user = (await requireUser()) as typeof user; } catch (e) { return toErrorResponse(e); }
 
-    if (!checkRateLimit(clientId, 100, 60000)) {
-      return NextResponse.json(
-        { error: 'Rate limit exceeded (100 requests per minute)' },
-        { status: 429 }
-      );
-    }
+  const clientId = user?.id || user?.email || req.headers.get('x-forwarded-for') || 'anonymous';
+  if (!checkRateLimit(`stream:${clientId}`, 60).allowed) {
+    return NextResponse.json({ error: 'Rate limit exceeded (60/min)' }, { status: 429 });
+  }
 
-    const body = await req.json();
-    const { prompt, model = 'claude-opus-4-6', maxTokens = 1000 } = body;
+  let body: { prompt?: string; model?: string; maxTokens?: number; system?: string };
+  try { body = await req.json(); } catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }); }
+  const { prompt, maxTokens = 1000, system } = body;
+  if (!prompt || typeof prompt !== 'string') return NextResponse.json({ error: 'prompt required' }, { status: 400 });
 
-    if (!prompt) {
-      return NextResponse.json({ error: 'prompt required' }, { status: 400 });
-    }
+  const key = process.env.OPEN_ROUTER_API;
+  if (!key) return NextResponse.json({ error: 'OPEN_ROUTER_API not configured' }, { status: 503 });
 
-    // Create token stream
-    const stream = new ReadableStream({
-      async start(controller) {
+  const resolved = resolveModel(body.model);
+  const model = paidAllowed(body.model) ? resolved : (isFreeModel(resolved) ? resolved : DEFAULT_MODEL);
+  const candidates = isFreeModel(model) ? [model, ...FREE_CHAIN.filter((m) => m !== model)] : [model, ...FREE_CHAIN];
+
+  const messages = [
+    ...(system ? [{ role: 'system', content: system }] : []),
+    { role: 'user', content: prompt },
+  ];
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      const enc = new TextEncoder();
+      const send = (obj: unknown) => controller.enqueue(enc.encode(`data: ${JSON.stringify(obj)}\n\n`));
+      for (const candidate of candidates) {
         try {
-          // Call Claude API with streaming
-          const response = await fetch('https://api.anthropic.com/v1/messages', {
+          const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
             headers: {
-              'x-api-key': process.env.ANTHROPIC_API_KEY || '',
-              'anthropic-version': '2023-06-01',
-              'content-type': 'application/json',
+              Authorization: `Bearer ${key}`,
+              'Content-Type': 'application/json',
+              'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'https://synthia.kupuri.media',
+              'X-Title': 'SYNTHIA',
             },
-            body: JSON.stringify({
-              model,
-              max_tokens: maxTokens,
-              stream: true,
-              messages: [{ role: 'user', content: prompt }],
-            }),
+            body: JSON.stringify({ model: candidate, messages, max_tokens: maxTokens, stream: true }),
+            signal: AbortSignal.timeout(60_000),
           });
-
-          if (!response.ok) {
-            controller.enqueue(`data: ${JSON.stringify({ error: 'API call failed' })}\n\n`);
-            controller.close();
-            return;
-          }
-
-          const reader = response.body?.getReader();
-          if (!reader) {
-            controller.close();
-            return;
-          }
-
-          const decoder = new TextDecoder();
-          let buffer = '';
-
+          if (!res.ok || !res.body) { continue; } // 429/404 on a free model → next candidate
+          const reader = res.body.getReader();
+          const dec = new TextDecoder();
+          let buf = '';
+          let emitted = false;
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split('\n');
-            buffer = lines.pop() || '';
-
+            buf += dec.decode(value, { stream: true });
+            const lines = buf.split('\n'); buf = lines.pop() || '';
             for (const line of lines) {
-              if (line.startsWith('data: ')) {
-                const data = line.slice(6);
-                if (data === '[DONE]') continue;
-                if (data) {
-                  controller.enqueue(`data: ${data}\n\n`);
-                }
-              }
+              if (!line.startsWith('data: ')) continue;
+              const data = line.slice(6).trim();
+              if (!data || data === '[DONE]') continue;
+              try {
+                const j = JSON.parse(data) as { choices?: Array<{ delta?: { content?: string | null; reasoning?: string | null } }> };
+                const delta = j.choices?.[0]?.delta?.content ?? '';
+                if (delta) { emitted = true; send({ delta }); }
+              } catch { /* skip malformed chunk */ }
             }
           }
+          if (emitted) { send({ done: true, model: candidate, free: isFreeModel(candidate) }); controller.close(); return; }
+        } catch { /* try next candidate */ }
+      }
+      send({ error: 'Todos los modelos fallaron. Intenta de nuevo.' });
+      controller.close();
+    },
+  });
 
-          controller.close();
-        } catch (error) {
-          console.error('Stream error:', error);
-          controller.enqueue(`data: ${JSON.stringify({ error: 'Streaming failed' })}\n\n`);
-          controller.close();
-        }
-      },
-    });
-
-    return new NextResponse(stream, {
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
-  } catch (error) {
-    console.error('Stream POST error:', error);
-    return NextResponse.json({ error: 'Failed to start stream' }, { status: 500 });
-  }
+  return new NextResponse(stream, {
+    headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', Connection: 'keep-alive' },
+  });
 }

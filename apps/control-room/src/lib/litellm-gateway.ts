@@ -2,32 +2,21 @@
  * LLM Gateway — Synthia™ Sphere OS
  *
  * Provider-agnostic LLM routing with budget guard and fallback chain.
- * Primary:  OpenRouter (OPEN_ROUTER_API) → anthropic/claude-3.5-sonnet
- * Fallback: Direct Anthropic SDK (ANTHROPIC_API_KEY) → claude-3-haiku-20240307
+ * Primary:  OpenRouter (OPEN_ROUTER_API) → FREE models by default (src/lib/models.ts FREE_CHAIN), paid only when the operator switches
+ * Fallback: Direct Anthropic SDK (ANTHROPIC_API_KEY) → ANTHROPIC_FALLBACK_MODEL
  * Legacy:   LiteLLM proxy (LITELLM_BASE_URL) — kept for compatibility
  * Guard:    LITELLM_DAILY_BUDGET_USD (default $20) circuit breaker
  */
 
 import Anthropic from '@anthropic-ai/sdk';
 import type { SphereAgentId } from '@/shared/council-events';
+import { DEFAULT_MODEL, FREE_CHAIN, resolveModel, isFreeModel, paidAllowed } from '@/lib/models';
 
 // ---------------------------------------------------------------------------
-// OpenRouter model name mapping
+// OpenRouter model name mapping — single home is src/lib/models.ts
 // ---------------------------------------------------------------------------
 function toOpenRouterModel(model: string): string {
-  const map: Record<string, string> = {
-    'claude-opus-4-5': 'anthropic/claude-3.5-sonnet',
-    'claude-3-opus-20240229': 'anthropic/claude-3-opus',
-    'claude-3-5-sonnet-20241022': 'anthropic/claude-3.5-sonnet',
-    'claude-3-5-haiku-20241022': 'anthropic/claude-3.5-haiku',
-    'claude-haiku-3-20240307': 'anthropic/claude-3-haiku',
-    'claude-3-haiku-20240307': 'anthropic/claude-3-haiku',
-    // SYNTHIA OS model aliases
-    'claude-sonnet-4-6':         'anthropic/claude-3.5-sonnet',
-    'claude-opus-4-6':           'anthropic/claude-opus-4-5',
-    'claude-haiku-4-5-20251001': 'anthropic/claude-haiku-3-5',
-  };
-  return map[model] ?? model;
+  return resolveModel(model);
 }
 
 // ---------------------------------------------------------------------------
@@ -45,6 +34,7 @@ export interface LLMCallOptions {
   temperature?: number;
   sphereId?: SphereAgentId; // for logging/telemetry
   taskId?: string;
+  allowPaid?: boolean;      // default false: free models only unless the operator picked a paid one
 }
 
 export interface LLMResult {
@@ -204,6 +194,7 @@ const PER_TASK_MAX_USD = parseFloat(process.env.ZTE_PER_TASK_BUDGET_USD || '10')
 
 // Rough cost estimate: Claude Opus ~$15/Mtok in, $75/Mtok out
 function estimateCost(inputTokens: number, outputTokens: number, model: string): number {
+  if (isFreeModel(model)) return 0;
   if (model.includes('opus')) return (inputTokens * 15 + outputTokens * 75) / 1_000_000;
   if (model.includes('haiku')) return (inputTokens * 0.25 + outputTokens * 1.25) / 1_000_000;
   return (inputTokens * 3 + outputTokens * 15) / 1_000_000; // sonnet-class default
@@ -218,12 +209,16 @@ export async function callLLM(
   options: LLMCallOptions = {}
 ): Promise<LLMResult> {
   const {
-    model = 'claude-opus-4-5',
+    model: requestedModel,
     maxTokens = 1024,
     temperature = 0.7,
     sphereId,
     taskId,
+    allowPaid,
   } = options;
+  // FREE BY DEFAULT: a paid model is used only if explicitly requested (switcher) or allowPaid.
+  const resolved = resolveModel(requestedModel);
+  const model = paidAllowed(requestedModel, allowPaid) ? resolved : (isFreeModel(resolved) ? resolved : DEFAULT_MODEL);
 
   // COST_GUARD — daily budget circuit breaker
   if (isOverBudget()) {
@@ -249,7 +244,16 @@ export async function callLLM(
   const openRouterKey = process.env.OPEN_ROUTER_API;
   if (openRouterKey) {
     const orModel = toOpenRouterModel(model);
-    const result = await tryOpenRouter(messages, { model: orModel, maxTokens, temperature, sphereId }, openRouterKey);
+    // Free chain: if the chosen free model is rate-limited/unavailable, walk the next free models.
+    const candidates = isFreeModel(orModel)
+      ? [orModel, ...FREE_CHAIN.filter((m) => m !== orModel)]
+      : [orModel, ...FREE_CHAIN]; // paid failure degrades to free, never to a pricier model
+    let result: LLMResult | null = null;
+    for (const candidate of candidates) {
+      result = await tryOpenRouter(messages, { model: candidate, maxTokens, temperature, sphereId }, openRouterKey);
+      if (result && result.content.trim()) break;
+      result = null;
+    }
     if (result) {
       taskCostAccumulator += result.costEstimateUsd ?? 0;
       if (taskCostAccumulator > PER_TASK_MAX_USD) {
@@ -278,7 +282,7 @@ export async function callLLM(
   // Route 3: Direct Anthropic SDK (fallback)
   const anthropicKey = process.env.ANTHROPIC_API_KEY;
   if (anthropicKey) {
-    const fallbackModel = model.includes('opus') ? 'claude-3-haiku-20240307' : model;
+    const fallbackModel = process.env.ANTHROPIC_FALLBACK_MODEL || 'claude-3-5-haiku-latest'; // direct SDK id, cheapest
     const result = await tryAnthropic(messages, { model: fallbackModel, maxTokens, temperature, sphereId });
     if (result) {
       trackAgentCost(sphereId, result.costEstimateUsd ?? 0); // FLW: per-agent cost tracking
@@ -309,13 +313,14 @@ async function tryOpenRouter(
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
         'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'https://dashboard-agent-swarm-eight.vercel.app',
-        'X-Title': 'Synthia Sphere OS',
+        'X-Title': 'SYNTHIA',
       },
       body: JSON.stringify({
         model: opts.model,
         messages,
         max_tokens: opts.maxTokens,
         temperature: opts.temperature,
+        ...(isFreeModel(opts.model) ? {} : { provider: { data_collection: 'deny' } }),
       }),
       signal: AbortSignal.timeout(30000),
     });
@@ -326,15 +331,17 @@ async function tryOpenRouter(
     }
 
     const data = await res.json() as {
-      choices: Array<{ message: { content: string } }>;
-      usage?: { prompt_tokens: number; completion_tokens: number };
+      choices: Array<{ message: { content: string | null; reasoning?: string | null } }>;
+      usage?: { prompt_tokens: number; completion_tokens: number; cost?: number };
       model?: string;
     };
 
-    const content = data.choices[0]?.message?.content ?? '';
+    const msg = data.choices[0]?.message;
+    // Some free reasoning models return the answer in `reasoning` with empty `content`.
+    const content = (msg?.content && msg.content.trim()) ? msg.content : (msg?.reasoning ?? '');
     const inputTokens = data.usage?.prompt_tokens ?? 0;
     const outputTokens = data.usage?.completion_tokens ?? 0;
-    const costEstimateUsd = estimateCost(inputTokens, outputTokens, opts.model);
+    const costEstimateUsd = typeof data.usage?.cost === 'number' ? data.usage.cost : estimateCost(inputTokens, outputTokens, opts.model);
     recordSpend(costEstimateUsd);
 
     return {
@@ -379,12 +386,14 @@ async function tryLiteLLM(
     if (!res.ok) throw new Error(`LiteLLM HTTP ${res.status}`);
 
     const data = await res.json() as {
-      choices: Array<{ message: { content: string } }>;
-      usage?: { prompt_tokens: number; completion_tokens: number };
+      choices: Array<{ message: { content: string | null; reasoning?: string | null } }>;
+      usage?: { prompt_tokens: number; completion_tokens: number; cost?: number };
       model?: string;
     };
 
-    const content = data.choices[0]?.message?.content ?? '';
+    const msg = data.choices[0]?.message;
+    // Some free reasoning models return the answer in `reasoning` with empty `content`.
+    const content = (msg?.content && msg.content.trim()) ? msg.content : (msg?.reasoning ?? '');
     const inputTokens = data.usage?.prompt_tokens ?? 0;
     const outputTokens = data.usage?.completion_tokens ?? 0;
     const costEstimateUsd = estimateCost(inputTokens, outputTokens, opts.model);
@@ -521,11 +530,18 @@ export const TASK_TIER_MAP: Record<string, TaskTier> = {
   council_meeting: 3,  strategy: 3,  report_full: 3,
 };
 
+// FREE BY DEFAULT (owner policy 2026-09-05). Paid tiers apply only when LLM_ALLOW_PAID=true.
 export const TIER_MODELS: Record<TaskTier, string> = {
-  0: 'nemotron:latest',          // Ollama local
-  1: 'claude-3-5-haiku-20241022',
-  2: 'claude-opus-4-5',
-  3: 'claude-opus-4-6',
+  0: 'nemotron:latest',                       // Ollama local
+  1: 'google/gemma-4-31b-it:free',
+  2: 'minimax/minimax-m2.7:free',
+  3: 'nvidia/nemotron-3-super-120b-a12b:free',
+};
+export const PAID_TIER_MODELS: Record<TaskTier, string> = {
+  0: 'nemotron:latest',
+  1: 'google/gemini-3.8-flash',
+  2: 'anthropic/claude-sonnet-5',
+  3: 'anthropic/claude-opus-5',
 };
 
 export const TIER_MAX_COST: Record<TaskTier, number> = {
@@ -540,7 +556,7 @@ export function classifyTask(taskType: string): TaskTier {
 }
 
 export function getTierModel(tier: TaskTier): string {
-  return TIER_MODELS[tier];
+  return process.env.LLM_ALLOW_PAID === 'true' ? PAID_TIER_MODELS[tier] : TIER_MODELS[tier];
 }
 
 // ---------------------------------------------------------------------------
@@ -592,7 +608,7 @@ export async function routeLLM(
     // fall through to Tier 1 if Ollama is down
   }
 
-  const model = overrides.model ?? TIER_MODELS[Math.max(tier, 1) as TaskTier];
+  const model = overrides.model ?? getTierModel(Math.max(tier, 1) as TaskTier);
   return callLLM(messages, { ...overrides, model });
 }
 

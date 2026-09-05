@@ -87,7 +87,7 @@ const SPHERE_PERSONAS: Record<string, { name: string; locale: string; systemProm
 
 export async function POST(req: NextRequest) {
   try { await requireUser(); } catch (e) { return toErrorResponse(e); }
-  let body: { sphereId?: string; message?: string; history?: Array<{ role: string; content: string }> };
+  let body: { sphereId?: string; message?: string; model?: string; history?: Array<{ role: string; content: string }> };
   try {
     body = await req.json();
   } catch {
@@ -120,6 +120,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const result = await callLLM(messages, {
+      model: typeof body?.model === 'string' ? body.model : undefined,
       sphereId: sphereId as SphereAgentId,
       maxTokens: 300,
       temperature: 0.82,

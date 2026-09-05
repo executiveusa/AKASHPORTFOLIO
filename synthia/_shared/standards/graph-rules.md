@@ -1,0 +1,2 @@
+# Task graph rules
+Node = one verifiable job, one owner, declared outputs. Edge only for real reads. Parallelize only non-overlapping writers. Diamond: plan → parallel workers → separate verifiers → one merge owner. Mutating nodes declare OWNS/WRITES. Model-proposed graphs are admitted before execution (kinds, policy, budget, depth, ownership). Human-gate irreversible edges. Loops have a budget ceiling but exit on evidence, not round count. One owner merges.

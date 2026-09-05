@@ -1,0 +1,7 @@
+id: G1
+claim: ""
+oracle: ""
+expected: ""
+evidence: "pending"
+revision: ""
+status: pending|pass|fail|blocked|stale
