@@ -17,3 +17,5 @@
 | W13 | `/api/arbitrage` GET returns hardcoded rates in one path while `lib/arbitrage` fetches live FX | RUN-003 |
 | W14 | `/api/spheres/status` hardcoded standby | RUN-001 (derive from bus/council_events) |
 | W15 | `checkRateLimit()` in `sanitize.ts` never called | RUN-002 |
+| W16 | `CLAUDE.md` root + `apps/control-room/.vercel` | cites Vercel project prj_gxvQdKNFxWIkEb37UsFqfyoOoThA = `dashboard-agent-swarm` (Vite). Real project: akashportfolio-control-room prj_xOBfVwhVLycT4yJLABHjSmUkUTPn | RUN-002 docs fix |
+| W17 | litellm-gateway alias map (pre-fix) | pointed at `anthropic/claude-3.5-*` ids that 404 on OpenRouter → every council call fell to Anthropic fallback | FIXED 2026-09-05 in models.ts |

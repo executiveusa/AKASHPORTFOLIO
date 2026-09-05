@@ -5,6 +5,6 @@
 - Supabase — existing project; migrations in `supabase/migrations`, plus lib SQL files to consolidate.
 - OpenRouter / Anthropic / LiteLLM — via `litellm-gateway.ts` TASK_TIER_MAP.
 - Stripe, Creem, MercadoPago, PayPal, Coinbase Commerce — payment rails present in code, partially wired.
-- GitHub (`executiveusa/AKASHPORTFOLIO`), Vercel (prj_gxvQdKNFxWIkEb37UsFqfyoOoThA), Cloudflare, Resend, Notion (canonical project tracking), Firecrawl, Webflow, Supabase MCP.
+- GitHub (`executiveusa/AKASHPORTFOLIO`), Vercel **akashportfolio-control-room `prj_xOBfVwhVLycT4yJLABHjSmUkUTPn`** (root apps/control-room, team team_2MkWeFBaSCv7DOvEy0OlX4s3; NOTE repo CLAUDE.md wrongly cites prj_gxvQ… which is `dashboard-agent-swarm`/Vite), Cloudflare, Resend, Notion (canonical project tracking), Firecrawl, Webflow, Supabase MCP.
 - Agent Zero / OpenFang / Dify — self-hosted runtimes, optional; never required by a slice.
 - NCA toolkit — media API for RUN-006 (Docker `stephengpope/no-code-architects-toolkit`).
