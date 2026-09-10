@@ -1,34 +1,9 @@
 /**
- * proxy.ts — AUTH BYPASS FOR TESTING.
- * Was NextAuth middleware (auth-gating all routes). Now a pass-through.
- * Restore: bring back auth() from "@/auth" and the isLoggedIn redirect logic.
+ * proxy.ts — Legacy auth middleware, now dormant.
+ * The active middleware is src/middleware.ts (pass-through during testing).
+ * Restore: rename this to middleware.ts and uncomment auth() calls.
  */
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-
-export default function middleware(_req: NextRequest) {
-  return NextResponse.next();
-}
-
-export const config = {
-  matcher: [
-    '/cockpit(.*)',
-    '/dashboard(.*)',
-    '/spheres(.*)',
-    '/panorama(.*)',
-    '/chat(.*)',
-    '/casos(.*)',
-    '/watcher(.*)',
-    '/integraciones(.*)',
-    '/theater(.*)',
-    '/skills(.*)',
-    '/synthia(.*)',
-    '/newspaper(.*)',
-    '/coordination(.*)',
-    '/alex(.*)',
-    '/api/revenue(.*)',
-    '/api/watcher(.*)',
-    '/api/telemetry(.*)',
-    '/api/council(.*)',
-  ],
-};
+// import { auth } from "@/auth";
+// import { NextResponse, type NextRequest } from "next/server";
+// ... (auth gate logic here)
+export {};

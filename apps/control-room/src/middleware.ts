@@ -1,6 +1,7 @@
 /**
  * middleware.ts — AUTH BYPASS FOR TESTING.
- * Pass all requests through. Restore: swap in proxy.ts logic with working NextAuth.
+ * Pass all requests through with no auth gate.
+ * Restore: swap in proxy.ts auth logic when NextAuth is working.
  */
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
@@ -25,5 +26,9 @@ export const config = {
     '/newspaper(.*)',
     '/coordination(.*)',
     '/alex(.*)',
+    '/api/revenue(.*)',
+    '/api/watcher(.*)',
+    '/api/telemetry(.*)',
+    '/api/council(.*)',
   ],
 };
