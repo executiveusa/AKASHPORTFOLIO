@@ -6,7 +6,9 @@
  */
 
 import NextAuth, { type DefaultSession, type JWT } from 'next-auth';
-import Google from 'next-auth/providers/google';
+// Google provider temporarily disabled — re-enable when OAuth credentials are verified
+// import Google from 'next-auth/providers/google';
+import Credentials from 'next-auth/providers/credentials';
 import { createClient } from '@supabase/supabase-js';
 
 function getSupabaseAdmin() {
@@ -63,11 +65,21 @@ export const isEmailAllowed = (email?: string | null): boolean => {
 // ── NextAuth v5 ───────────────────────────────────────────────────────────────
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
-    Google({
-      clientId: process.env.AUTH_GOOGLE_ID || process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET || process.env.GOOGLE_CLIENT_SECRET!,
+    // ── Passcode provider (temporary while Google OAuth is being configured) ──
+    Credentials({
+      id: 'passcode',
+      name: 'Passcode',
+      credentials: { passcode: { label: 'Código de acceso', type: 'password' } },
+      async authorize(credentials) {
+        const code = process.env.SYNTHIA_PASSCODE;
+        if (!code) return null; // passcode not configured → deny all
+        if (credentials?.passcode !== code) return null;
+        // Return the owner identity
+        return { id: 'owner', email: 'executiveusa@gmail.com', name: 'Ivette' };
+      },
     }),
   ],
+  session: { strategy: 'jwt' },
   callbacks: {
     async signIn({ user }) {
       return isEmailAllowed(user.email);
