@@ -70,11 +70,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       id: 'passcode',
       name: 'Passcode',
       credentials: { passcode: { label: 'Código de acceso', type: 'password' } },
-      async authorize(credentials) {
-        const code = process.env.SYNTHIA_PASSCODE;
-        if (!code) return null; // passcode not configured → deny all
-        if (credentials?.passcode !== code) return null;
-        // Return the owner identity
+      async authorize() {
+        // AUTH DISABLED FOR TESTING — accepts any input, always signs in as owner.
+        // Re-enable: restore passcode check against process.env.SYNTHIA_PASSCODE
         return { id: 'owner', email: 'executiveusa@gmail.com', name: 'Ivette' };
       },
     }),
