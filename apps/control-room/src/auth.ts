@@ -121,5 +121,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/auth/signin',
     error: '/auth/signin',
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  // Fallback ensures preview deployments work when NEXTAUTH_SECRET is only set on Production.
+  // Replace with a real secret before going to production.
+  secret: process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET ?? 'synthia-preview-dev-secret',
 });
