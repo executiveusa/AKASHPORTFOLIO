@@ -64,6 +64,7 @@ export const isEmailAllowed = (email?: string | null): boolean => {
 
 // ── NextAuth v5 ───────────────────────────────────────────────────────────────
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  trustHost: true, // required for Vercel preview URLs
   providers: [
     // ── Passcode provider (temporary while Google OAuth is being configured) ──
     Credentials({
