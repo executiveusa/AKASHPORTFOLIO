@@ -36,7 +36,7 @@ interface QueuedClip {
   /** base64 chunks — fallback path accumulates all; progressive path also fills for stats */
   chunks: string[];
   /** decoded bytes pending SourceBuffer.appendBuffer — MediaSource path only */
-  pendingBytes: Uint8Array[];
+  pendingBytes: Uint8Array<ArrayBuffer>[];
   appending: boolean;
   endOfStreamPending: boolean;
   audioEl: HTMLAudioElement | null;
@@ -152,9 +152,9 @@ function mseSupported(): boolean {
   return _mseCache;
 }
 
-function b64ToUint8(b64: string): Uint8Array {
+function b64ToUint8(b64: string): Uint8Array<ArrayBuffer> {
   const binary = atob(b64);
-  const out = new Uint8Array(binary.length);
+  const out = new Uint8Array(new ArrayBuffer(binary.length));
   for (let i = 0; i < binary.length; i++) out[i] = binary.charCodeAt(i);
   return out;
 }
