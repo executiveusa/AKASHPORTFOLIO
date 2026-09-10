@@ -28,23 +28,9 @@ export default function SynthiaLanding() {
           <div className="absolute inset-0 bg-grid-white/[0.02] bg-size-[50px_50px]" />
         </div>
 
-        {/* Animated orbs */}
-        <motion.div
-          className="absolute w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20"
-          animate={{
-            x: [0, 100, 0],
-            y: [0, 50, 0],
-          }}
-          transition={{ duration: 8, repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute w-72 h-72 bg-violet-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20"
-          animate={{
-            x: [0, -100, 0],
-            y: [0, -50, 0],
-          }}
-          transition={{ duration: 8, repeat: Infinity, delay: 1 }}
-        />
+        {/* Static background accent — zero idle motion (doctrine: no repeat:Infinity unbound to data) */}
+        <div className="absolute w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 left-1/4 top-1/4 pointer-events-none" />
+        <div className="absolute w-72 h-72 bg-violet-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 right-1/4 bottom-1/4 pointer-events-none" />
 
         {/* Content */}
         <motion.div

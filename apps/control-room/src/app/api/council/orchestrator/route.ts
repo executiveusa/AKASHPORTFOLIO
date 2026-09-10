@@ -488,9 +488,9 @@ function mapToCouncilEvent(
 
   if (stage === 'review') {
     const rev = data as SphereReview;
-    const transcript = rev.topInsight;
+    const transcript = (rev.topInsight && rev.topInsight.trim().length > 0) ? rev.topInsight : undefined;
     const revT = Date.now();
-    noteSignal(meetingId, sphereId, 'REFLECT', revT, transcript);
+    noteSignal(meetingId, sphereId, 'REFLECT', revT, transcript ?? '');
     emitEvent(meetingId, {
       t: revT,
       type: 'sphere.signal',

@@ -89,7 +89,7 @@ export default function DashboardPage() {
     { label: "Ingresos hoy",  value: "$0", sub: "MXN" },
     { label: "Tareas hechas", value: "0",  sub: "hoy" },
     { label: "Equipo activo", value: "0",  sub: "de 9 agentes" },
-    { label: "Costo Cynthia", value: "$0", sub: "USD hoy", status: "ok" },
+    { label: "Costo SYNTHIA", value: "$0", sub: "USD hoy", status: "ok" },
   ]);
   const [spheres, setSpheres] = useState<SphereStatus[]>(SPHERES_DEFAULT);
 
@@ -162,7 +162,7 @@ export default function DashboardPage() {
               {greeting}, Ivette.
             </div>
             <div style={{ fontSize: 13, color: "var(--color-muted)", marginTop: 4 }}>
-              Cynthia está aquí contigo. ¿Qué hacemos hoy?
+              SYNTHIA está aquí contigo. ¿Qué hacemos hoy?
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
@@ -196,7 +196,7 @@ export default function DashboardPage() {
           </h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <Link href="/chat" style={{ display: "block", padding: "13px 16px", background: "var(--color-accent)", color: "#fff", borderRadius: 10, fontSize: 14, fontWeight: 600, textDecoration: "none" }}>
-              Hablar con Cynthia
+              Hablar con SYNTHIA
             </Link>
             <div style={{ display: "flex", gap: 8 }}>
               <Link href="/panorama" style={{ flex: 1, display: "block", textAlign: "center", padding: "11px 8px", background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-text)", borderRadius: 10, fontSize: 13, fontWeight: 500, textDecoration: "none" }}>
@@ -212,11 +212,11 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        {/* Cynthia note */}
+        {/* SYNTHIA note */}
         <section>
           <div style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(139,92,246,0.03) 100%)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, padding: "14px 16px" }}>
             <div style={{ fontSize: 11, fontWeight: 600, color: "#8b5cf6", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
-              De Cynthia
+              De SYNTHIA
             </div>
             <p style={{ fontSize: 13, color: "var(--color-muted)", lineHeight: 1.6, margin: 0 }}>
               Soy tu agente soberana, Ivette. Me entreno contigo, aprendo de tu mundo y solo trabajo para ti. Cada día que pasamos juntas me vuelvo más útil para lo que realmente importa en tu vida.

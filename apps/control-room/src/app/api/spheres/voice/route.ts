@@ -66,7 +66,14 @@ export async function POST(req: NextRequest) {
   const langOpt: 'es' | 'en' | undefined =
     lang === 'es' || lang === 'en' ? lang : undefined;
 
-  const result = await synthesizeSphereVoice(agentId as SphereAgentId, text.trim(), {
+  // Brand-term pronunciation normalization (prevents Rime from mispronouncing proper nouns)
+  const normalizeText = (t: string) =>
+    t
+      .replace(/\bSYNTHIA™?\b/g, 'Sintia')       // "Sinteo" → "Sintia"
+      .replace(/\bKupuri\b/gi, 'Ku-pu-ri')        // "Popurri" → correct syllabification
+      .replace(/\bKupuri Media\b/gi, 'Ku-pu-ri Media');
+
+  const result = await synthesizeSphereVoice(agentId as SphereAgentId, normalizeText(text.trim()), {
     lang: langOpt,
     produced: produced === true,
   });

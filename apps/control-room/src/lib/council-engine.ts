@@ -782,7 +782,10 @@ function parseReviewResponse(
   anonymousMap: Map<SphereAgentId, string>,
 ): SphereReview {
   const topInsightMatch = text.match(/TOP_INSIGHT:\s*(.+?)(?:\n|$)/i);
-  const topInsight = topInsightMatch?.[1]?.trim() ?? '';
+  const _rawInsight = topInsightMatch?.[1]?.trim() ?? '';
+  // Reject prompt-echo: discard if the LLM returned the template placeholder
+  const ECHO_PATTERN = /^\[|una oración|one sentence|follow format|most valuable (finding|insight)/i;
+  const topInsight = (_rawInsight && !ECHO_PATTERN.test(_rawInsight)) ? _rawInsight : '';
 
   // Build a reverse map: anonymousId → position index
   const anonToSphere = new Map<string, SphereAgentId>();
