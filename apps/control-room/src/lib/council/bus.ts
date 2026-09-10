@@ -454,7 +454,7 @@ function startProgressivePlay(clip: QueuedClip): void {
 
   // Connect audio element to AudioContext for RMS metering before play()
   let analyser: AnalyserNode | null = null;
-  let timeDomainData: Uint8Array | null = null;
+  let timeDomainData: Uint8Array<ArrayBuffer> | null = null;
   try {
     const srcNode = audioCtx.createMediaElementSource(audioEl);
     analyser = audioCtx.createAnalyser();
@@ -588,11 +588,10 @@ async function playClipFallback(clip: QueuedClip): Promise<void> {
   try {
     if (!audioCtx) audioCtx = new AudioContext();
 
-    const bytes = Uint8Array.from(
-      atob(clip.chunks.join('')),
-      (ch) => ch.charCodeAt(0),
-    );
-    const audioBuf = await audioCtx.decodeAudioData(bytes.buffer.slice(0));
+    const raw = atob(clip.chunks.join(''));
+    const bytes = new Uint8Array(new ArrayBuffer(raw.length));
+    for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
+    const audioBuf = await audioCtx.decodeAudioData(bytes.buffer);
 
     const src = audioCtx.createBufferSource();
     src.buffer = audioBuf;
