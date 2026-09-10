@@ -2,10 +2,15 @@
  * src/auth.ts — Canonical NextAuth v5 configuration for Synthia Control Room.
  */
 
-// On Vercel Preview deployments, override NEXTAUTH_URL so NextAuth callbacks
-// stay on the current preview domain instead of the production URL.
+// On Vercel Preview, fix the callback URL and ensure NEXTAUTH_SECRET is available
+// to all server-side code that reads it directly (orchestrator HMAC, etc.).
 if (process.env.VERCEL_ENV === 'preview' && process.env.VERCEL_URL) {
   process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`;
+}
+if (!process.env.NEXTAUTH_SECRET && !process.env.AUTH_SECRET) {
+  // Provide a non-empty secret on Preview so JWT signing and HMAC work.
+  // Replace with a real secret in Vercel → akashportfolio-control-room → Env Vars → Preview.
+  process.env.NEXTAUTH_SECRET = 'synthia-preview-dev-secret-replace-before-production';
 }
 
 import NextAuth, { type DefaultSession, type JWT } from 'next-auth';
