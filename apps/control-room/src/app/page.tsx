@@ -1,15 +1,16 @@
+import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 
 /**
- * Root route — first-run gate (server component).
- * AUTH BYPASS ACTIVE FOR TESTING — session check disabled.
- * Restore: uncomment `const session = await auth()` block and re-add `import { auth } from '@/auth'`.
- *
- * No cookie `synthia_seen` → /bienvenida (first-run flow).
- * Cookie present → /dashboard.
+ * Root route — session + first-run gate.
+ * No session → /landing (public page).
+ * Session + no synthia_seen cookie → /bienvenida (first-run).
+ * Session + cookie → /dashboard.
  */
 export default async function Home() {
+  const session = await auth();
+  if (!session) redirect('/landing');
   const store = await cookies();
   const seen = store.get('synthia_seen');
   redirect(seen?.value ? '/dashboard' : '/bienvenida');
