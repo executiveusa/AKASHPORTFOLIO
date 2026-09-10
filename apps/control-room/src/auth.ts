@@ -1,9 +1,12 @@
 /**
  * src/auth.ts — Canonical NextAuth v5 configuration for Synthia Control Room.
- *
- * PATCH_002: Fixed domain drift — NEXTAUTH_URL must be explicitly set.
- * This file is the single source of truth for auth. auth.ts at root re-exports.
  */
+
+// On Vercel Preview deployments, override NEXTAUTH_URL so NextAuth callbacks
+// stay on the current preview domain instead of the production URL.
+if (process.env.VERCEL_ENV === 'preview' && process.env.VERCEL_URL) {
+  process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`;
+}
 
 import NextAuth, { type DefaultSession, type JWT } from 'next-auth';
 // Google provider temporarily disabled — re-enable when OAuth credentials are verified
