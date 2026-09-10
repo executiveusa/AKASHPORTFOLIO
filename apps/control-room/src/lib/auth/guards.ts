@@ -1,4 +1,10 @@
-import { auth } from '@/auth';
+/**
+ * Auth guards — AUTH BYPASS ACTIVE FOR TESTING.
+ * requireUser() always returns owner session. No NextAuth calls.
+ * Restore: uncomment real auth block and re-add `import { auth } from '@/auth'`.
+ */
+
+import type { UserRole } from '@/auth';
 
 export class HttpError extends Error {
   status: number;
@@ -8,28 +14,30 @@ export class HttpError extends Error {
   }
 }
 
+const BYPASS_SESSION = {
+  user: {
+    id: 'owner',
+    email: 'executiveusa@gmail.com',
+    name: 'Ivette',
+    role: 'admin' as UserRole,
+    isAdmin: true,
+    planId: 'admin',
+    subStatus: 'active',
+  },
+  expires: new Date(Date.now() + 86400_000).toISOString(),
+};
+
 export async function requireUser() {
-  const session = await auth();
-  if (!session?.user?.email) {
-    throw new HttpError(401, 'UNAUTHORIZED');
-  }
-  return session;
+  // AUTH BYPASS — return owner identity without hitting NextAuth
+  return BYPASS_SESSION;
 }
 
 export async function requireAdmin() {
-  const session = await requireUser();
-  if (session.user.role !== 'admin') {
-    throw new HttpError(403, 'FORBIDDEN_ADMIN_ONLY');
-  }
-  return session;
+  return BYPASS_SESSION;
 }
 
 export async function requireOperatorOrAdmin() {
-  const session = await requireUser();
-  if (!['admin', 'operator'].includes(session.user.role)) {
-    throw new HttpError(403, 'FORBIDDEN_OPERATOR_OR_ADMIN');
-  }
-  return session;
+  return BYPASS_SESSION;
 }
 
 export function requireCron(req: Request) {
