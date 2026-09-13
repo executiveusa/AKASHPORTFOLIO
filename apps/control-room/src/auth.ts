@@ -83,7 +83,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const code = process.env.SYNTHIA_PASSCODE;
         // If no passcode configured, fall back to a dev-only hardcoded value.
         // Set SYNTHIA_PASSCODE in Vercel env vars to lock this down.
-        const expected = code || 'MORPHO-DEV-ONLY';
+        const expected = code || 'MORPHO'; // default dev code; set SYNTHIA_PASSCODE in Vercel to change
         if ((credentials as { passcode?: string })?.passcode !== expected) return null;
         return { id: 'owner', email: 'executiveusa@gmail.com', name: 'Ivette' };
       },
