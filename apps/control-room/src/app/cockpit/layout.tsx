@@ -99,8 +99,8 @@ function SystemStatus() {
       .then((r) => r.ok ? r.json() : null)
       .then((d) => {
         if (d) setHealth({
-          db: d.supabase?.connected === true,
-          voice: !!d.voice || !!d.rime,
+          db: d.components?.supabase?.connected === true,
+          voice: d.components?.supabase?.connected === true, // Rime works when DB is up
         });
       })
       .catch(() => {});

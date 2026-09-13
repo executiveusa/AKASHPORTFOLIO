@@ -66,16 +66,21 @@ export async function POST(req: NextRequest) {
   const langOpt: 'es' | 'en' | undefined =
     lang === 'es' || lang === 'en' ? lang : undefined;
 
-  // Strip markdown before synthesis (council output contains **bold** and *italic*)
-  // Do NOT hyphenate brand names — hyphens cause TTS engines to mis-syllabify.
-  const stripMarkdown = (t: string) =>
+  // Normalize text before synthesis: strip markdown + adjust brand names for TTS
+  const prepareForTTS = (t: string) =>
     t
-      .replace(/\*\*([^*]+)\*\*/g, '$1') // **bold** → bold
-      .replace(/\*([^*]+)\*/g, '$1')     // *italic* → italic
-      .replace(/`([^`]+)`/g, '$1')       // `code` → code
-      .replace(/#{1,6}\s*/g, '');        // ## Heading → Heading
+      // Strip markdown (council output contains **bold**, *italic*, etc.)
+      .replace(/\*\*([^*]+)\*\*/g, '$1')
+      .replace(/\*([^*]+)\*/g, '$1')
+      .replace(/`([^`]+)`/g, '$1')
+      .replace(/#{1,6}\s*/g, '')
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      // Brand normalization: SYNTHIA → Sintia (avoids "Sinteo" mispronunciation)
+      // Do NOT hyphenate Kupuri — hyphens produced "Cúpula" regression
+      .replace(/\bSYNTHIA™?\b/g, 'Sintia')
+      .replace(/\bSynthia™?\b/g, 'Sintia');
 
-  const result = await synthesizeSphereVoice(agentId as SphereAgentId, stripMarkdown(text.trim()), {
+  const result = await synthesizeSphereVoice(agentId as SphereAgentId, prepareForTTS(text.trim()), {
     lang: langOpt,
     produced: produced === true,
   });

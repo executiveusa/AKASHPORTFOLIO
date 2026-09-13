@@ -254,8 +254,8 @@ export default function CockpitOverview() {
         />
         <MetricCard
           label="Revenue Hoy"
-          value={revenueUnavailable || todayUsd === null ? "—" : `$${(todayUsd * 17.5).toLocaleString("es-MX", { maximumFractionDigits: 0 })} MXN`}
-          sub={revenueUnavailable ? "datos no disponibles" : "USD × 17.5"}
+          value={revenueUnavailable || todayUsd === null ? "—" : `$${todayUsd.toFixed(2)} USD`}
+          sub={revenueUnavailable ? "datos no disponibles" : "fuente: Stripe + Creem"}
           status={revenueUnavailable ? "warn" : "ok"}
         />
         <MetricCard label="Alertas Activas" value={swarmData?.alertCount != null ? String(swarmData.alertCount) : "—"} sub="verificadas" status="ok" />
@@ -406,13 +406,19 @@ export default function CockpitOverview() {
         <div style={{ background: "var(--color-surface, #111118)", border: "1px solid var(--color-border, #1f1f2e)", borderRadius: 10, padding: 16 }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: "var(--color-muted, #6b6b85)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 10 }}>Estado del sistema</div>
           {[
-            { label: "Vercel",   status: "ok" as const },
-            { label: "Supabase", status: "ok" as const },
-            { label: "API LLM",  status: "ok" as const },
+            { label: "Vercel",   ok: true },
+            { label: "Supabase", ok: healthOk },
+            { label: "API LLM",  ok: !revenueUnavailable },
           ].map((item) => (
             <div key={item.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 8, marginBottom: 8, borderBottom: "1px solid var(--color-border, #1f1f2e)" }}>
               <span style={{ fontSize: 13, color: "var(--color-text, #e8e8f0)" }}>{item.label}</span>
-              <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, background: "#22c55e20", color: "#22c55e", fontWeight: 600 }}>Activo</span>
+              <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4,
+                background: item.ok === null ? "#f59e0b20" : item.ok ? "#22c55e20" : "#ef444420",
+                color: item.ok === null ? "#f59e0b" : item.ok ? "#22c55e" : "#ef4444",
+                fontWeight: 600
+              }}>
+                {item.ok === null ? "—" : item.ok ? "Activo" : "Caído"}
+              </span>
             </div>
           ))}
         </div>
