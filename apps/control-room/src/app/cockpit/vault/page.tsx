@@ -23,7 +23,7 @@ interface SecretEntry {
 
 const VAULT_MANIFEST: SecretEntry[] = [
   // API
-  { id: "1",  name: "ANTHROPIC_API_KEY",         category: "api",        status: "valid",    last_rotated: "2026-03-01", expires_at: null,         notes: "Claude 3.5 — primary LLM" },
+  { id: "1",  name: "ANTHROPIC_API_KEY",         category: "api",        status: "valid",    last_rotated: "2026-03-01", expires_at: null,         notes: "SYNTHIA — primary LLM" },
   { id: "2",  name: "OPEN_ROUTER_API",            category: "api",        status: "valid",    last_rotated: "2026-03-01", expires_at: null,         notes: "OpenRouter gateway" },
   { id: "3",  name: "ELEVENLABS_API_KEY",         category: "voice",      status: "valid",    last_rotated: "2026-02-15", expires_at: null,         notes: "Voice fallback" },
   { id: "4",  name: "MERCURY_API_KEY",            category: "voice",      status: "valid",    last_rotated: "2026-03-01", expires_at: null,         notes: "Mercury 2 primary voice" },
