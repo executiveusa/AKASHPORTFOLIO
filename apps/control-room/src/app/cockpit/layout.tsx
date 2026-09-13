@@ -132,7 +132,7 @@ function SidebarContent({ onNav }: { onNav?: () => void }) {
     <>
       {/* Logo */}
       <div style={{ padding: "20px 16px 12px", borderBottom: "1px solid var(--color-charcoal-600)" }}>
-        <Link href="/dashboard" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", marginBottom: 8, minHeight: 44 }}>
+        <Link href="/dashboard" aria-label="Volver a la aplicación" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", marginBottom: 8, minHeight: 44 }}>
           <span style={{ fontSize: 12, color: "var(--color-cream-600)" }}>← App</span>
         </Link>
         <div style={{ fontSize: 18, fontWeight: 600, color: "var(--color-gold-400)", fontFamily: "var(--font-display)" }}>
@@ -147,7 +147,7 @@ function SidebarContent({ onNav }: { onNav?: () => void }) {
       <nav style={{ flex: 1, overflowY: "auto", padding: "8px" }}>
         {NAV_SECTIONS.map((section) => (
           <div key={section.label} style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 11, fontWeight: 500, color: "var(--color-cream-600)", padding: "4px 16px", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+            <div style={{ fontSize: 11, fontWeight: 500, color: "var(--color-cream-400)", padding: "4px 16px", textTransform: "uppercase", letterSpacing: "0.08em" }}>
               {section.label}
             </div>
             {section.items.map((item) => {

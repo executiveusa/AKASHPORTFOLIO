@@ -152,6 +152,7 @@ export default function DashboardPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--color-bg)", color: "var(--color-text)", fontFamily: "var(--font-sans)", paddingBottom: 80 }}>
+      <h1 className="sr-only">Panel de control — SYNTHIA</h1>
 
       {/* Header */}
       <header style={{ padding: "20px 16px 14px", borderBottom: "1px solid var(--color-border)" }}>
@@ -172,7 +173,7 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main style={{ padding: 16 }}>
+      <div style={{ padding: 16 }}>
 
         {/* Metrics */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 24 }}>
@@ -224,7 +225,7 @@ export default function DashboardPage() {
           </div>
         </section>
 
-      </main>
+      </div>
 
       <UserNav />
     </div>

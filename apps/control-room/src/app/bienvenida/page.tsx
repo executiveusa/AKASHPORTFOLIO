@@ -181,6 +181,7 @@ export default function BienvenidaPage() {
   const [memo, setMemo]   = useState<string[]>([]);
   const [memoIsStatic, setMemoIsStatic] = useState(false);
   const briefTextRef = useRef('');
+  const meetingIdRef = useRef<string | null>(null);
   // Ref-tracked phase for use inside timeout callbacks (avoids stale closure)
   const phaseRef = useRef<'idle' | 'greeting' | 'running' | 'done'>('idle');
 
@@ -324,6 +325,22 @@ export default function BienvenidaPage() {
         busDisconnect();
         setMemo(buildStaticMemo(briefTextRef.current, lang as 'es' | 'en'));
         setMemoIsStatic(true);
+        // Attempt to fetch real council result
+        const mid = meetingIdRef.current;
+        if (mid) {
+          fetch(`/api/council?id=${mid}`)
+            .then(r => r.ok ? r.json() : null)
+            .then((d: { meeting?: { status?: string; decisions?: string[] } } | null) => {
+              if ((d?.meeting?.decisions && d.meeting.decisions.length > 0) || d?.meeting?.status === 'done') {
+                setMemoIsStatic(false);
+                const decisions = d?.meeting?.decisions ?? [];
+                if (decisions.length > 0) {
+                  setMemo(decisions);
+                }
+              }
+            })
+            .catch(() => {}); // silent — static memo is the fallback
+        }
         setPhase('done');
         setTourStep(2);
       }
@@ -403,6 +420,7 @@ export default function BienvenidaPage() {
 
       // Connect bus — routes council turns through MediaSource for TTFA
       busConnect(meetingId, { token: sseToken });
+      meetingIdRef.current = meetingId;
       // Arm initial watchdog
       armWatchdog();
 
@@ -462,6 +480,7 @@ export default function BienvenidaPage() {
         transition: reducedMotion ? 'none' : 'opacity 600ms ease',
       }}
     >
+      <h1 className="sr-only">Bienvenida — SYNTHIA</h1>
       <style>{`
         *, *::before, *::after { box-sizing: border-box; }
         body { margin: 0; }
@@ -611,9 +630,15 @@ export default function BienvenidaPage() {
                 letterSpacing: '0.06em',
                 textTransform: 'uppercase',
               }}
-              aria-label={STATIC_MEMO_LABEL[lang as 'es' | 'en']}
+              aria-label={meetingIdRef.current
+                ? 'Consejo en proceso — resultado aproximado'
+                : 'Sin consejo en vivo — demo'
+              }
             >
-              {STATIC_MEMO_LABEL[lang as 'es' | 'en'] ?? STATIC_MEMO_LABEL.es}
+              {meetingIdRef.current
+                ? 'Consejo en proceso — resultado aproximado'
+                : 'Sin consejo en vivo — demo'
+              }
             </div>
           )}
 
