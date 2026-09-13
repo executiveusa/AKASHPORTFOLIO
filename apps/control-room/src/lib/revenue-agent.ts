@@ -40,7 +40,8 @@ export interface RevenueSnapshot {
   sources: RevenueSource[];
   markets: MarketStatus[];
   streak: number; // consecutive days with revenue
-  topProduct: string;
+  topProduct: string | null;
+  unavailable?: boolean; // true when DB is unreachable and values are zeroed
 }
 
 export interface MarketStatus {
