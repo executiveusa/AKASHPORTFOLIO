@@ -79,9 +79,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       id: 'passcode',
       name: 'Passcode',
       credentials: { passcode: { label: 'Código de acceso', type: 'password' } },
-      async authorize() {
-        // AUTH DISABLED FOR TESTING — accepts any input, always signs in as owner.
-        // Re-enable: restore passcode check against process.env.SYNTHIA_PASSCODE
+      async authorize(credentials) {
+        const code = process.env.SYNTHIA_PASSCODE;
+        // If no passcode configured, fall back to a dev-only hardcoded value.
+        // Set SYNTHIA_PASSCODE in Vercel env vars to lock this down.
+        const expected = code || 'MORPHO-DEV-ONLY';
+        if ((credentials as { passcode?: string })?.passcode !== expected) return null;
         return { id: 'owner', email: 'executiveusa@gmail.com', name: 'Ivette' };
       },
     }),

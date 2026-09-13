@@ -540,16 +540,26 @@ function mapToCouncilEvent(
 
 const voiceQueues = new Map<string, Promise<void>>();
 
+function stripMarkdown(t: string): string {
+  return t
+    .replace(/\*\*([^*]+)\*\*/g, '$1') // **bold**
+    .replace(/\*([^*]+)\*/g, '$1')     // *italic*
+    .replace(/`([^`]+)`/g, '$1')       // `code`
+    .replace(/#{1,6}\s*/g, '')         // headings
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1'); // [link](url)
+}
+
 function enqueueVoiceTurn(
   meetingId: string,
   agentId: SphereAgentId,
   transcript: string,
   lang: VoiceLang,
 ): void {
+  const cleanTranscript = stripMarkdown(transcript);
   const prior = voiceQueues.get(meetingId) ?? Promise.resolve();
   const next = prior
     .then(() =>
-      speakTurn(meetingId, agentId, transcript, lang, (voiceEv: VoiceEvent) => {
+      speakTurn(meetingId, agentId, cleanTranscript, lang, (voiceEv: VoiceEvent) => {
         // voice.chunk is large — publish to subscribers but skip the replay buffer.
         // voice.words / voice.done / voice.fallback go into the buffer for late subscribers.
         const skipBuffer = voiceEv.type === 'voice.chunk';

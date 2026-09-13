@@ -61,8 +61,8 @@ export const TOUR_STEPS: TourStep[] = [
   {
     id: 'tour-bienvenida-2',
     anchor: 'memo',
-    textEs: 'Esto es el memo del consejo. Lo que requiera tu aprobación aparecerá junto a LA VIGILANTE.',
-    textEn: 'This is the council memo. Anything needing approval will appear next to LA VIGILANTE.',
+    textEs: 'Aquí aparece el resultado del consejo. Lo que requiera tu aprobación aparecerá junto a LA VIGILANTE.',
+    textEn: 'The council result appears here. Anything needing approval will appear next to LA VIGILANTE.',
   },
   {
     id: 'tour-spheres-1',

@@ -148,20 +148,21 @@ function RevenueWidget() {
       <div style={{ padding: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <div>
           <div style={{ fontSize: 11, color: "var(--color-cream-600)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Hoy</div>
-          <div style={{ fontSize: 20, fontWeight: 600, color: "var(--status-ok)" }}>$147.00</div>
-          <div style={{ fontSize: 11, color: "var(--color-cream-400)" }}>USD</div>
+          <div style={{ fontSize: 20, fontWeight: 600, color: "var(--status-ok)" }}>—</div>
+          <div style={{ fontSize: 11, color: "var(--color-cream-400)" }}>sin datos</div>
         </div>
         <div>
           <div style={{ fontSize: 11, color: "var(--color-cream-600)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Este Mes</div>
-          <div style={{ fontSize: 20, fontWeight: 600, color: "var(--color-gold-400)" }}>$2,340.00</div>
+          <div style={{ fontSize: 20, fontWeight: 600, color: "var(--color-gold-400)" }}>—</div>
           <div style={{ fontSize: 11, color: "var(--color-cream-400)" }}>USD</div>
         </div>
       </div>
       <div style={{ padding: "0 16px 12px", display: "flex", flexDirection: "column", gap: 6 }}>
+        <div style={{ fontSize: 12, color: "var(--color-cream-600)", padding: "4px 0" }}>Fuentes — sin datos disponibles</div>
         {[
-          { label: "Stripe", amount: "$1,200", pct: 51 },
-          { label: "Creem.io", amount: "$840", pct: 36 },
-          { label: "Crypto (DIS)", amount: "$300", pct: 13 },
+          { label: "Stripe", amount: "—", pct: 0 },
+          { label: "Creem.io", amount: "—", pct: 0 },
+          { label: "Crypto (DIS)", amount: "—", pct: 0 },
         ].map((s) => (
           <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 12, color: "var(--color-cream-400)", minWidth: 60 }}>{s.label}</span>
@@ -189,6 +190,9 @@ function RevenueWidget() {
 export default function CockpitOverview() {
   const [swarmData, setSwarmData] = useState<SwarmData | null>(null);
   const [now, setNow] = useState(new Date());
+  const [healthOk, setHealthOk] = useState<boolean | null>(null);
+  const [todayUsd, setTodayUsd] = useState<number | null>(null);
+  const [revenueUnavailable, setRevenueUnavailable] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 30000);
@@ -205,6 +209,20 @@ export default function CockpitOverview() {
     loadSwarm();
     const interval = setInterval(loadSwarm, 15000);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    // Health check — drives "Salud del Sistema" card honestly
+    fetch("/api/health").then(r => r.ok ? r.json() : null).then(d => {
+      if (d) setHealthOk(d.components?.supabase?.connected === true);
+    }).catch(() => setHealthOk(false));
+    // Revenue — honest, returns 0 when DB unavailable
+    fetch("/api/revenue").then(r => r.ok ? r.json() : null).then(d => {
+      if (d?.snapshot) {
+        setTodayUsd(d.snapshot.todayUsd ?? 0);
+        setRevenueUnavailable(!!d.snapshot.unavailable);
+      }
+    }).catch(() => setRevenueUnavailable(true));
   }, []);
 
   const agentsWithStatus = SPHERES.map((s) => ({
@@ -227,12 +245,22 @@ export default function CockpitOverview() {
 
       {/* KPI row */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginBottom: 24 }}>
-        <MetricCard label="Agentes Activos" value="9 / 9" sub="+ La Vigilante" status="ok" />
-        <MetricCard label="Salud del Sistema" value="98%" sub="Todos los servicios OK" status="ok" />
-        <MetricCard label="Revenue Hoy" value="$147" sub="+23% vs ayer" status="ok" />
-        <MetricCard label="Alertas Activas" value="0" sub="Sin incidentes" status="ok" />
-        <MetricCard label="Reuniones Hoy" value="2" sub="Standup + estrategia" />
-        <MetricCard label="Tareas Pendientes" value="4" sub="3 en progreso" />
+        <MetricCard label="Agentes Activos" value={swarmData ? `${swarmData.agents?.length ?? '—'} / 9` : "—"} sub="esferas del consejo" status="ok" />
+        <MetricCard
+          label="Salud del Sistema"
+          value={healthOk === null ? "—" : healthOk ? "OK" : "Degradado"}
+          sub={healthOk === null ? "verificando..." : healthOk ? "Todos los servicios OK" : "Base de datos no disponible"}
+          status={healthOk === null ? undefined : healthOk ? "ok" : "error"}
+        />
+        <MetricCard
+          label="Revenue Hoy"
+          value={revenueUnavailable || todayUsd === null ? "—" : `$${(todayUsd * 17.5).toLocaleString("es-MX", { maximumFractionDigits: 0 })} MXN`}
+          sub={revenueUnavailable ? "datos no disponibles" : "USD × 17.5"}
+          status={revenueUnavailable ? "warn" : "ok"}
+        />
+        <MetricCard label="Alertas Activas" value={swarmData?.alertCount != null ? String(swarmData.alertCount) : "—"} sub="verificadas" status="ok" />
+        <MetricCard label="Reuniones Hoy" value={swarmData?.activeMeetings != null ? String(swarmData.activeMeetings) : "—"} sub="en curso" />
+        <MetricCard label="Tareas Pendientes" value="—" sub="abre /tareas para ver" />
       </div>
 
       {/* Main grid */}
