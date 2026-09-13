@@ -528,39 +528,57 @@ export default function BienvenidaPage() {
 
       {/* Input — hidden after done */}
       {phase !== 'done' && (
-        <div style={{ width: '100%', maxWidth: 520, display: 'flex', gap: 8 }}>
-          <input
-            ref={inputRef}
-            type="text"
-            value={brief}
-            onChange={(e) => setBrief(e.target.value)}
-            onKeyDown={handleKeyDown}
-            onFocus={() => { void handleGesture(); }}
-            enterKeyHint="go"
-            placeholder={PLACEHOLDER[lang as 'es' | 'en'] ?? PLACEHOLDER.es}
-            autoFocus
-            disabled={phase === 'running'}
-            aria-label={PLACEHOLDER[lang as 'es' | 'en'] ?? PLACEHOLDER.es}
-            style={{
-              flex: 1,
-              background: 'rgba(255,255,255,0.04)',
-              border: `1px solid ${BORDER}`,
-              borderRadius: 8,
-              color: TEXT_FULL,
-              fontSize: 14,
-              fontFamily: isSans,
-              padding: '11px 14px',
-              outline: 'none',
-              opacity: phase === 'running' ? 0.5 : 1,
-              transition: 'border-color 150ms, opacity 150ms',
-            }}
-            onFocusCapture={(e) => {
-              e.currentTarget.style.borderColor = ACCENT_BORDER;
-            }}
-            onBlurCapture={(e) => {
-              e.currentTarget.style.borderColor = BORDER;
-            }}
-          />
+        <div style={{ width: '100%', maxWidth: 520, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input
+              ref={inputRef}
+              type="text"
+              value={brief}
+              onChange={(e) => setBrief(e.target.value)}
+              onKeyDown={handleKeyDown}
+              onFocus={() => { void handleGesture(); }}
+              enterKeyHint="go"
+              placeholder={PLACEHOLDER[lang as 'es' | 'en'] ?? PLACEHOLDER.es}
+              autoFocus
+              disabled={phase === 'running'}
+              aria-label={PLACEHOLDER[lang as 'es' | 'en'] ?? PLACEHOLDER.es}
+              style={{
+                flex: 1,
+                background: 'rgba(255,255,255,0.04)',
+                border: `1px solid ${BORDER}`,
+                borderRadius: 8,
+                color: TEXT_FULL,
+                fontSize: 14,
+                fontFamily: isSans,
+                padding: '12px 14px',
+                minHeight: 44,
+                outline: 'none',
+                opacity: phase === 'running' ? 0.5 : 1,
+                transition: 'border-color 150ms, opacity 150ms',
+              }}
+              onFocusCapture={(e) => {
+                e.currentTarget.style.borderColor = ACCENT_BORDER;
+              }}
+              onBlurCapture={(e) => {
+                e.currentTarget.style.borderColor = BORDER;
+              }}
+            />
+          </div>
+          {/* Loading state — visible while council is starting */}
+          {phase === 'running' && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              fontSize: 12, color: 'rgba(232,233,238,0.5)',
+              padding: '4px 2px',
+            }}>
+              <span style={{
+                display: 'inline-block', width: 8, height: 8, borderRadius: '50%',
+                background: 'rgba(139,92,246,0.7)',
+                animation: 'pulse 1.2s ease-in-out infinite',
+              }} />
+              {lang === 'es' ? 'Convocando al consejo…' : 'Convening the council…'}
+            </div>
+          )}
         </div>
       )}
 

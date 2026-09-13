@@ -101,6 +101,10 @@
   border-radius: 4px;
 }
 
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
 @keyframes gold-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }
@@ -115,7 +119,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 16px;
+  padding: 10px 16px;
+  min-height: 44px; /* Apple HIG touch target */
   border-radius: 6px;
   color: var(--color-cream-400);
   font-size: 14px;
