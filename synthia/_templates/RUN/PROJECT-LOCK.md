@@ -1,0 +1,18 @@
+# Project lock
+```yaml
+mode: brownfield
+outcome: ""
+target: ""
+primary_action: ""
+bar_ref: ""
+constraints: []
+protected_assets: []
+proof_required: []
+commercial_value: ""
+classification: SELL|USE|MERGE|PARK|ARCHIVE
+workstream: revenue_offer|shared_platform|bounded_experiment|parked
+owner_approval_required: []
+```
+## Facts
+
+## Assumptions

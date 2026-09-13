@@ -48,7 +48,7 @@ kupuri-media-cdmx/
 │   ├── src/lib/                # 50+ lib files (herald, vibe-graph, synthia-api, litellm...)
 │   ├── src/agents/             # alex/, fantasmas/, la-vigilante/, spheres/
 │   ├── src/components/         # InviteGate, Footer, Breadcrumb, Theater components
-│   └── .vercel/                # Connected: prj_gxvQdKNFxWIkEb37UsFqfyoOoThA
+│   └── .vercel/                # Vercel: akashportfolio-control-room prj_xOBfVwhVLycT4yJLABHjSmUkUTPn (root apps/control-room)
 ├── apps/web/                   # Static landing page (Vite)
 ├── apps/onboarding-flipbook/   # Onboarding UI
 ├── backend/                    # Rust Axum — future VPS backend (NOT used for MVP)

@@ -5,7 +5,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 function getDb() {
-  const url = process.env.SUPABASE_URL;
+  // SUPABASE_URL (server-only) or NEXT_PUBLIC_SUPABASE_URL (both) as fallback
+  const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) return null;
   return createClient(url, key, {

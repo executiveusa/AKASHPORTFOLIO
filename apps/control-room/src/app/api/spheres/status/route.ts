@@ -1,39 +1,58 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser, toErrorResponse } from "@/lib/auth/guards";
+import { getRegistrySnapshot } from "@/lib/council/registry";
+import { SPHERE_FREQUENCY_MAP } from "@/shared/sphere-state";
+import type { SphereAgentId } from "@/shared/council-events";
 
 /**
  * GET /api/spheres/status — live sphere status feed
- * Returns each sphere with status: active | standby | error
+ * Returns each sphere merged with SPHERE_FREQUENCY_MAP display metadata.
+ * No cache: consumers poll every 5 s.
  */
 export const dynamic = "force-dynamic";
 
-const SPHERES = [
-  { id: "synthia",   name: "SYNTHIA",      role: "Coordinadora General",    color: "#8b5cf6" },
-  { id: "alex",      name: "ALEX",         role: "Estratega Ejecutivo",     color: "#d4af37" },
-  { id: "cazadora",  name: "CAZADORA",     role: "Cazadora de Oportunidades", color: "#ef4444" },
-  { id: "forjadora", name: "FORJADORA",    role: "Arquitecta de Sistemas",  color: "#22c55e" },
-  { id: "seductora", name: "SEDUCTORA",    role: "Closera Maestra",         color: "#eab308" },
-  { id: "consejo",   name: "CONSEJO",      role: "Consejero Mayor",         color: "#1d4ed8" },
-  { id: "economia",  name: "DR. ECONOMÍA", role: "Analista Financiero",     color: "#f97316" },
-  { id: "cultura",   name: "DRA. CULTURA", role: "Estratega Cultural",      color: "#f43f5e" },
-  { id: "teknos",    name: "ING. TEKNOS",  role: "Ingeniero de Sistemas",   color: "#06b6d4" },
-];
-
 export async function GET(_req: NextRequest) {
   try { await requireUser(); } catch (e) { return toErrorResponse(e); }
-  // In production: query DB / agent state store
-  // For now: return stable standby state so the UI has something to show
-  const spheres = SPHERES.map((s) => ({
-    ...s,
-    status: "standby" as const,
-    task: null,
-    last_active: null,
+
+  const snapshot = getRegistrySnapshot();
+
+  const spheres = (Object.keys(SPHERE_FREQUENCY_MAP) as SphereAgentId[]).map(id => {
+    const meta = SPHERE_FREQUENCY_MAP[id];
+    const live = snapshot.spheres[id];
+    return {
+      id,
+      displayName: meta.displayName,
+      role: meta.role,
+      locale: meta.locale,
+      color: meta.baseColor,
+      status: live?.status ?? "standby",
+      lastSignalAt: live?.lastSignalAt ?? null,
+      turnsToday: live?.turnsToday ?? 0,
+      lastTranscript: live?.lastTranscript ?? null,
+      meetingId: live?.meetingId ?? null,
+    };
+  });
+
+  const activeMeetings = snapshot.activeMeetings.map(m => ({
+    meetingId: m.meetingId,
+    topic: m.topic,
+    agentIds: m.agentIds,
+    startedAt: m.startedAt,
+    lastSpeaker: m.lastSpeaker,
+    turns: m.turns,
   }));
 
-  return NextResponse.json({
-    ok: true,
-    spheres,
-    active_count: 0,
-    timestamp: new Date().toISOString(),
-  });
+  return NextResponse.json(
+    {
+      ok: true,
+      spheres,
+      activeMeetings,
+      activeCount: snapshot.activeMeetings.length,
+      updatedAt: snapshot.updatedAt,
+      uptimeSec: snapshot.uptimeSec,
+    },
+    {
+      headers: { "Cache-Control": "no-store" },
+    },
+  );
 }

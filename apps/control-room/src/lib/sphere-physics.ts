@@ -195,15 +195,13 @@ export function tickCouncilField(field: CouncilField, dt: number): CouncilField 
 // ---------------------------------------------------------------------------
 
 export function applyEventToField(field: CouncilField, event: CouncilEvent): CouncilField {
-  const newField = { ...field, spheres: new Map(field.spheres) };
-
   if (event.type === 'sphere.signal') {
-    const { agentId, amplitude, kind, targetIds, durationMs } = event;
-    const sphere = newField.spheres.get(agentId);
+    const { agentId, amplitude, kind, targetIds } = event;
+    const sphere = field.spheres.get(agentId);
     if (!sphere) return field;
 
-    // Boost energy and mark as speaking
-    newField.spheres.set(agentId, {
+    const newSpheres = new Map(field.spheres);
+    newSpheres.set(agentId, {
       ...sphere,
       speakingNow: true,
       energy: Math.min(1.0, sphere.energy + amplitude * 0.2),
@@ -214,9 +212,9 @@ export function applyEventToField(field: CouncilField, event: CouncilEvent): Cou
     // ALIGN: entrain target spheres
     if (kind === 'ALIGN' && targetIds) {
       for (const targetId of targetIds) {
-        const target = newField.spheres.get(targetId);
+        const target = newSpheres.get(targetId);
         if (target) {
-          newField.spheres.set(
+          newSpheres.set(
             targetId,
             applyAlignEntrainment(target, sphere.frequency_hz, amplitude * 0.2)
           );
@@ -224,25 +222,53 @@ export function applyEventToField(field: CouncilField, event: CouncilEvent): Cou
       }
     }
 
-    // Schedule speaking-off after durationMs (caller manages the timer)
-    // We just record the signal here
+    return { ...field, spheres: newSpheres };
   }
 
   if (event.type === 'meeting.begin') {
-    // Reset coherence for all spheres
-    for (const [id, s] of newField.spheres) {
-      newField.spheres.set(id, { ...s, coherence: 0.4, energy: 0.8 });
+    const newSpheres = new Map(field.spheres);
+    for (const [id, s] of newSpheres) {
+      newSpheres.set(id, { ...s, coherence: 0.4, energy: 0.8 });
     }
+    return { ...field, spheres: newSpheres };
   }
 
   if (event.type === 'meeting.closing') {
-    // Set coherence to the reported value
-    for (const [id, s] of newField.spheres) {
-      newField.spheres.set(id, { ...s, coherence: Math.max(s.coherence, event.coherence) });
+    const newSpheres = new Map(field.spheres);
+    for (const [id, s] of newSpheres) {
+      newSpheres.set(id, { ...s, coherence: Math.max(s.coherence, event.coherence) });
     }
+    return { ...field, spheres: newSpheres };
   }
 
-  return newField;
+  // All other event types (meeting.focus, meeting.end, node.spawn, agent_contribute,
+  // and any future variants) are deliberately no-ops: return the field unchanged.
+  return field;
+}
+
+// ---------------------------------------------------------------------------
+// Set speaking state + RMS-based energy boost for a sphere
+// Called by CouncilBus at ~60 Hz while audio is playing.
+// ---------------------------------------------------------------------------
+
+export function setSpeaking(
+  field: CouncilField,
+  agentId: SphereAgentId,
+  speaking: boolean,
+  rms: number,
+): CouncilField {
+  const sphere = field.spheres.get(agentId);
+  if (!sphere) return field;
+  const newSpheres = new Map(field.spheres);
+  newSpheres.set(agentId, {
+    ...sphere,
+    speakingNow: speaking,
+    // Boost energy proportional to RMS while in-word; cap at 1.0
+    energy: speaking
+      ? Math.min(1.0, sphere.energy + rms * 0.2)
+      : sphere.energy,
+  });
+  return { ...field, spheres: newSpheres };
 }
 
 // ---------------------------------------------------------------------------

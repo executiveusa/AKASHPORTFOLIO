@@ -57,12 +57,6 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  async redirects() {
-    return [
-      { source: "/", destination: "/landing", permanent: false },
-    ];
-  },
-
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },

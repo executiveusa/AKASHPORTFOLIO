@@ -40,7 +40,8 @@ export interface RevenueSnapshot {
   sources: RevenueSource[];
   markets: MarketStatus[];
   streak: number; // consecutive days with revenue
-  topProduct: string;
+  topProduct: string | null;
+  unavailable?: boolean; // true when DB is unreachable and values are zeroed
 }
 
 export interface MarketStatus {
@@ -96,16 +97,17 @@ export async function getRevenueSnapshot(): Promise<RevenueSnapshot> {
       topProduct: "Synthia Starter Plan ($299/yr)",
     };
   } catch {
-    // Fallback with demo data
+    // Honest unavailable state — no fabricated numbers
     return {
       date: today,
-      todayUsd: 147,
-      monthUsd: 2340,
-      yearUsd: 28080,
-      sources: getDefaultSources(),
-      markets: getDefaultMarkets(),
-      streak: 12,
-      topProduct: "Synthia Starter Plan ($299/yr)",
+      todayUsd: 0,
+      monthUsd: 0,
+      yearUsd: 0,
+      unavailable: true,
+      sources: [],
+      markets: [],
+      streak: 0,
+      topProduct: null,
     };
   }
 }

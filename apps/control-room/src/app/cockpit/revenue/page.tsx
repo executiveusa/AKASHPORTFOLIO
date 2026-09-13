@@ -145,14 +145,14 @@ export default function RevenuePage() {
         </button>
       </div>
 
-      {/* Revenue KPIs */}
+      {/* Revenue KPIs — honest: "—" until DB is connected */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
         {[
-          { label: "Hoy", value: "$147", sub: "+12% vs ayer" },
-          { label: "Este Mes", value: `$${totalMonthly.toLocaleString()}`, sub: `${sources.filter(s => s.status === "active").length} fuentes activas` },
-          { label: "Mercados Activos", value: `$${activeMarketRevenue.toLocaleString()}`, sub: `${markets.filter(m => m.status === "active").length} de ${markets.length} países` },
-          { label: "Pipeline Estimado", value: `$${(strategyPipeline).toLocaleString()}/mo`, sub: `${strategies.filter(s => s.status === "active").length} estrategias activas` },
-          { label: "Racha", value: "12 días", sub: "Ingresos consecutivos" },
+          { label: "Hoy", value: "—", sub: "conecta Supabase para ver datos" },
+          { label: "Este Mes", value: "—", sub: "sin datos disponibles" },
+          { label: "Mercados Activos", value: "—", sub: "sin datos disponibles" },
+          { label: "Pipeline Estimado", value: "—", sub: "sin datos disponibles" },
+          { label: "Racha", value: "—", sub: "sin datos disponibles" },
         ].map((kpi) => (
           <div key={kpi.label} className="panel" style={{ padding: 16 }}>
             <div style={{ fontSize: 12, color: "var(--color-cream-400)", marginBottom: 4 }}>{kpi.label}</div>

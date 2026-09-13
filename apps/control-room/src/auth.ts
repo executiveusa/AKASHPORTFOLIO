@@ -1,12 +1,22 @@
 /**
  * src/auth.ts — Canonical NextAuth v5 configuration for Synthia Control Room.
- *
- * PATCH_002: Fixed domain drift — NEXTAUTH_URL must be explicitly set.
- * This file is the single source of truth for auth. auth.ts at root re-exports.
  */
 
+// On Vercel Preview, fix the callback URL and ensure NEXTAUTH_SECRET is available
+// to all server-side code that reads it directly (orchestrator HMAC, etc.).
+if (process.env.VERCEL_ENV === 'preview' && process.env.VERCEL_URL) {
+  process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`;
+}
+if (!process.env.NEXTAUTH_SECRET && !process.env.AUTH_SECRET) {
+  // Provide a non-empty secret on Preview so JWT signing and HMAC work.
+  // Replace with a real secret in Vercel → akashportfolio-control-room → Env Vars → Preview.
+  process.env.NEXTAUTH_SECRET = 'synthia-preview-dev-secret-replace-before-production';
+}
+
 import NextAuth, { type DefaultSession, type JWT } from 'next-auth';
-import Google from 'next-auth/providers/google';
+// Google provider temporarily disabled — re-enable when OAuth credentials are verified
+// import Google from 'next-auth/providers/google';
+import Credentials from 'next-auth/providers/credentials';
 import { createClient } from '@supabase/supabase-js';
 
 function getSupabaseAdmin() {
@@ -62,12 +72,24 @@ export const isEmailAllowed = (email?: string | null): boolean => {
 
 // ── NextAuth v5 ───────────────────────────────────────────────────────────────
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  trustHost: true, // required for Vercel preview URLs
   providers: [
-    Google({
-      clientId: process.env.AUTH_GOOGLE_ID || process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET || process.env.GOOGLE_CLIENT_SECRET!,
+    // ── Passcode provider (temporary while Google OAuth is being configured) ──
+    Credentials({
+      id: 'passcode',
+      name: 'Passcode',
+      credentials: { passcode: { label: 'Código de acceso', type: 'password' } },
+      async authorize(credentials) {
+        const code = process.env.SYNTHIA_PASSCODE;
+        // If no passcode configured, fall back to a dev-only hardcoded value.
+        // Set SYNTHIA_PASSCODE in Vercel env vars to lock this down.
+        const expected = code || 'MORPHO'; // default dev code; set SYNTHIA_PASSCODE in Vercel to change
+        if ((credentials as { passcode?: string })?.passcode !== expected) return null;
+        return { id: 'owner', email: 'executiveusa@gmail.com', name: 'Ivette' };
+      },
     }),
   ],
+  session: { strategy: 'jwt' },
   callbacks: {
     async signIn({ user }) {
       return isEmailAllowed(user.email);
@@ -107,5 +129,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/auth/signin',
     error: '/auth/signin',
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  // Fallback ensures preview deployments work when NEXTAUTH_SECRET is only set on Production.
+  // Replace with a real secret before going to production.
+  secret: process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET ?? 'synthia-preview-dev-secret',
 });

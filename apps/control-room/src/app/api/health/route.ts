@@ -15,7 +15,7 @@ export async function GET() {
         const agents = await synthiaSwarm.listAllAgents();
 
         return NextResponse.json({
-            status: 'healthy',
+            status: supabaseHealth.connected ? 'healthy' : 'degraded',
             timestamp: new Date().toISOString(),
             components: {
                 supabase: supabaseHealth,

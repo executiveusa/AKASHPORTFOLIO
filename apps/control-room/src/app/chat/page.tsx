@@ -3,6 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useRef, useState } from "react";
+import { ModelSwitcher, useSelectedModel } from "@/components/ModelSwitcher";
 import { usePathname } from "next/navigation";
 import { loadICMContext } from "@/lib/icm/context-loader";
 import { UserNav } from "@/components/UserNav";
@@ -89,6 +90,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([WELCOME]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [model, setModel] = useSelectedModel();
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -110,7 +112,7 @@ export default function ChatPage() {
       const res = await fetch("/api/synthia/agent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, icm_stage: icm.stage, icm_context: icm.roleInstruction }),
+        body: JSON.stringify({ message: text, model, icm_stage: icm.stage, icm_context: icm.roleInstruction }),
       });
 
       if (res.ok) {
@@ -119,7 +121,7 @@ export default function ChatPage() {
           id: (Date.now() + 1).toString(),
           role: "assistant",
           content: data.reply ?? "Entendido. Estoy procesando tu solicitud.",
-          agent_used: data.agent_used,
+          agent_used: data.agent_used ? `${data.agent_used} · ${(data.model ?? model).split("/").pop()}` : undefined,
           cost_cents: data.cost_cents,
           bead_id: data.bead_id,
           ts: Date.now(),
@@ -156,6 +158,9 @@ export default function ChatPage() {
         <div>
           <div style={{ fontSize: 15, fontWeight: 600, color: "var(--color-text)" }}>Synthia</div>
           <div style={{ fontSize: 11, color: "#22c55e" }}>● en línea</div>
+        </div>
+        <div style={{ marginLeft: "auto" }}>
+          <ModelSwitcher value={model} onChange={setModel} />
         </div>
       </header>
 

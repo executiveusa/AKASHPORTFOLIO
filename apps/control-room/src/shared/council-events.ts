@@ -138,3 +138,68 @@ export function isValidCouncilEvent(e: unknown): e is CouncilEvent {
   const ev = e as Record<string, unknown>;
   return typeof ev.t === 'number' && typeof ev.type === 'string' && typeof ev.meetingId === 'string';
 }
+
+// ---------------------------------------------------------------------------
+// Voice & approval events — added in RUN-001 N3 for CouncilBus integration
+// ---------------------------------------------------------------------------
+
+/** UI language for voice synthesis and display */
+export type VoiceLang = 'es' | 'en';
+
+export type VoiceEvent =
+  | {
+      t: number;
+      type: 'voice.chunk';
+      meetingId: string;
+      agentId: SphereAgentId;
+      /** Client-side correlation key grouping chunks for one utterance */
+      contextId: string;
+      /** Base-64 encoded audio fragment */
+      data: string;
+    }
+  | {
+      t: number;
+      type: 'voice.words';
+      meetingId: string;
+      agentId: SphereAgentId;
+      contextId: string;
+      words: string[];
+      /** Start times in seconds (relative to utterance start) */
+      start: number[];
+      /** End times in seconds (relative to utterance start) */
+      end: number[];
+    }
+  | {
+      t: number;
+      type: 'voice.done';
+      meetingId: string;
+      agentId: SphereAgentId;
+      contextId: string;
+    }
+  | {
+      t: number;
+      type: 'voice.fallback';
+      meetingId: string;
+      agentId: SphereAgentId;
+      /** Plain-text fallback when audio synthesis fails */
+      text: string;
+      /** Why audio was not produced (e.g. 'voice_budget', 'RIME_API_TOKEN missing', 'ws timeout') */
+      reason?: string;
+    }
+  | {
+      t: number;
+      type: 'approval.required';
+      meetingId: string;
+      /** Unique request ID — used by the approval badge */
+      id: string;
+      reason: string;
+      /** La Vigilante emits this when a gate fires; optional for other agents */
+      agentId?: SphereAgentId;
+    };
+
+/**
+ * Expanded union: all events that can arrive on the orchestrator SSE stream.
+ * Consumers should match on `event.type`; unknown type strings must be
+ * ignored gracefully (future-proofing).
+ */
+export type AnyCouncilEvent = CouncilEvent | VoiceEvent;

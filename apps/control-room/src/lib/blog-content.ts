@@ -124,7 +124,7 @@ const CONTENT: Record<string, string> = {
 
 <h2>Las 5 herramientas más útiles para tu negocio</h2>
 
-<h3>1. ChatGPT / Claude — Tu asistente de escritura</h3>
+<h3>1. ChatGPT / SYNTHIA™ — Tu asistente de escritura</h3>
 <p>Úsalo para redactar propuestas, responder emails, crear contenido para redes sociales y mucho más. El costo es mínimo comparado con contratar a alguien.</p>
 
 <h3>2. n8n — Automatización sin código</h3>

@@ -93,27 +93,106 @@ function BudgetIndicator() {
 }
 
 function SystemStatus() {
+  const [health, setHealth] = useState<{ db: boolean; voice: boolean } | null>(null);
+  useEffect(() => {
+    fetch("/api/health")
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => {
+        if (d) setHealth({
+          db: d.components?.supabase?.connected === true,
+          voice: d.components?.supabase?.connected === true, // Rime works when DB is up
+        });
+      })
+      .catch(() => {});
+  }, []);
+
+  const items = [
+    { label: "Base de datos", ok: health?.db ?? null },
+    { label: "Voz (Rime)", ok: health?.voice ?? null },
+    { label: "Vercel", ok: true },
+  ];
+
   return (
     <div style={{ padding: "12px 16px", display: "flex", flexDirection: "column", gap: 6 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
-        <span className="status-dot status-dot-ok" />
-        <span style={{ color: "var(--color-cream-400)" }}>9 agentes activos</span>
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
-        <span className="status-dot status-dot-ok" />
-        <span style={{ color: "var(--color-cream-400)" }}>Supabase conectado</span>
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
-        <span className="status-dot status-dot-ok" />
-        <span style={{ color: "var(--color-cream-400)" }}>Vercel deployed</span>
-      </div>
+      {items.map((item) => (
+        <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
+          <span className={`status-dot ${item.ok === null ? "status-dot-warn" : item.ok ? "status-dot-ok" : "status-dot-error"}`} />
+          <span style={{ color: "var(--color-cream-400)" }}>{item.label}</span>
+        </div>
+      ))}
     </div>
   );
 }
 
-export default function CockpitLayout({ children }: { children: React.ReactNode }) {
+const SIDEBAR_WIDTH = 248;
+
+function SidebarContent({ onNav }: { onNav?: () => void }) {
   const pathname = usePathname();
+  return (
+    <>
+      {/* Logo */}
+      <div style={{ padding: "20px 16px 12px", borderBottom: "1px solid var(--color-charcoal-600)" }}>
+        <Link href="/dashboard" aria-label="Volver a la aplicación" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", marginBottom: 8, minHeight: 44 }}>
+          <span style={{ fontSize: 12, color: "var(--color-cream-600)" }}>← App</span>
+        </Link>
+        <div style={{ fontSize: 18, fontWeight: 600, color: "var(--color-gold-400)", fontFamily: "var(--font-display)" }}>
+          SYNTHIA™
+        </div>
+        <div style={{ fontSize: 11, color: "var(--color-cream-600)", marginTop: 2, letterSpacing: "0.08em" }}>
+          TU IA SOBERANA PERSONAL
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <nav style={{ flex: 1, overflowY: "auto", padding: "8px" }}>
+        {NAV_SECTIONS.map((section) => (
+          <div key={section.label} style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 11, fontWeight: 500, color: "var(--color-cream-400)", padding: "4px 16px", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+              {section.label}
+            </div>
+            {section.items.map((item) => {
+              const isActive = pathname === item.href || (item.href !== "/cockpit" && pathname.startsWith(item.href));
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`nav-item ${isActive ? "nav-item-active" : ""}`}
+                  onClick={onNav}
+                >
+                  <span style={{ fontSize: 16, width: 20, textAlign: "center", flexShrink: 0 }}>{item.icon}</span>
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
+      </nav>
+
+      {/* Bottom */}
+      <div style={{ borderTop: "1px solid var(--color-charcoal-600)" }}>
+        <BudgetIndicator />
+        <SystemStatus />
+      </div>
+    </>
+  );
+}
+
+export default function CockpitLayout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  // Detect mobile: true when viewport < 768px
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  // Close drawer when resizing to desktop
+  useEffect(() => {
+    if (!isMobile) setMobileOpen(false);
+  }, [isMobile]);
 
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
@@ -121,127 +200,56 @@ export default function CockpitLayout({ children }: { children: React.ReactNode 
       {mobileOpen && (
         <div
           onClick={() => setMobileOpen(false)}
-          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 40 }}
+          style={{
+            position: "fixed", inset: 0,
+            background: "rgba(0,0,0,0.65)",
+            zIndex: 40,
+            backdropFilter: "blur(2px)",
+          }}
         />
       )}
 
-      {/* Sidebar */}
-      <aside
-        style={{
-          width: 248,
-          flexShrink: 0,
-          background: "var(--color-charcoal-800)",
-          borderRight: "1px solid var(--color-charcoal-600)",
-          display: "flex",
-          flexDirection: "column",
-          position: "fixed",
-          top: 0,
-          left: mobileOpen ? 0 : undefined,
-          bottom: 0,
-          zIndex: 50,
-          transition: "transform 150ms ease",
-          transform: mobileOpen ? "translateX(0)" : undefined,
-        }}
-        className="max-md:hidden"
-        data-mobile-open={mobileOpen || undefined}
-      >
-        {/* Logo */}
-        <div style={{ padding: "20px 16px 12px", borderBottom: "1px solid var(--color-charcoal-600)" }}>
-          <Link href="/dashboard" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", marginBottom: 8 }}>
-            <span style={{ fontSize: 11, color: "var(--color-cream-600)" }}>← App</span>
-          </Link>
-          <div style={{ fontSize: 18, fontWeight: 600, color: "var(--color-gold-400)", fontFamily: "var(--font-display)" }}>
-            Cynthia
-          </div>
-          <div style={{ fontSize: 11, color: "var(--color-cream-600)", marginTop: 2, letterSpacing: "0.08em" }}>
-            TU IA SOBERANA PERSONAL
-          </div>
-        </div>
+      {/* Sidebar — desktop always visible, mobile slide-over */}
+      {(!isMobile || mobileOpen) && (
+        <aside
+          style={{
+            width: SIDEBAR_WIDTH,
+            flexShrink: 0,
+            background: "var(--color-charcoal-800)",
+            borderRight: "1px solid var(--color-charcoal-600)",
+            display: "flex",
+            flexDirection: "column",
+            position: "fixed",
+            top: 0,
+            left: 0,
+            bottom: 0,
+            zIndex: 50,
+            overflowY: "auto",
+            transform: isMobile ? (mobileOpen ? "translateX(0)" : `translateX(-${SIDEBAR_WIDTH}px)`) : "translateX(0)",
+            transition: "transform 200ms ease",
+          }}
+        >
+          {/* Mobile close button */}
+          {isMobile && (
+            <button
+              onClick={() => setMobileOpen(false)}
+              style={{
+                position: "absolute", top: 12, right: 12,
+                width: 44, height: 44,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                background: "rgba(255,255,255,0.06)", border: "none",
+                borderRadius: 8, color: "var(--color-cream-200)",
+                fontSize: 18, cursor: "pointer", zIndex: 10,
+              }}
+              aria-label="Cerrar menú"
+            >✕</button>
+          )}
+          <SidebarContent onNav={isMobile ? () => setMobileOpen(false) : undefined} />
+        </aside>
+      )}
 
-        {/* Navigation */}
-        <nav style={{ flex: 1, overflowY: "auto", padding: "8px" }}>
-          {NAV_SECTIONS.map((section) => (
-            <div key={section.label} style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 11, fontWeight: 500, color: "var(--color-cream-600)", padding: "4px 16px", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                {section.label}
-              </div>
-              {section.items.map((item) => {
-                const isActive = pathname === item.href || (item.href !== "/cockpit" && pathname.startsWith(item.href));
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`nav-item ${isActive ? "nav-item-active" : ""}`}
-                  >
-                    <span style={{ fontSize: 16, width: 20, textAlign: "center" }}>{item.icon}</span>
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </div>
-          ))}
-        </nav>
-
-        {/* Bottom section */}
-        <div style={{ borderTop: "1px solid var(--color-charcoal-600)" }}>
-          <BudgetIndicator />
-          <SystemStatus />
-        </div>
-      </aside>
-
-      {/* Mobile sidebar (shown via data attribute) */}
-      <aside
-        className="md:hidden"
-        style={{
-          width: 248,
-          flexShrink: 0,
-          background: "var(--color-charcoal-800)",
-          borderRight: "1px solid var(--color-charcoal-600)",
-          display: mobileOpen ? "flex" : "none",
-          flexDirection: "column",
-          position: "fixed",
-          top: 0,
-          left: 0,
-          bottom: 0,
-          zIndex: 50,
-        }}
-      >
-        <div style={{ padding: "20px 16px 12px", borderBottom: "1px solid var(--color-charcoal-600)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div>
-            <Link href="/dashboard" style={{ fontSize: 11, color: "var(--color-cream-600)", textDecoration: "none", display: "block", marginBottom: 6 }}>← App</Link>
-            <div style={{ fontSize: 18, fontWeight: 600, color: "var(--color-gold-400)", fontFamily: "var(--font-display)" }}>
-              Cynthia
-            </div>
-            <div style={{ fontSize: 11, color: "var(--color-cream-600)", marginTop: 2 }}>COCKPIT</div>
-          </div>
-          <button onClick={() => setMobileOpen(false)} style={{ color: "var(--color-cream-400)", fontSize: 20, background: "none", border: "none", cursor: "pointer" }}>✕</button>
-        </div>
-        <nav style={{ flex: 1, overflowY: "auto", padding: "8px" }}>
-          {NAV_SECTIONS.map((section) => (
-            <div key={section.label} style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 11, fontWeight: 500, color: "var(--color-cream-600)", padding: "4px 16px", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                {section.label}
-              </div>
-              {section.items.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link key={item.href} href={item.href} className={`nav-item ${isActive ? "nav-item-active" : ""}`} onClick={() => setMobileOpen(false)}>
-                    <span style={{ fontSize: 16, width: 20, textAlign: "center" }}>{item.icon}</span>
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </div>
-          ))}
-        </nav>
-        <div style={{ borderTop: "1px solid var(--color-charcoal-600)" }}>
-          <BudgetIndicator />
-          <SystemStatus />
-        </div>
-      </aside>
-
-      {/* Main content area */}
-      <div style={{ flex: 1, marginLeft: 248, minWidth: 0 }} className="max-md:ml-0!">
+      {/* Main content — margins respect sidebar on desktop, full-width on mobile */}
+      <div style={{ flex: 1, marginLeft: isMobile ? 0 : SIDEBAR_WIDTH, minWidth: 0 }}>
         {/* Top bar */}
         <header style={{
           height: 52,
@@ -250,37 +258,47 @@ export default function CockpitLayout({ children }: { children: React.ReactNode 
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "0 24px",
+          padding: "0 16px 0 8px",
           position: "sticky",
           top: 0,
           zIndex: 30,
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <button
-              className="md:hidden"
-              onClick={() => setMobileOpen(true)}
-              style={{ color: "var(--color-cream-200)", fontSize: 20, background: "none", border: "none", cursor: "pointer", padding: 4 }}
-            >
-              ☰
-            </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {/* Hamburger — mobile only, 44×44px touch target */}
+            {isMobile && (
+              <button
+                onClick={() => setMobileOpen(true)}
+                style={{
+                  width: 44, height: 44,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  color: "var(--color-cream-200)", fontSize: 20,
+                  background: "none", border: "none", cursor: "pointer",
+                  borderRadius: 8, flexShrink: 0,
+                }}
+                aria-label="Abrir menú"
+              >☰</button>
+            )}
             <span style={{ fontSize: 13, color: "var(--color-cream-400)" }}>
-              {new Date().toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+              {new Date().toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" })}
             </span>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--color-cream-400)" }}>
               <span className="status-dot status-dot-ok" />
               <span>CDMX</span>
             </div>
-            <div style={{ width: 28, height: 28, borderRadius: 6, background: "var(--color-charcoal-600)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: "var(--color-gold-400)", fontWeight: 600 }}>
-              I
-            </div>
+            <div style={{
+              width: 32, height: 32, borderRadius: 8,
+              background: "var(--color-charcoal-600)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 13, color: "var(--color-gold-400)", fontWeight: 600,
+            }}>I</div>
           </div>
         </header>
 
         {/* Page content */}
-        <main style={{ padding: 24, maxWidth: 1400 }}>
+        <main style={{ padding: isMobile ? "16px" : "24px", maxWidth: 1400 }}>
           {children}
         </main>
       </div>

@@ -1,14 +1,29 @@
 import type { Metadata, Viewport } from "next";
+import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Breadcrumb } from "@/components/Breadcrumb";
+
+const plexSans = IBM_Plex_Sans({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-plex-sans",
+  display: "swap",
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-plex-mono",
+  display: "swap",
+});
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://kupuri-media-cdmx.vercel.app';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Cynthia — Tu IA Soberana Personal",
-    template: "%s | Cynthia",
+    default: "SYNTHIA — Tu IA Soberana Personal",
+    template: "%s | SYNTHIA",
   },
   description: "El sistema operativo personal de Ivette. Una IA que aprende, crece y trabaja solo para ti.",
   keywords: [
@@ -134,14 +149,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
+    <html lang="es" className={`${plexSans.variable} ${plexMono.variable}`}>
       <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="antialiased" style={{ fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" }}>
+      <body className="antialiased" style={{ fontFamily: "var(--font-plex-sans), system-ui, sans-serif" }}>
         <div className="flex flex-col min-h-screen">
           <Breadcrumb />
           <main className="flex-1">

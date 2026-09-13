@@ -447,7 +447,7 @@ export default function SynthiaLandingPage() {
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link
-              href="/auth/signin?callbackUrl=/onboarding"
+              href="/auth/signin?callbackUrl=/"
               style={{
                 padding: '14px 32px', fontSize: 15, fontWeight: 700,
                 background: GOLD6, color: BG, borderRadius: 8,
@@ -688,7 +688,7 @@ export default function SynthiaLandingPage() {
           </h2>
           <p style={{ fontSize: 16, color: CREAM4, lineHeight: 1.7, marginBottom: 36 }}>{t.cta_section.description}</p>
           <Link
-            href="/auth/signin?callbackUrl=/onboarding"
+            href="/auth/signin?callbackUrl=/"
             style={{
               display: 'inline-block',
               padding: '16px 40px', fontSize: 16, fontWeight: 800,
